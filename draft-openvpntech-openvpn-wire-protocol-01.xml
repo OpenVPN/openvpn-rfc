@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="US-ASCII"?>
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
+<!-- One method to get references from the online citation libraries.
+    There has to be one entity for each item to be referenced.
+    An alternate method (rfc include) is described in the references. -->
+
+<!ENTITY RFC2119 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
+<!ENTITY RFC2629 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2629.xml">
+<!ENTITY RFC3552 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3552.xml">
+<!ENTITY RFC5226 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5226.xml">
+]>
+<!-- give errors regarding ID-nits and DTD validation -->
+<?rfc strict="yes" ?>
+<!-- control the table of contents (ToC) -->
+<?rfc toc="yes"?>
+<!-- the number of levels of subsections in ToC. default: 3 -->
+<?rfc tocdepth="3"?>
+<!-- control references -->
+<!-- use symbolic references tags, i.e, [RFC2119] instead of [1] -->
+<?rfc symrefs="yes"?>
+<!-- sort the reference entries alphabetically -->
+<?rfc sortrefs="yes" ?>
+<!-- control vertical white space
+    (using these PIs as follows is recommended by the RFC Editor) -->
+<?rfc compact="yes" ?>
+<!-- keep one blank line between list items -->
+<?rfc subcompact="no" ?>
+<!-- end of list of popular I-D processing instructions -->
+
+<rfc category="info" docName="draft-openvpntech-openvpn-wire-protocol-01" ipr="trust200902">
+ <!-- category values: std, bcp, info, exp, and historic
+    ipr values: trust200902, noModificationTrust200902, noDerivativesTrust200902,
+       or pre5378Trust200902
+    you can add the attributes updates="NNNN" and obsoletes="NNNN"
+    they will automatically be output with "(if approved)" -->
+
+ <front>
+    <title abbrev="OpenVPN Wire Protocol">OpenVPN Wire Protocol</title>
+    <author fullname="David Sommerseth" initials="D." surname="Sommerseth">
+      <organization>OpenVPN Technologies, Inc</organization>
+      <address>
+        <email>david.sommerseth@openvpn.net</email>
+      </address>
+    </author>
+
+    <author fullname="Steffan Karger" initials="S." surname="Karger">
+      <organization>Fox-IT</organization>
+      <address>
+        <email>steffan.karger@fox-it.com</email>
+      </address>
+    </author>
+
+    <date year="2016"/> <!-- Can add day="XX" month="YYY" later on -->
+
+    <keyword>OpenVPN</keyword>
+    <keyword>protocol</keyword>
+
+    <abstract>
+      <t>
+        OpenVPN is an open source SSL/TLS based VPN solution which had
+        its first release in May 2001.  This document describes the wire
+        protocol OpenVPN makes use of for establishing end-to-end-
+        connections.  Even though OpenVPN bases its communication on
+        SSL/TLS, it is not a traditional SSL/TLS protocol which utilizes
+        only TCP.  OpenVPN supports some enhanced security features as
+        well as providing SSL/TLS connections both over TCP as well as
+        UDP.
+      </t>
+    </abstract>
+  </front>
+
+  <middle>
+    <section title="Introduction">
+      <t>
+        OpenVPN is an open source SSL/TLS based VPN soltion which was
+        first released in 2001.  The communication between OpenVPN
+        instances are based on SSL/TLS but it has added several
+        additional features on top of the standard SSL/TLS protocol.
+        The wire protocol this document describes will go into the
+        depths of how OpenVPN processes communicates with each other.
+      </t>
+      <t>
+        The wire protocol is dynamic, which means it will be slightly
+        different depending on which features the OpenVPN processes have
+        been configured to use.  New implementations SHOULD implement all
+        features.
+      </t>
+
+      <section title="Requirements Language">
+        <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+        "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+        document are to be interpreted as described in <xref target="RFC2119">RFC 2119</xref>.</t>
+      </section>
+
+    </section>
+
+    <section title="The OpenVPN Wire Protocol">
+      <t>
+        Since OpenVPN can work both in a traditional server-client setup
+        as well as a peer-to-peer setup, this document tries to avoid the
+        concept of server and clients.  It will be refered to these as
+        either the local or remote sites.  In a peer-to-peer setup only
+        a single tunnel can be established, while in a server-client setup
+        several clients can connect to a single server at the same time.
+      </t>
+
+      <section title="Generic wire packet structure">
+        <figure>
+          <artwork><![CDATA[
++---------+---------+--------+------------+------+~
+| pkt_len | op_code | key_id | session_id | HMAC |~
++---------+---------+--------+------------+------+~
+
+  ~+-----------+-----------+---------+
+  ~| packet_id | timestamp | payload |
+  ~+-----------+-----------+---------+
+        ]]></artwork>
+        <!-- TODO: Include peer-id -->
+        </figure>
+
+        <t>
+          These fields represents all possible features in OpenVPN.  Not
+          all of them are necessarily in use in all configurations.  Below
+          is a table describing when to expect these different fields:
+        </t>
+        <texttable>
+          <ttcol>Field name</ttcol>
+          <ttcol align="right">Length (bits)</ttcol>
+          <ttcol align="center">TCP/UDP</ttcol>
+          <ttcol align="center">TLS mode</ttcol>
+          <ttcol align="center">TLS auth</ttcol>
+          <ttcol>Comment</ttcol>
+
+          <c>pkt_len</c>
+          <c>16</c>
+          <c>TCP</c>
+          <c></c>
+          <c></c>
+          <c>Packet size</c>
+
+          <c>op_code</c>
+          <c>5</c>
+          <c>TCP/UDP</c>
+          <c>X</c>
+          <c></c>
+          <c></c>
+
+          <c>key_id</c>
+          <c>3</c>
+          <c>TCP/UDP</c>
+          <c>X</c>
+          <c></c>
+          <c></c>
+
+          <c>session_id</c>
+          <c>64</c>
+          <c>TCP/UDP</c>
+          <c>X</c>
+          <c></c>
+          <c></c>
+
+          <c>HMAC</c>
+          <c>128-160</c>
+          <c>TCP/UDP</c>
+          <c>X</c>
+          <c>X</c>
+          <c></c>
+
+          <c>packet_id</c>
+          <c>32</c>
+          <c>TCP/UDP</c>
+          <c>X</c>
+          <c>X</c>
+          <c></c>
+
+          <c>timestamp</c>
+          <c>32</c>
+          <c>TCP/UDP</c>
+          <c>X</c>
+          <c>X</c>
+          <c>OPTIONAL</c>
+
+          <c>payload</c>
+          <c>(var)</c>
+          <c>TCP/UDP</c>
+          <c>*</c>
+          <c>*</c>
+          <c>REQUIRED</c>
+
+        </texttable>
+        <t>
+          An OpenVPN wire packet constists of a control channel packet and
+          a data channel packet and is multiplexed by the OpenVPN process.
+          The control channel packet is responsible for the TLS/SSL
+          establishing, passing configuration paramters between the local
+          and the remote site and other management and control parameters.
+          The data channel packet (payload) is the encrypted network data
+          to be passed between the local and remote site.
+        </t>
+      </section>
+
+      <section title="TCP and UDP transport modes">
+        <t>TBD</t>
+      </section>
+
+      <section title="TLS and peer-to-peer modes">
+        <t>TBD</t>
+      </section>
+
+      <section title="HMAC packet authentication">
+        <t>TBD</t>
+      </section>
+
+      <section title="Packet replay protection">
+        <t>TBD</t>
+      </section>
+
+      <section title="Peer-ID and floating IP addresses">
+        <t>TBD</t>
+      </section>
+
+    </section>
+
+    <section title="Cryptography">
+      <section title="OpenVPN and the SSL/TLS protocol">
+        <t>TBD</t>
+      </section>
+
+      <section title="Cipher negotiation">
+        <t>TBD</t>
+      </section>
+
+      <section title="TLS mode and PKI">
+        <t>TBD</t>
+      </section>
+    </section>
+
+    <section title="User authentication">
+      <section title="User/password authentication">
+        <t>TBD</t>
+      </section>
+
+      <section title="Challenge-Response authentication">
+        <t>TBD</t>
+      </section>
+
+    </section>
+  </middle>
+
+  <back>
+   <references title="Normative References">
+     <!--?rfc include="http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml"?-->
+     &RFC2119;
+   </references>
+  </back>
+</rfc>
