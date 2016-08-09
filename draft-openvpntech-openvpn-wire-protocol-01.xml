@@ -200,7 +200,18 @@
       </section>
 
       <section title="TCP and UDP transport modes">
-        <t>TBD</t>
+        <t>
+          OpenVPN is capable of using both UDP and TCP for transporting
+          SSL/TLS traffic.  The SSL/TLS protocol is strictly written for
+          TCP but OpenVPN makes that possible through encapsulating the
+          SSL/TLS packets and adding a reliability layer to avoid issues
+          when packets gets resent.
+        </t>
+        <t>
+          The wire packet identical for both transport modes with one
+          exception.  The TCP packets carry a 16 bits packet length
+          indicator of the whole packet to be read. [FIXME: Verify statement]
+        </t>
       </section>
 
       <section title="TLS and peer-to-peer modes">
