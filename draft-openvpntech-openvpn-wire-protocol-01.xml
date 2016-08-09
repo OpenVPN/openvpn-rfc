@@ -265,7 +265,47 @@
       </section>
 
       <section title="HMAC packet authentication">
-        <t>TBD</t>
+        <t>
+          HMAC authentication enables an additional authentication on
+          the packet level.  HMAC authentication is only possible with
+          the TLS mode enabled, as it extends the control channel with
+          additional fields.  This HMAC authentication comes on top of
+          the HMAC processing already present in the SSL/TLS protocol.
+        </t>
+        <t>
+          This authentication can strengthen the overall security on
+          both client and server side as OpenVPN will validate the HMAC
+          signature before it is sent to the SSL/TLS layer for decryption.
+          This can protect server and client from SSL/TLS protocol
+          issues from all users not having access to a valid HMAC key.
+        </t>
+        <t>
+          The keys used for HMAC signatures are static and shared between
+          server and all clients.  The signature being added is based on
+          a SHA1 hash of ... [FIXME: verify and extend; what about --auth? is MD5 really supported nowadays?]
+        </t>
+        <t>
+          The field for the HMAC signature is restricted to be between 128
+          and 160 bits long.  For SHA1 based signatures it will be 160 bits.
+        </t>
+
+        <section title="HMAC subkeys"> <!-- FIXME: improve langauge all over -->
+          <t>
+            This packet authentication requires two keys, each key being
+            160 bits long [FIXME: Verify statement].
+          </t>
+          <t>
+            In OpenVPN terminology, which key each sides uses is
+            defined by the key-direction.  All clients MUST use the
+            same key (key-direction) and the server MUST use the
+            other key when signing packets it is going to send.
+          </t>
+          <t>
+            As both sides have both keys, it will use the other
+            key (reverse key-direction) for verifying the senders
+            HMAC signature.
+          </t>
+        </section>
       </section>
 
       <section title="Packet replay protection">
