@@ -272,10 +272,15 @@
         <t>TBD</t>
       </section>
 
+      <section title="Pushing configuration options and OCC">
+        <t>
+          TBD>
+        </t>
+      </section>
+
       <section title="Peer-ID and floating IP addresses">
         <t>TBD</t>
       </section>
-
     </section>
 
     <section title="Cryptography">
