@@ -215,7 +215,53 @@
       </section>
 
       <section title="TLS and peer-to-peer modes">
-        <t>TBD</t>
+        <section title="Peer-to-peer mode">
+        <t>
+          The OpenVPN protocol can be used both for site-to-site
+          configurations which does not make use of any TLS features, so
+          called peer-to-peer mode.  In this mode there is no control
+          channel  [FIXME: Verify statement] and all the data on the wire is the encrypted network
+          traffic.
+        </t>
+        <t>
+          Due to the restriction of not having a control channel in
+          peer-to-peer mode the protocol, it is not possible to add any
+          particular authentication methods.  It is also not possible to
+          transport any configuration parameters over the wire.
+        </t>
+        <t>
+          Peer-to-peer mode also depends on a shared secret key between
+          both ends of the VPN tunnel.  Again, as there is are no SSL/TLS
+          handshakes between either side, this method does not have any
+          possibilties to enable Perfect Forward Secrecy (PFS).  The
+          data channel is encrypted solely by the shared secret.
+        </t>
+        </section>
+
+        <section title="TLS mode">
+        <t>
+          With TLS mode the control channel gets activated and this
+          requires both sides to make use of private keys and
+          X.509 Certificates.  These requirements are due to this
+          operational mode utilizing the TLS/SSL protocol [FIXME: Add RFC links].
+          This mode is also the only operational mode which uses the
+          client-server terminology in OpenVPN.
+        </t>
+        <t>
+          The use of X.509 certificates on the client side is OPTIONAL
+          and it is REQUIRED on the server side.  It is highly RECOMMENDED
+          to always enable user/password authentication when X.509
+          client certificates is not used.
+        </t>
+        <t>
+          It is highly RECOMMENDED to enforce certificate authentication
+          against a locally stored Certificate Authority (CA) certificate.
+        </t>
+        <t>
+          [FIXME: explain more what happens on the wire during the
+                  SSL/TLS handshake and certificate authentication]
+        </t>
+        </section>
       </section>
 
       <section title="HMAC packet authentication">
