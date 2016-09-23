@@ -319,6 +319,43 @@
 
     </section>
 
+    <section title="Communictaion channels">
+      <t>
+        OpenVPN communictates over two channels which are multiplexed over the
+        same connection; control channel and data channel.  The control
+        channel is used for passing configuration and environment data between
+        each side of the tunnel, including encryption session keys.  The data
+        channel carries the encrypted tunnel data.  The OPCODE determins which
+        channel the packet belongs to.
+      </t>
+
+      <section title="The OPCODE">
+        <t>
+          Each packet should contain an OPCODE at a predictalbe possition
+          within each packet.  This defines which information records to be
+          expected on the wire.
+
+          The OPCODE is found as the first 5 bits of the first OpenVPN wire packet.
+        </t>
+      </section>
+
+      <section title="The Control Channel">
+        <t>
+          The control channel is used to pass configuration and environment
+          information between the server and client.
+        </t>
+
+        <section title="PUSH messages">
+        </section>
+
+        <section title="Peer-Info">
+        </section>
+      </section>
+
+      <section title="The Data Channel">
+      </section>
+    </section>
+
     <section title="Peer-ID">
       <t>
         The Peer-ID implementation is optional.  This purpose of this feature
