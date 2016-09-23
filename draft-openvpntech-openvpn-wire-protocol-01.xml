@@ -4,10 +4,13 @@
     There has to be one entity for each item to be referenced.
     An alternate method (rfc include) is described in the references. -->
 
+<!ENTITY RFC2104 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2104.xml">
 <!ENTITY RFC2119 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
 <!ENTITY RFC2629 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2629.xml">
 <!ENTITY RFC3552 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3552.xml">
 <!ENTITY RFC5226 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5226.xml">
+<!ENTITY RFC5246 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5246.xml">
+<!ENTITY RFC5280 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5280.xml">
 ]>
 <!-- give errors regarding ID-nits and DTD validation -->
 <?rfc strict="yes" ?>
@@ -241,8 +244,8 @@
         <t>
           With TLS mode the control channel gets activated and this
           requires both sides to make use of private keys and
-          X.509 Certificates.  These requirements are due to this
-          operational mode utilizing the TLS/SSL protocol [FIXME: Add RFC links].
+          <xref target="RFC5280">X.509</xref> Certificates.  These requirements are due to this
+          operational mode utilizing the  <xref target="RFC5246">TLS/SSL</xref> protocol
           This mode is also the only operational mode which uses the
           client-server terminology in OpenVPN.
         </t>
@@ -265,7 +268,7 @@
 
       <section title="HMAC packet authentication">
         <t>
-          HMAC authentication enables an additional authentication on
+           <xref target="RFC2104">HMAC authentication</xref> enables an additional authentication on
           the packet level.  HMAC authentication is only possible with
           the TLS mode enabled, as it extends the control channel with
           additional fields.  This HMAC authentication comes on top of
@@ -288,7 +291,7 @@
           and 160 bits long.  For SHA1 based signatures it will be 160 bits.
         </t>
 
-        <section title="HMAC subkeys"> <!-- FIXME: improve langauge all over -->
+        <section title="HMAC authentication subkeys"> <!-- FIXME: improve langauge all over -->
           <t>
             This packet authentication requires two keys, each key being
             160 bits long [FIXME: Verify statement].
@@ -385,7 +388,7 @@
 
           <c>9</c>
           <c>Data</c>
-          <c>DATA_V1</c>
+          <c>DATA_V2</c>
           <c>Current</c>
         </texttable>
       </section>
@@ -585,8 +588,17 @@
 
   <back>
    <references title="Normative References">
+     <!--?rfc include="http://xml.resource.org/public/rfc/bibxml/reference.RFC.2104.xml"?-->
+     &RFC2104;
+
      <!--?rfc include="http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml"?-->
      &RFC2119;
+
+     <!--?rfc include="http://xml.resource.org/public/rfc/bibxml/reference.RFC.5246.xml"?-->
+     &RFC5246;
+
+     <!--?rfc include="http://xml.resource.org/public/rfc/bibxml/reference.RFC.5280.xml"?-->
+     &RFC5280;
    </references>
   </back>
 </rfc>
