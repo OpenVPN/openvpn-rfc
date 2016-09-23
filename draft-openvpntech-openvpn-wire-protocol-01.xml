@@ -115,7 +115,6 @@
   ~| packet_id | timestamp | payload |
   ~+-----------+-----------+---------+
         ]]></artwork>
-        <!-- TODO: Include peer-id -->
         </figure>
 
         <t>
@@ -314,12 +313,103 @@
 
       <section title="Pushing configuration options and OCC">
         <t>
-          TBD>
+          TBD
         </t>
       </section>
 
-      <section title="Peer-ID and floating IP addresses">
-        <t>TBD</t>
+    </section>
+
+    <section title="Peer-ID">
+      <t>
+        The Peer-ID implementation is optional.  This purpose of this feature
+        is to allow a client to float between various client IP addresses and
+        UDP ports without loosing the session and re-trigger a new round of
+        authentication.
+      </t>
+      <section title="Requirements">
+        <t>
+          Each client implementation which implements Peer-ID support must
+          support the IV_PROTO=2 wire protocol and MUST indicate this to
+          the server through the peer-info packet..  The data tunnel format,
+          DATA_V2, MUST be fully implemented.  In addition the client MUST
+          accept the peer-id option being passed via a PUSH_REPLY message from
+          the server to the client.  The ID received SHOULD be used in all
+          future references to the server, only to be ignored if either side
+          disables the Peer-ID support.
+        </t>
+        <t>
+          A client CANNOT make use of the DATA_V2 format UNLESS the server have
+          provided the client with a peer-id through the PUSH_REPLY message.
+        </t>
+        <t>
+          Server implementation MUST support the IV_PROTO=2 and the data tunnel
+          format, DATA_V2.  In addition the server needs to evaluate the response
+          from the client before sending a peer-id option to the client.
+        </t>
+      </section>
+      <section title="Disabling Peer-ID">
+        <t>
+          Either client or server can enforce the Peer-ID to be disabled by
+          setting the Peer-ID value to be 0xFFFFFF..
+        </t>
+      </section>
+      <section title="Allowing floating clients">
+        <t>
+          The server MUST perfom a complete set of checks before allowing
+          a client to float.  When a client floats it means that the
+          established encryption keys will be reused if the client's source
+          IP address or source port changes.  Reasons for such changes can
+          be NAT firewalls interrupting longer lasting established
+          connections, mobile devices moving from WLAN to a mobile data
+          carrier (such as GPRS, 3G, LTE, etc) and similar scenarios.
+        </t>
+
+        <section title="Server checks for floating clients">
+          <t>
+            The server MUST ensure the packet integrity is intact, through
+            checking HMAC or GCM authentication tags, replay protection, etc
+            of the DATA_V2 packet.
+
+            In addition, the server MUST ensure the float does not clobber
+            a pre-existing client, such as a the client floating to a source
+            IP address used by a different client unless it can be verified
+            that the pre-existing client is a previous instance of the
+            floating client.
+
+            [FIXME: Verify.  What if several independent clients float to same source IP?]
+          </t>
+        </section>
+        <section title="Peer-ID in the wire packet">
+          <figure>
+            <artwork><![CDATA[
++---------+---------+---------+--------------+
+| op_code | key_id  | peer-id | data payload |
++---------+---------+---------+--------------+
+]]></artwork>
+          </figure>
+
+          <texttable>
+            <ttcol>Field name</ttcol>
+            <ttcol align="right">Length (bits)</ttcol>
+            <ttcol>Description</ttcol>
+
+            <c>op_code</c>
+            <c>5</c>
+            <c>Must always be DATA_V2 (integer value 9)</c>
+
+            <c>key_id</c>
+            <c>3</c>
+            <c></c>
+
+            <c>peer-id</c>
+            <c>24</c>
+            <c>Peer-ID of the client.  If set to 0xFFFFFF Peer-ID functionality is disabled</c>
+
+            <c>data payload</c>
+            <c>(var)</c>
+            <c>Encrypted data packet containing tunnel data</c>
+          </texttable>
+        </section>
       </section>
     </section>
 
