@@ -14,7 +14,7 @@
 <!-- control the table of contents (ToC) -->
 <?rfc toc="yes"?>
 <!-- the number of levels of subsections in ToC. default: 3 -->
-<?rfc tocdepth="3"?>
+<?rfc tocdepth="2"?>
 <!-- control references -->
 <!-- use symbolic references tags, i.e, [RFC2119] instead of [1] -->
 <?rfc symrefs="yes"?>
@@ -337,6 +337,57 @@
 
           The OPCODE is found as the first 5 bits of the first OpenVPN wire packet.
         </t>
+        <texttable>
+          <ttcol>OPCODE</ttcol>
+          <ttcol>Channel</ttcol>
+          <ttcol>Short name</ttcol>
+          <ttcol>Status</ttcol>
+
+          <c>1</c>
+          <c>Control</c>
+          <c>CONTROL_HARD_RESET_CLIENT_V1</c>
+          <c>Obsolete</c>
+
+          <c>2</c>
+          <c>Control</c>
+          <c>CONTROL_HARD_RESET_SERVER_V1</c>
+          <c>Obsolete</c>
+
+          <c>3</c>
+          <c>Control</c>
+          <c>CONTROL_SOFT_RESET_V1</c>
+          <c>Current</c>
+
+          <c>4</c>
+          <c>Control</c>
+          <c>CONTROL_V1</c>
+          <c>Current</c>
+
+          <c>5</c>
+          <c>Control</c>
+          <c>ACK_V1</c>
+          <c>Current</c>
+
+          <c>6</c>
+          <c>Data</c>
+          <c>DATA_V1</c>
+          <c>Current</c>
+
+          <c>7</c>
+          <c>Control</c>
+          <c>CONTROL_HARD_RESET_CLIENT_V2</c>
+          <c>Current</c>
+
+          <c>8</c>
+          <c>Control</c>
+          <c>CONTROL_HARD_RESET_SERVER_V2</c>
+          <c>Current</c>
+
+          <c>9</c>
+          <c>Data</c>
+          <c>DATA_V1</c>
+          <c>Current</c>
+        </texttable>
       </section>
 
       <section title="The Control Channel">
@@ -344,6 +395,50 @@
           The control channel is used to pass configuration and environment
           information between the server and client.
         </t>
+
+        <section title="[OPCODE ID 1] CONTROL_HARD_RESET_CLIENT_V1">
+          <t>
+            Initial key from client, forget previous state
+            [ TODO: Find out when it was deprecated ]
+          </t>
+        </section>
+
+        <section title="[OPCODE ID 2] CONTROL_HARD_RESET_SERVER_V1">
+          <t>
+            Initial key from server, forget previous state
+            [ TODO: Find out when it was deprecated ]
+          </t>
+        </section>
+
+        <section title="[OPCODE ID 3] CONTROL_SOFT_RESET_V1">
+          <t>
+            New key, graceful transition from old to new
+          </t>
+        </section>
+
+        <section title="[OPCODE ID 4] CONTROL_V1">
+          <t>
+            Control channel packet, usually TLS cipher text
+          </t>
+        </section>
+
+        <section title="[OPCODE ID 5] ACK_V1">
+          <t>
+            Ackknowledgement for received packets
+          </t>
+        </section>
+
+        <section title="[OPCODE ID 7] CONTROL_HARD_RESET_CLIENT_V2">
+          <t>
+            Initial key from client, forget previous state
+          </t>
+        </section>
+
+        <section title="[OPCODE ID 8] CONTROL_HARD_RESET_SERVER_V2">
+          <t>
+            Initial key from server, forget previous state.
+          </t>
+        </section>
 
         <section title="PUSH messages">
         </section>
@@ -353,6 +448,18 @@
       </section>
 
       <section title="The Data Channel">
+        <section title="[OPCODE ID 6] DATA_V1">
+          <t>
+            Data channel packet, 1-byte header
+          </t>
+        </section>
+
+        <section title="[OPCODE ID 9] DATA_V2">
+          <t>
+            Data channel packet with 4-byte header.  The lower 24 bits
+            are used for Peer-ID.
+          </t>
+        </section>
       </section>
     </section>
 
