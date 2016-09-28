@@ -186,13 +186,14 @@
         </section>
       </section>
 
-      <section title="HMAC packet authentication">
+      <section title="HMAC authentication of control channel packets">
         <t>
-           <xref target="RFC2104">HMAC authentication</xref> enables an additional authentication on
-          the packet level.  HMAC authentication is only possible with
-          the TLS mode enabled, as it extends the control channel with
-          additional fields.  This HMAC authentication comes on top of
-          the HMAC processing already present in the SSL/TLS protocol.
+          <xref target="RFC2104">HMAC authentication</xref> enables an
+          additional authentication on the packet level.  HMAC
+          authentication is only possible with TLS mode and will only
+          impact the control channel.  The data channel is already
+          protected by HMAC authentication embedded in the SSL/TLS
+          payload.
         </t>
         <t>
           This authentication can strengthen the overall security on
@@ -203,29 +204,25 @@
         </t>
         <t>
           The keys used for HMAC signatures are static and shared between
-          server and all clients.  The signature being added is based on
-          a SHA1 hash of ... [FIXME: verify and extend; what about --auth? is MD5 really supported nowadays?]
-        </t>
-        <t>
-          The field for the HMAC signature is restricted to be between 128
-          and 160 bits long.  For SHA1 based signatures it will be 160 bits.
+          server and all clients.  The default hashing algorithm is HMAC-SHA1
+          but any hashing algorithms supported by the SSL/TLS protocol can
+          be used as long as the clients and server uses the same algorithm.
+          The choice of hashing algorithms defines the length of the HMAC
+          field in the control packet.  HMAC-SHA1 uses 20 bytes, HMAC-SHA512
+          uses 64 bytes.
         </t>
 
-        <section title="HMAC authentication subkeys"> <!-- FIXME: improve langauge all over -->
+        <section title="HMAC authentication subkeys">
           <t>
-            This packet authentication requires two keys, each key being
-            160 bits long [FIXME: Verify statement].
-          </t>
-          <t>
-            In OpenVPN terminology, which key each sides uses is
-            defined by the key-direction.  All clients MUST use the
-            same key (key-direction) and the server MUST use the
-            other key when signing packets it is going to send.
-          </t>
-          <t>
-            As both sides have both keys, it will use the other
-            key (reverse key-direction) for verifying the senders
-            HMAC signature.
+            HMAC packet authentication requires two independent and
+            preshared static keys for the authentication.  One key
+            is used for signing packets and the other key is used
+            to verify signatures from the remote side.  The OpenVPN
+            terminology for this is key-direction.  The key-direction
+            defines which set of keys is used for signing and for
+            verification.  Alle clients MUST use the same
+            key-direction while the server MUST use the oposite
+            key-direction.
           </t>
         </section>
       </section>
