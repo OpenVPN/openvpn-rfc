@@ -126,14 +126,14 @@
         </t>
       </section>
 
-      <section title="TLS and peer-to-peer modes">
+      <section title="Peer-to-peer and TLS operational modes">
         <section title="Peer-to-peer mode">
         <t>
           The OpenVPN protocol can be used both for site-to-site
           configurations which does not make use of any TLS features, so
           called peer-to-peer mode.  In this mode there is no control
-          channel  [FIXME: Verify statement] and all the data on the wire is the encrypted network
-          traffic.
+          channel and all the data on the wire is plain encrypted packets
+          transported over a standard UDP or TCP connection.
         </t>
         <t>
           Due to the restriction of not having a control channel in
@@ -143,10 +143,12 @@
         </t>
         <t>
           Peer-to-peer mode also depends on a shared secret key between
-          both ends of the VPN tunnel.  Again, as there is are no SSL/TLS
+          both ends of the VPN tunnel.  Again, as there are no SSL/TLS
           handshakes between either side, this method does not have any
           possibilties to enable Perfect Forward Secrecy (PFS).  The
-          data channel is encrypted solely by the shared secret.
+          data channel is encrypted solely by the shared static secret.
+          This mode does not negotiate any ephemeral session keys for the
+          tunnelled data.
         </t>
         </section>
 
