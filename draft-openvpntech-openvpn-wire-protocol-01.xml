@@ -107,100 +107,6 @@
         several clients can connect to a single server at the same time.
       </t>
 
-      <section title="Generic wire packet structure">
-        <figure>
-          <artwork><![CDATA[
-+---------+---------+--------+------------+------+~
-| pkt_len | op_code | key_id | session_id | HMAC |~
-+---------+---------+--------+------------+------+~
-
-  ~+-----------+-----------+---------+
-  ~| packet_id | timestamp | payload |
-  ~+-----------+-----------+---------+
-        ]]></artwork>
-        </figure>
-
-        <t>
-          These fields represents all possible features in OpenVPN.  Not
-          all of them are necessarily in use in all configurations.  Below
-          is a table describing when to expect these different fields:
-        </t>
-        <texttable>
-          <ttcol>Field name</ttcol>
-          <ttcol align="right">Length (bits)</ttcol>
-          <ttcol align="center">TCP/UDP</ttcol>
-          <ttcol align="center">TLS mode</ttcol>
-          <ttcol align="center">TLS auth</ttcol>
-          <ttcol>Comment</ttcol>
-
-          <c>pkt_len</c>
-          <c>16</c>
-          <c>TCP</c>
-          <c></c>
-          <c></c>
-          <c>Packet size</c>
-
-          <c>op_code</c>
-          <c>5</c>
-          <c>TCP/UDP</c>
-          <c>X</c>
-          <c></c>
-          <c></c>
-
-          <c>key_id</c>
-          <c>3</c>
-          <c>TCP/UDP</c>
-          <c>X</c>
-          <c></c>
-          <c></c>
-
-          <c>session_id</c>
-          <c>64</c>
-          <c>TCP/UDP</c>
-          <c>X</c>
-          <c></c>
-          <c></c>
-
-          <c>HMAC</c>
-          <c>128-160</c>
-          <c>TCP/UDP</c>
-          <c>X</c>
-          <c>X</c>
-          <c></c>
-
-          <c>packet_id</c>
-          <c>32</c>
-          <c>TCP/UDP</c>
-          <c>X</c>
-          <c>X</c>
-          <c></c>
-
-          <c>timestamp</c>
-          <c>32</c>
-          <c>TCP/UDP</c>
-          <c>X</c>
-          <c>X</c>
-          <c>OPTIONAL</c>
-
-          <c>payload</c>
-          <c>(var)</c>
-          <c>TCP/UDP</c>
-          <c>*</c>
-          <c>*</c>
-          <c>REQUIRED</c>
-
-        </texttable>
-        <t>
-          An OpenVPN wire packet constists of a control channel packet and
-          a data channel packet and is multiplexed by the OpenVPN process.
-          The control channel packet is responsible for the TLS/SSL
-          establishing, passing configuration paramters between the local
-          and the remote site and other management and control parameters.
-          The data channel packet (payload) is the encrypted network data
-          to be passed between the local and remote site.
-        </t>
-      </section>
-
       <section title="TCP and UDP transport modes">
         <t>
           OpenVPN is capable of using both UDP and TCP for transporting
@@ -212,7 +118,11 @@
         <t>
           The wire packet identical for both transport modes with one
           exception.  The TCP packets carry a 16 bits packet length
-          indicator of the whole packet to be read. [FIXME: Verify statement]
+          indicator of the size of the rest of the packet.  This indicator
+          is for a single TCP packet.  If the payload packet to be transported
+          is too big to fit into a single TCP packet, it will be split into
+          several individual packets where the length indicator is per
+          individual packet.
         </t>
       </section>
 
