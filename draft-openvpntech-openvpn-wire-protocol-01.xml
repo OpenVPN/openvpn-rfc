@@ -169,11 +169,19 @@
         </t>
         <t>
           It is highly RECOMMENDED to enforce certificate authentication
-          against a locally stored Certificate Authority (CA) certificate.
+          against a locally controlled Certificate Authority (CA) certificate.
         </t>
         <t>
           [FIXME: explain more what happens on the wire during the
                   SSL/TLS handshake and certificate authentication]
+        </t>
+        <t>
+          The TLS mode will use the same communication channel for
+          both TLS handshakes and the tunnel data.  The TLS handshakes
+          is referred to as the control channel and tunnel data is
+          referred to as the data channel.  Each packet in TLS mode,
+          contains an OPCODE which defines if the following payload is
+          a control channel or data channel packet.
         </t>
         </section>
       </section>
