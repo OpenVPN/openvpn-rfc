@@ -425,6 +425,31 @@
             <t>
               New key, graceful transition from old to new
             </t>
+            <t>
+              This is used to rotate session keys.  It enables both
+              a new key and the old ones to be valid for a limited time
+              window.
+            </t>
+            <t>
+              Either client or server CAN send a CONTROL_SOFT_RESET_V1
+              packet to the remote side.  The remote side MUST respond
+              with a CONTROL_SOFT_RESET_V1 message to acknowledge that
+              a renegotiation of the session keys will start.  Then
+              the side receiving the last CONTROL_SOFT_RESET_V1 packet
+              replies with a ACK_V1 message.  At this point the
+              renegotation can start using the CONTROL_V1 OPCODE.
+            </t>
+            <t>
+              When the ACK_V1 packet is being sent, the key_id field
+              MUST be incremented to ensure the connection can still
+              use the old keys for a shorter time until the transistion
+              has completed.  Any following packets need to use the new
+              key-id until the old key have been removed and the new
+              key-id replaces it completely.
+            </t>
+            <t>
+              [FIXME: Elaborate more on how re-keying happens]
+            </t>
           </section>
 
           <section title="[OPCODE ID 4] CONTROL_V1">
