@@ -487,13 +487,60 @@
           <t>
             Data channel packet, 1-byte header
           </t>
+          <t>
+            The table below describes each field and the order of the fields
+            found in DATA_V1 packets.
+          </t>
+          <texttable>
+            <ttcol>Field name</ttcol>
+            <ttcol align="right">Length (bits)</ttcol>
+            <ttcol>Description</ttcol>
+
+            <c>op_code</c>
+            <c>5</c>
+            <c>Must always be DATA_V1</c>
+
+            <c>key_id</c>
+            <c>3</c>
+            <c></c>
+
+            <c>payload</c>
+            <c>(var)</c>
+            <c>Encrypted data including HMAC</c>
+          </texttable>
         </section>
 
         <section title="[OPCODE ID 9] DATA_V2">
           <t>
-            Data channel packet with 4-byte header.  The lower 24 bits
-            are used for Peer-ID.
+            Data channel packet with 4-byte header.  This is
+            similar to DATA_V1 with an additional field of 24 bits
+            for Peer-ID.
           </t>
+          <t>
+            The table below describes each field and the order of the fields
+            found in DATA_V2 packets.
+          </t>
+          <texttable>
+            <ttcol>Field name</ttcol>
+            <ttcol align="right">Length (bits)</ttcol>
+            <ttcol>Description</ttcol>
+
+            <c>op_code</c>
+            <c>5</c>
+            <c>Must always be DATA_V2</c>
+
+            <c>key_id</c>
+            <c>3</c>
+            <c></c>
+
+            <c>peer_id</c>
+            <c>24</c>
+            <c>Peer-ID of the client.  0xFFFFFF disables Peer-ID.</c>
+
+            <c>payload</c>
+            <c>(var)</c>
+            <c>Encrypted data including HMAC</c>
+          </texttable>
         </section>
       </section>
     </section>
@@ -568,36 +615,6 @@
 
           [FIXME: Verify.  What if several independent clients float to same source IP?]
         </t>
-      </section>
-      <section title="DATA_V2 and Peer-ID in the wire packet">
-        <figure>
-          <artwork><![CDATA[
-+---------+---------+---------+---------+
-| op_code | key_id  | peer_id | payload |
-+---------+---------+---------+---------+
-]]></artwork>
-        </figure>
-        <texttable>
-          <ttcol>Field name</ttcol>
-          <ttcol align="right">Length (bits)</ttcol>
-          <ttcol>Description</ttcol>
-
-          <c>op_code</c>
-          <c>5</c>
-          <c>Must always be DATA_V2 (integer value 9)</c>
-
-          <c>key_id</c>
-          <c>3</c>
-          <c></c>
-
-          <c>peer_id</c>
-          <c>24</c>
-          <c>Peer-ID of the client.  If set to 0xFFFFFF Peer-ID functionality is disabled</c>
-
-          <c>payload</c>
-          <c>(var)</c>
-          <c>Encrypted data including HMAC</c>
-        </texttable>
       </section>
     </section>
 
