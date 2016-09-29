@@ -245,17 +245,16 @@
         same connection; control channel and data channel.  The control
         channel is used for passing configuration and environment data between
         each side of the tunnel, including encryption session keys.  The data
-        channel carries the encrypted tunnel data.  The OPCODE determins which
+        channel carries the encrypted tunnel data.  The OPCODE determines which
         channel the packet belongs to.
       </t>
 
-      <section title="The OPCODE">
+      <section title="Overview of OPCODEs">
         <t>
-          Each packet should contain an OPCODE at a predictalbe possition
-          within each packet.  This defines which information records to be
-          expected on the wire.
-
-          The OPCODE is found as the first 5 bits of the first OpenVPN wire packet.
+          Each packet MUST contain an OPCODE.  This is located within the first
+          byte in each UDP packet and the third byte in TCP packets.  The high 5
+          bits contains the OPCODE and the lower 3 bits defines a key-id.  The
+          OPCODE defines the contents of the following payload.
         </t>
         <texttable>
           <ttcol>OPCODE</ttcol>
@@ -313,53 +312,169 @@
       <section title="The Control Channel">
         <t>
           The control channel is used to pass configuration and environment
-          information between the server and client.
+          information in addition to handle the SSL/TLS handshake process
+          between the server and client.
         </t>
 
-        <section title="[OPCODE ID 1] CONTROL_HARD_RESET_CLIENT_V1">
+        <section title="Control channel wire packet structure">
           <t>
-            Initial key from client, forget previous state
-            [ TODO: Find out when it was deprecated ]
+            The following table lists all fields found in control channel
+            packets.  The fields arrive in the order they are listed in the
+            table.
           </t>
+          <t>
+            The  TCP/UDP column indicates if the corresponding field is present
+            when using TCP and/or UDP as transport protocol.  When the TLS mode
+            column contains an X it means the field is used when the connection
+            is a server/clients based connection.  These fields are not used in
+            Peer-to-Peer connections.
+          </t>
+          <t>
+            The TLS auth column indicates fields used when additional
+            HMAC authentication data is added to the control channel packets
+          </t>
+          <texttable>
+            <ttcol>Field name</ttcol>
+            <ttcol align="right">Length (bits)</ttcol>
+            <ttcol align="center">TCP/UDP</ttcol>
+            <ttcol align="center">TLS mode</ttcol>
+            <ttcol align="center">TLS auth</ttcol>
+            <ttcol>Comment</ttcol>
+
+            <c>pkt_len</c>
+            <c>16</c>
+            <c>TCP</c>
+            <c></c>
+            <c></c>
+            <c>Packet length</c>
+
+            <c>OPCODE</c>
+            <c>5</c>
+            <c>TCP/UDP</c>
+            <c>X</c>
+            <c></c>
+            <c></c>
+
+            <c>key_id</c>
+            <c>3</c>
+            <c>TCP/UDP</c>
+            <c>X</c>
+            <c></c>
+            <c></c>
+
+            <c>session_id</c>
+            <c>64</c>
+            <c>TCP/UDP</c>
+            <c>X</c>
+            <c></c>
+            <c></c>
+
+            <c>HMAC</c>
+            <c>128-512</c>
+            <c>TCP/UDP</c>
+            <c>X</c>
+            <c>X</c>
+            <c>Algorithm defines length</c>
+
+            <c>packet_id</c>
+            <c>32</c>
+            <c>TCP/UDP</c>
+            <c>X</c>
+            <c>X</c>
+            <c></c>
+
+            <c>timestamp</c>
+            <c>32</c>
+            <c>TCP/UDP</c>
+            <c>X</c>
+            <c>X</c>
+            <c>OPTIONAL</c>
+
+            <c>payload</c>
+            <c>(var)</c>
+            <c>TCP/UDP</c>
+            <c>*</c>
+            <c>*</c>
+            <c>REQUIRED</c>
+          </texttable>
+
         </section>
 
-        <section title="[OPCODE ID 2] CONTROL_HARD_RESET_SERVER_V1">
-          <t>
-            Initial key from server, forget previous state
-            [ TODO: Find out when it was deprecated ]
-          </t>
-        </section>
+        <section title="Control Channel OPCODEs">
+          <section title="[OPCODE ID 1] CONTROL_HARD_RESET_CLIENT_V1">
+            <t>
+              OBSOLETE: This OPCODE is not in use any more.
+            </t>
+            <t>
+              This MAY be reused in the future once all other OPCODE
+              locations have been used.
+            </t>
+          </section>
 
-        <section title="[OPCODE ID 3] CONTROL_SOFT_RESET_V1">
-          <t>
-            New key, graceful transition from old to new
-          </t>
-        </section>
+          <section title="[OPCODE ID 2] CONTROL_HARD_RESET_SERVER_V1">
+            <t>
+              OBSOLETE: This OPCODE is not in use any more.
+            </t>
+            <t>
+              This MAY be reused in the future once all other OPCODE
+              locations have been used.
+            </t>
+          </section>
 
-        <section title="[OPCODE ID 4] CONTROL_V1">
-          <t>
-            Control channel packet, usually TLS cipher text
-          </t>
-        </section>
+          <section title="[OPCODE ID 3] CONTROL_SOFT_RESET_V1">
+            <t>
+              New key, graceful transition from old to new
+            </t>
+          </section>
 
-        <section title="[OPCODE ID 5] ACK_V1">
-          <t>
-            Ackknowledgement for received packets
-          </t>
-        </section>
+          <section title="[OPCODE ID 4] CONTROL_V1">
+            <t>
+              Control channel packet, usually TLS protocol data
+            </t>
+            <t>
+              CONTROL_V1 is used to encapsulate the SSL/TLS protocol into the
+              OpenVPN wire packet, primarily used for the SSL/TLS handshake
+              process.  The payload of CONTROL_V1 packets are expected to be
+              processed by an SSL/TLS library.  Once the SSL/TLS handshake
+              have completed and the ephemeral session key have been
+              negotiated, encrypted tunnel data will use either DATA_V1 or
+              DATA_V2 for the transport of those packets.
+            </t>
+          </section>
 
-        <section title="[OPCODE ID 7] CONTROL_HARD_RESET_CLIENT_V2">
-          <t>
-            Initial key from client, forget previous state
-          </t>
-        </section>
+          <section title="[OPCODE ID 5] ACK_V1">
+            <t>
+              Acknowledgement for received control channel packets
+            </t>
+            <t>
+              When control channel packets have been received an ACK_V1
+              packet is sent back to confirm its arrival.  It SHOULD NOT
+              be sent an ACK_V1 message upon receiving an ACK_V1 message.
+            </t>
+          </section>
 
-        <section title="[OPCODE ID 8] CONTROL_HARD_RESET_SERVER_V2">
-          <t>
-            Initial key from server, forget previous state.
-          </t>
-        </section>
+          <section title="[OPCODE ID 7] CONTROL_HARD_RESET_CLIENT_V2">
+            <t>
+              Initial key from client, forget previous state
+            </t>
+            <t>
+              The client starts with a fresh new session key.  This tells the server
+              to initiate a new TLS handshake and establish a new session key for
+              data channel going from client to server.
+            </t>
+          </section>
 
+          <section title="[OPCODE ID 8] CONTROL_HARD_RESET_SERVER_V2">
+            <t>
+              Initial key from server, forget previous state.
+            </t>
+            <t>
+              [FIXME: TBD]
+              Similar to CONTROL_HARD_RESET_CLIENT_V2, but initiated from
+              the server side.
+            </t>
+          </section>
+        </section>
         <section title="PUSH messages">
         </section>
 
