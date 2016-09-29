@@ -562,10 +562,11 @@
           wire protocol and MUST indicate this to the server through the
           peer-info response.   By sending IV_PROTO=2 to the server, it means
           the client will be able to use the DATA_V2 packet format.  When
-          the server acknowledges the client supports IV_PROTO=2/DATA_V2 it
-          SHOULD assign a unique Peer-ID to the client.  The server is
+          the server acknowledges that the client supports IV_PROTO=2/DATA_V2
+          it SHOULD assign a unique Peer-ID to the client.  The server is
           responsible of keeping track of which Peer-ID is related to which
-          active session.
+          active session and MUST ensure no active clients share the same
+          Peer-ID.
         </t>
         <t>
           Clients MUST accept the peer-id option being passed to it via a
@@ -579,8 +580,8 @@
           packet format and MUST evaluate the response from the client before
           assigning and pushing a peer-id option to the client.  The server
           can use both DATA_V1 and DATA_V2 packet formats when communicating
-          with the clients.  If the server chooses to use DATA_V2, it MUST
-          use the disabled Peer-ID reference to the client.
+          with the clients.  If the server chooses to use DATA_V2, the server
+          MUST use the disabled Peer-ID reference to the client.
         </t>
         <t>
           The client is not expected to parse the Peer-ID in DATA_V2 packets.
