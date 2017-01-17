@@ -416,6 +416,91 @@
             <c>REQUIRED</c>
           </texttable>
 
+          <section title="Field: pkt_len">
+            <t>
+              This field is only present when TCP is used as the transport
+              protocol.  This value should be the number of bytes being
+              transported in this packet, excluding the pkt_len field.
+            </t>
+          </section>
+
+          <section title="Field: OPCODE">
+            <t>
+              The OPCODE field is described in detail in the
+              "Control Channel OPCODEs" section.
+            </t>
+          </section>
+
+          <section title="Field: key_id">
+            <t>
+              This is used to indicate which keys to use when
+              processing the payload.  This is normally either
+              0 or 1.  The former indicates the current established
+              key.  All new sessions starts with key_id 0.  When
+              the CONTROL_SOFT_RESET_V1 OPCODE have been sent and
+              a new key negotiation have completed, it will start
+              to use key_id 1 until the old key have expired.  At
+              this point, the key slots are rotated and the key_id
+              0 is again the most current key.
+            </t>
+          </section>
+
+          <section title="Field: session_id">
+            <t>
+              This is a unique random value for a particular connected
+              session.  If an established session needs a full reconnect,
+              the session ID MUST be changed.  Client and server have
+              their own independent session ID.
+            </t>
+          </section>
+
+          <section title="Field: HMAC">
+            <t>
+              Contains the HMAC signature for this packet if the HMAC
+              authentication have been enabled.  The length of this
+              field will vary according to the requirements of the
+              hashing algorithm.
+            </t>
+          </section>
+
+          <section title="Field: packet_id and timestamp">
+            <t>
+              This is an incremental ID for each packet which helps
+              discovering packet replay attacks.  The short packet_id
+              format is only 32 bits.  The long packet_id format adds
+              a timestamp in addition.  For both fields the value is
+              transfered using network byte order.
+            </t>
+            <t>
+              For CFB/OFB based ciphers, the long packet_id format MUST be
+              used, as the packet_id is part of the cipher's IV.
+              [FIXME/syzzer: Elaborate more]
+            </t>
+          </section>
+
+          <section title="Field: m_pktid_array_len">
+            <t>
+              Defines the array length of the following m_pktid_ar_el[] field
+            </t>
+          </section>
+
+          <section title="Field: m_pktid_ar_el[]">
+            <t>
+              If m_pktid_array_len is larger than 0, this area contains
+              m_pktid_array_len elements, where each element is 32 bits
+              containing a message packet ID reference.
+              [FIXME: This is far from complete.]
+            </t>
+          </section>
+
+          <section title="Field: payload">
+            <t>
+              The payload to be processed.  This is most commonly an
+              encrypted blob which is expected to be passed on to
+              the SSL/TLS library for further processing.
+              [FIXME: Elaborate more]
+            </t>
+          </section>
         </section>
 
         <section title="Control Channel OPCODEs">
