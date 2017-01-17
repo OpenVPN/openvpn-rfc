@@ -53,7 +53,7 @@
       </address>
     </author>
 
-    <date year="2016"/> <!-- Can add day="XX" month="YYY" later on -->
+    <date year="2017"/> <!-- Can add day="XX" month="YYY" later on -->
 
     <keyword>OpenVPN</keyword>
     <keyword>protocol</keyword>
@@ -170,9 +170,13 @@
         <t>
           It is highly RECOMMENDED to enforce certificate authentication
           against a locally controlled Certificate Authority (CA) certificate.
+          The use of public Certification Authorities will reduce the security
+          of the tunnel dramatically, as it can easily enable man-in-the-middle
+          attacks where the client cannot verify the true identity of a server,
+          or a server cannot verify the true identity of a client.
         </t>
         <t>
-          [FIXME: explain more what happens on the wire during the
+          [FIXME/syzzer: explain more what happens on the wire during the
                   SSL/TLS handshake and certificate authentication]
         </t>
         <t>
