@@ -425,7 +425,7 @@
             </t>
             <t>
               This MAY be reused in the future once all other OPCODE
-              locations have been used.
+              slots are in use.
             </t>
           </section>
 
@@ -435,7 +435,7 @@
             </t>
             <t>
               This MAY be reused in the future once all other OPCODE
-              locations have been used.
+              slots are in use.
             </t>
           </section>
 
