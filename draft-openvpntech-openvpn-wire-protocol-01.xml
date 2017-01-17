@@ -529,9 +529,11 @@
               New key, graceful transition from old to new
             </t>
             <t>
-              This is used to rotate session keys.  It enables both
-              a new key and the old ones to be valid for a limited time
-              window.
+              This is used to rotate session keys.  It allows both
+              a new key and the old ones to be valid for a limited
+              transition window.  The transition window size is
+              decided by the server.  This window SHOULD NOT
+              exceed the expected renegotiation cycle.
             </t>
             <t>
               Either client or server CAN send a CONTROL_SOFT_RESET_V1
