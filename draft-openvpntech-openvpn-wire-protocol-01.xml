@@ -625,7 +625,7 @@
             <ttcol>Description</ttcol>
 
             <c>op_code</c>
-            <c>5</c>
+            <c>6</c>
             <c>Must always be DATA_V1</c>
 
             <c>key_id</c>
@@ -654,7 +654,7 @@
             <ttcol>Description</ttcol>
 
             <c>op_code</c>
-            <c>5</c>
+            <c>9</c>
             <c>Must always be DATA_V2</c>
 
             <c>key_id</c>
