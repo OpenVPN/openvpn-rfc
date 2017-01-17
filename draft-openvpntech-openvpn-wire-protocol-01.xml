@@ -231,6 +231,20 @@
         </section>
       </section>
 
+      <section title="Encrypting control channel packets">
+        <t>
+          With OpenVPN v2.4 and later, the client and server MAY use TLS
+          control channel encryption instead of HMAC authentication.  This
+          operational mode will encrypt the control packet channel payload
+          with a static key.  The static keying material is the same which
+          HMAC authentication uses, but the key-direction is fixed according
+          to the local process' role (server or client).
+        </t>
+        <t>
+          TBD - [FIXME/syzzer]
+        </t>
+      </section>
+
       <section title="Packet replay protection">
         <t>TBD</t>
       </section>
