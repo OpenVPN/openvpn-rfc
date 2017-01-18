@@ -418,6 +418,20 @@
             <c>X</c>
             <c>OPTIONAL</c>
 
+            <c>acked_pktid_len</c>
+            <c>8</c>
+            <c>TCP/UDP</c>
+            <c>X</c>
+            <c>X</c>
+            <c>OPTIONAL</c>
+
+            <c>acked_pktid_list</c>
+            <c>32 * n</c>
+            <c>TCP/UDP</c>
+            <c>X</c>
+            <c>X</c>
+            <c>List length defined by acked_pktid_len.</c>
+
             <c>payload</c>
             <c>(var)</c>
             <c>TCP/UDP</c>
@@ -488,18 +502,23 @@
             </t>
           </section>
 
-          <section title="Field: m_pktid_array_len">
+          <section title="Field: acked_pktid_len">
             <t>
-              Defines the array length of the following m_pktid_ar_el[] field
+              Defines the number of acked packet IDs being reported in this
+              packet.  If set to 0, no acked packet ID elements wil be found,
+              otherwise the following 4 bytes * acked_pktid_len of data
+              will contain the list of acked packet IDs.
             </t>
           </section>
 
-          <section title="Field: m_pktid_ar_el[]">
+          <section title="Field: acked_pktid_list">
             <t>
-              If m_pktid_array_len is larger than 0, this area contains
-              m_pktid_array_len elements, where each element is 32 bits
-              containing a message packet ID reference.
-              [FIXME: This is far from complete.]
+              This field contains the packet ID which the remote side have
+              received and processed.  This field will appear up to
+              acked_pktid_len number of times, each with an individual packet
+              ID.  These packet IDs should be found in a local cache of sent
+              packet IDs.  If not found, the communication may have been
+              manipulated.
             </t>
           </section>
 
