@@ -278,51 +278,61 @@
           <ttcol>OPCODE</ttcol>
           <ttcol>Channel</ttcol>
           <ttcol>Short name</ttcol>
+          <ttcol>Payload</ttcol>
           <ttcol>Status</ttcol>
 
           <c>1</c>
           <c>Control</c>
           <c>CONTROL_HARD_RESET_CLIENT_V1</c>
+          <c/>
           <c>Obsolete</c>
 
           <c>2</c>
           <c>Control</c>
           <c>CONTROL_HARD_RESET_SERVER_V1</c>
+          <c/>
           <c>Obsolete</c>
 
           <c>3</c>
           <c>Control</c>
           <c>CONTROL_SOFT_RESET_V1</c>
+          <c>-</c>
           <c>Current</c>
 
           <c>4</c>
           <c>Control</c>
           <c>CONTROL_V1</c>
+          <c>X</c>
           <c>Current</c>
 
           <c>5</c>
           <c>Control</c>
           <c>ACK_V1</c>
+          <c>X</c>
           <c>Current</c>
 
           <c>6</c>
           <c>Data</c>
           <c>DATA_V1</c>
+          <c>X</c>
           <c>Current</c>
 
           <c>7</c>
           <c>Control</c>
           <c>CONTROL_HARD_RESET_CLIENT_V2</c>
+          <c>-</c> <!-- FIXME: VERIFY -->
           <c>Current</c>
 
           <c>8</c>
           <c>Control</c>
           <c>CONTROL_HARD_RESET_SERVER_V2</c>
+          <c>-</c> <!-- FIXME: VERIFY -->
           <c>Current</c>
 
           <c>9</c>
           <c>Data</c>
           <c>DATA_V2</c>
+          <c>X</c>
           <c>Current</c>
         </texttable>
       </section>
