@@ -117,12 +117,12 @@
         </t>
         <t>
           The wire packet identical for both transport modes with one
-          exception.  The TCP packets carry a 16 bits packet length
-          indicator of the size of the rest of the packet.  This indicator
-          is for a single TCP packet.  If the payload packet to be transported
-          is too big to fit into a single TCP packet, it will be split into
-          several individual packets where the length indicator is per
-          individual packet.
+          exception.  For UDP packets the size of a payload packet is
+          derived from UDP packet length. Since TCP present a stream
+          of bytes to the application, TCP payloads carry a 16 bits
+          packet length indicator of the size of the payload.
+          Splitting too large payload and combining multiple payload
+          into packets is done by the TCP/IP of the oeprating system.
         </t>
       </section>
 
@@ -297,7 +297,7 @@
           <c>Control</c>
           <c>CONTROL_SOFT_RESET_V1</c>
           <c>-</c>
-          <c>Current</c>
+          <c>Obsolete</c>
 
           <c>4</c>
           <c>Control</c>
@@ -458,14 +458,10 @@
           <section title="Field: key_id">
             <t>
               This is used to indicate which keys to use when
-              processing the payload.  This is normally either
-              0 or 1.  The former indicates the current established
-              key.  All new sessions starts with key_id 0.  When
-              the CONTROL_SOFT_RESET_V1 OPCODE have been sent and
-              a new key negotiation have completed, it will start
-              to use key_id 1 until the old key have expired.  At
-              this point, the key slots are rotated and the key_id
-              0 is again the most current key.
+              processing the payload.  This has a range from 0 to
+              7. All new sessions starts with key_id 0. After a key
+              renogitation the key_id will increase by one. After
+              key_id 7, the key_id wraps to 1.
             </t>
           </section>
 
@@ -555,7 +551,8 @@
 
           <section title="[OPCODE ID 3] CONTROL_SOFT_RESET_V1">
             <t>
-              New key, graceful transition from old to new
+              Start new TLS session to generate a new data channel key
+              to allow a graceful transition from old to new key 
             </t>
             <t>
               This is used to rotate session keys.  It allows both
@@ -579,7 +576,7 @@
               use the old keys for a shorter time until the transistion
               has completed.  Any following packets need to use the new
               key-id until the old key have been removed and the new
-              key-id replaces it completely.
+              key-id replaces it completely. (schwabe:FIXME THIS WRONG)
             </t>
             <t>
               [FIXME: Elaborate more on how re-keying happens]
