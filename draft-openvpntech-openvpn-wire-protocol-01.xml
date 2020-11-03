@@ -68,6 +68,10 @@
         only TCP.  OpenVPN supports some enhanced security features as
         well as providing SSL/TLS connections both over TCP as well as
         UDP.
+
+        This document focuses on the modern/current variant of the OpenVPN
+        protocol. Some of the features used in older variants of the protocol
+        are not documented.
       </t>
     </abstract>
   </front>
@@ -122,24 +126,19 @@
           of bytes to the application, TCP payloads carry a 16 bits
           packet length indicator of the size of the payload.
           Splitting too large payload and combining multiple payload
-          into packets is done by the TCP/IP of the oeprating system.
+          into packets is done by the TCP/IP of the operating system.
         </t>
       </section>
 
-      <section title="Peer-to-peer and TLS operational modes">
-        <section title="Peer-to-peer mode">
+      <section title="Static-key mode and TLS operational modes">
+        <section title="Static-key mode">
         <t>
-          The OpenVPN protocol can be used both for site-to-site
-          configurations which does not make use of any TLS features, so
-          called peer-to-peer mode.  In this mode there is no control
+          The OpenVPN protocol has a mode where it does not use
+          dynamic key derivation but instead uses static keys. 
+          The mode does not make use of any TLS features, so
+          and is called static key mode.  In this mode there is no control
           channel and all the data on the wire is plain encrypted packets
           transported over a standard UDP or TCP connection.
-        </t>
-        <t>
-          Due to the restriction of not having a control channel in
-          peer-to-peer mode the protocol, it is not possible to add any
-          particular authentication methods.  It is also not possible to
-          transport any configuration parameters over the wire.
         </t>
         <t>
           Peer-to-peer mode also depends on a shared secret key between
@@ -149,6 +148,13 @@
           data channel is encrypted solely by the shared static secret.
           This mode does not negotiate any ephemeral session keys for the
           tunnelled data.
+
+          Using pre-shared significantly also weakens the guarantees for
+          no IV reuse, so modern ciphers like AES in GCM mode are not
+          avaiable in this mode
+
+          This mode is deprecated and this document does not provide
+          documentation for it.
         </t>
         </section>
 
@@ -163,8 +169,8 @@
         </t>
         <t>
           The use of X.509 certificates on the client side is OPTIONAL
-          and it is REQUIRED on the server side.  It is highly RECOMMENDED
-          to always enable user/password authentication when X.509
+          and it is REQUIRED on the server side.  It is highly
+          RECOMMENDED to always enable user/password authentication when X.509
           client certificates is not used.
         </t>
         <t>
@@ -218,7 +224,7 @@
 
         <section title="HMAC authentication subkeys">
           <t>
-            HMAC packet authentication requires two independent and
+            HMAC packet authentication use two independent
             preshared static keys for the authentication.  One key
             is used for signing packets and the other key is used
             to verify signatures from the remote side.  The OpenVPN
@@ -639,33 +645,6 @@
       </section>
 
       <section title="The Data Channel">
-        <section title="[OPCODE ID 6] DATA_V1">
-          <t>
-            Data channel packet, 1-byte header
-          </t>
-          <t>
-            The table below describes each field and the order of the fields
-            found in DATA_V1 packets.
-          </t>
-          <texttable>
-            <ttcol>Field name</ttcol>
-            <ttcol align="right">Length (bits)</ttcol>
-            <ttcol>Description</ttcol>
-
-            <c>op_code</c>
-            <c>6</c>
-            <c>Must always be DATA_V1</c>
-
-            <c>key_id</c>
-            <c>3</c>
-            <c></c>
-
-            <c>payload</c>
-            <c>(var)</c>
-            <c>Encrypted data including HMAC</c>
-          </texttable>
-        </section>
-
         <section title="[OPCODE ID 9] DATA_V2">
           <t>
             Data channel packet with 4-byte header.  This is
@@ -682,7 +661,7 @@
             <ttcol>Description</ttcol>
 
             <c>op_code</c>
-            <c>9</c>
+            <c>9 or</c>
             <c>Must always be DATA_V2</c>
 
             <c>key_id</c>
@@ -698,6 +677,13 @@
             <c>Encrypted data including HMAC</c>
           </texttable>
         </section>
+        <section title="[OPCODE ID 6] DATA_V1">
+          The DATA_V1 packet is identical to the DATA_V2 packet apart from
+          op_code being 6 and the peer_id absent from the packet format
+          (all followings fields are shifted by 3 bytes to the left).
+        </section>
+
+
       </section>
     </section>
 
