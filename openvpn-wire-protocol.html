@@ -31,7 +31,7 @@
 <meta content="draft-openvpntech-openvpn-wire-protocol-01" name="ietf.draft">
 <!-- Generator version information:
   xml2rfc 3.11.1
-    Python 3.9.7
+    Python 3.9.8
     appdirs 1.4.4
     ConfigArgParse 1.5.3
     google-i18n-address 2.5.0
@@ -45,7 +45,7 @@
     pyflakes 2.4.0
     PyYAML 6.0
     requests 2.26.0
-    setuptools 57.4.0
+    setuptools 58.5.3
     six 1.15.0
 -->
 <link href="openvpn-wire-protocol.xml" rel="alternate" type="application/rfc+xml">
@@ -1328,113 +1328,121 @@ li > p:last-of-type {
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.3">
                 <p id="section-toc.1-1.2.2.3.1"><a href="#section-2.3" class="xref">2.3</a>.  <a href="#name-hmac-authentication-of-cont" class="xref">HMAC authentication of control channel packets</a></p>
 </li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.4">
-                <p id="section-toc.1-1.2.2.4.1"><a href="#section-2.4" class="xref">2.4</a>.  <a href="#name-encrypting-control-channel-" class="xref">Encrypting control channel packets</a></p>
-</li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.5">
-                <p id="section-toc.1-1.2.2.5.1"><a href="#section-2.5" class="xref">2.5</a>.  <a href="#name-packet-replay-protection" class="xref">Packet replay protection</a></p>
-</li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.6">
-                <p id="section-toc.1-1.2.2.6.1"><a href="#section-2.6" class="xref">2.6</a>.  <a href="#name-pushing-configuration-optio" class="xref">Pushing configuration options and OCC</a></p>
-</li>
             </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3">
-            <p id="section-toc.1-1.3.1"><a href="#section-3" class="xref">3</a>.  <a href="#name-openvpn-key" class="xref">OpenVPN Key</a></p>
+            <p id="section-toc.1-1.3.1"><a href="#section-3" class="xref">3</a>.  <a href="#name-encrypting-control-channel-" class="xref">Encrypting control channel packets</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.1">
+                <p id="section-toc.1-1.3.2.1.1"><a href="#section-3.1" class="xref">3.1</a>.  <a href="#name-control-channel-packet-encr" class="xref">Control channel packet encryption</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.2">
+                <p id="section-toc.1-1.3.2.2.1"><a href="#section-3.2" class="xref">3.2</a>.  <a href="#name-tls-crypt-security-consider" class="xref">tls-crypt Security considerations</a></p>
+</li>
+            </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4">
-            <p id="section-toc.1-1.4.1"><a href="#section-4" class="xref">4</a>.  <a href="#name-communictaion-channels" class="xref">Communictaion channels</a></p>
-<ul class="compact toc ulBare ulEmpty">
-<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.1">
-                <p id="section-toc.1-1.4.2.1.1"><a href="#section-4.1" class="xref">4.1</a>.  <a href="#name-overview-of-opcodes" class="xref">Overview of OPCODEs</a></p>
-</li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.2">
-                <p id="section-toc.1-1.4.2.2.1"><a href="#section-4.2" class="xref">4.2</a>.  <a href="#name-the-control-channel" class="xref">The Control Channel</a></p>
-</li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.3">
-                <p id="section-toc.1-1.4.2.3.1"><a href="#section-4.3" class="xref">4.3</a>.  <a href="#name-the-data-channel" class="xref">The Data Channel</a></p>
-</li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.4">
-                <p id="section-toc.1-1.4.2.4.1"><a href="#section-4.4" class="xref">4.4</a>.  <a href="#name-aead-encrypted-data-channel" class="xref">AEAD encrypted data channel packet</a></p>
-</li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.5">
-                <p id="section-toc.1-1.4.2.5.1"><a href="#section-4.5" class="xref">4.5</a>.  <a href="#name-cbc-ofb-ctr-encrypted-packe" class="xref">CBC/OFB/CTR encrypted packet</a></p>
-</li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.6">
-                <p id="section-toc.1-1.4.2.6.1"><a href="#section-4.6" class="xref">4.6</a>.  <a href="#name-packet-id" class="xref">Packet ID</a></p>
-</li>
-            </ul>
+            <p id="section-toc.1-1.4.1"><a href="#section-4" class="xref">4</a>.  <a href="#name-packet-replay-protection" class="xref">Packet replay protection</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5">
-            <p id="section-toc.1-1.5.1"><a href="#section-5" class="xref">5</a>.  <a href="#name-peer-id" class="xref">Peer-ID</a></p>
-<ul class="compact toc ulBare ulEmpty">
-<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.1">
-                <p id="section-toc.1-1.5.2.1.1"><a href="#section-5.1" class="xref">5.1</a>.  <a href="#name-requirements" class="xref">Requirements</a></p>
-</li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.2">
-                <p id="section-toc.1-1.5.2.2.1"><a href="#section-5.2" class="xref">5.2</a>.  <a href="#name-allowing-floating-clients" class="xref">Allowing floating clients</a></p>
-</li>
-            </ul>
+            <p id="section-toc.1-1.5.1"><a href="#section-5" class="xref">5</a>.  <a href="#name-pushing-configuration-optio" class="xref">Pushing configuration options and OCC</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6">
-            <p id="section-toc.1-1.6.1"><a href="#section-6" class="xref">6</a>.  <a href="#name-control-channel-messages" class="xref">Control channel messages</a></p>
-<ul class="compact toc ulBare ulEmpty">
-<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.1">
-                <p id="section-toc.1-1.6.2.1.1"><a href="#section-6.1" class="xref">6.1</a>.  <a href="#name-message-format" class="xref">Message format</a></p>
-</li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.2">
-                <p id="section-toc.1-1.6.2.2.1"><a href="#section-6.2" class="xref">6.2</a>.  <a href="#name-push_request" class="xref">PUSH_REQUEST</a></p>
-</li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.3">
-                <p id="section-toc.1-1.6.2.3.1"><a href="#section-6.3" class="xref">6.3</a>.  <a href="#name-push_reply" class="xref">PUSH_REPLY</a></p>
-</li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.4">
-                <p id="section-toc.1-1.6.2.4.1"><a href="#section-6.4" class="xref">6.4</a>.  <a href="#name-auth_pending" class="xref">AUTH_PENDING</a></p>
-</li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.5">
-                <p id="section-toc.1-1.6.2.5.1"><a href="#section-6.5" class="xref">6.5</a>.  <a href="#name-restart-and-halt" class="xref">RESTART and HALT</a></p>
-</li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.6">
-                <p id="section-toc.1-1.6.2.6.1"><a href="#section-6.6" class="xref">6.6</a>.  <a href="#name-auth_failed" class="xref">AUTH_FAILED</a></p>
-</li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.7">
-                <p id="section-toc.1-1.6.2.7.1"><a href="#section-6.7" class="xref">6.7</a>.  <a href="#name-cr_response" class="xref">CR_RESPONSE</a></p>
-</li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.8">
-                <p id="section-toc.1-1.6.2.8.1"><a href="#section-6.8" class="xref">6.8</a>.  <a href="#name-info_pre-and-info" class="xref">INFO_PRE and INFO</a></p>
-</li>
-            </ul>
+            <p id="section-toc.1-1.6.1"><a href="#section-6" class="xref">6</a>.  <a href="#name-openvpn-key" class="xref">OpenVPN Key</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7">
-            <p id="section-toc.1-1.7.1"><a href="#section-7" class="xref">7</a>.  <a href="#name-cryptography" class="xref">Cryptography</a></p>
+            <p id="section-toc.1-1.7.1"><a href="#section-7" class="xref">7</a>.  <a href="#name-communictaion-channels" class="xref">Communictaion channels</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.1">
-                <p id="section-toc.1-1.7.2.1.1"><a href="#section-7.1" class="xref">7.1</a>.  <a href="#name-openvpn-and-the-ssl-tls-pro" class="xref">OpenVPN and the SSL/TLS protocol</a></p>
+                <p id="section-toc.1-1.7.2.1.1"><a href="#section-7.1" class="xref">7.1</a>.  <a href="#name-overview-of-opcodes" class="xref">Overview of OPCODEs</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.2">
-                <p id="section-toc.1-1.7.2.2.1"><a href="#section-7.2" class="xref">7.2</a>.  <a href="#name-cipher-negotiation" class="xref">Cipher negotiation</a></p>
+                <p id="section-toc.1-1.7.2.2.1"><a href="#section-7.2" class="xref">7.2</a>.  <a href="#name-the-control-channel" class="xref">The Control Channel</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.3">
-                <p id="section-toc.1-1.7.2.3.1"><a href="#section-7.3" class="xref">7.3</a>.  <a href="#name-tls-mode-and-pki" class="xref">TLS mode and PKI</a></p>
+                <p id="section-toc.1-1.7.2.3.1"><a href="#section-7.3" class="xref">7.3</a>.  <a href="#name-the-data-channel" class="xref">The Data Channel</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.4">
+                <p id="section-toc.1-1.7.2.4.1"><a href="#section-7.4" class="xref">7.4</a>.  <a href="#name-aead-encrypted-data-channel" class="xref">AEAD encrypted data channel packet</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.5">
+                <p id="section-toc.1-1.7.2.5.1"><a href="#section-7.5" class="xref">7.5</a>.  <a href="#name-cbc-ofb-ctr-encrypted-packe" class="xref">CBC/OFB/CTR encrypted packet</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.6">
+                <p id="section-toc.1-1.7.2.6.1"><a href="#section-7.6" class="xref">7.6</a>.  <a href="#name-packet-id" class="xref">Packet ID</a></p>
 </li>
             </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8">
-            <p id="section-toc.1-1.8.1"><a href="#section-8" class="xref">8</a>.  <a href="#name-user-authentication" class="xref">User authentication</a></p>
+            <p id="section-toc.1-1.8.1"><a href="#section-8" class="xref">8</a>.  <a href="#name-peer-id" class="xref">Peer-ID</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8.2.1">
-                <p id="section-toc.1-1.8.2.1.1"><a href="#section-8.1" class="xref">8.1</a>.  <a href="#name-user-password-authenticatio" class="xref">User/password authentication</a></p>
+                <p id="section-toc.1-1.8.2.1.1"><a href="#section-8.1" class="xref">8.1</a>.  <a href="#name-requirements" class="xref">Requirements</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8.2.2">
-                <p id="section-toc.1-1.8.2.2.1"><a href="#section-8.2" class="xref">8.2</a>.  <a href="#name-challenge-response-authenti" class="xref">Challenge-Response authentication</a></p>
+                <p id="section-toc.1-1.8.2.2.1"><a href="#section-8.2" class="xref">8.2</a>.  <a href="#name-allowing-floating-clients" class="xref">Allowing floating clients</a></p>
 </li>
             </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9">
-            <p id="section-toc.1-1.9.1"><a href="#section-9" class="xref">9</a>.  <a href="#name-normative-references" class="xref">Normative References</a></p>
+            <p id="section-toc.1-1.9.1"><a href="#section-9" class="xref">9</a>.  <a href="#name-control-channel-messages" class="xref">Control channel messages</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.1">
+                <p id="section-toc.1-1.9.2.1.1"><a href="#section-9.1" class="xref">9.1</a>.  <a href="#name-message-format" class="xref">Message format</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.2">
+                <p id="section-toc.1-1.9.2.2.1"><a href="#section-9.2" class="xref">9.2</a>.  <a href="#name-push_request" class="xref">PUSH_REQUEST</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.3">
+                <p id="section-toc.1-1.9.2.3.1"><a href="#section-9.3" class="xref">9.3</a>.  <a href="#name-push_reply" class="xref">PUSH_REPLY</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.4">
+                <p id="section-toc.1-1.9.2.4.1"><a href="#section-9.4" class="xref">9.4</a>.  <a href="#name-auth_pending" class="xref">AUTH_PENDING</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.5">
+                <p id="section-toc.1-1.9.2.5.1"><a href="#section-9.5" class="xref">9.5</a>.  <a href="#name-restart-and-halt" class="xref">RESTART and HALT</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.6">
+                <p id="section-toc.1-1.9.2.6.1"><a href="#section-9.6" class="xref">9.6</a>.  <a href="#name-auth_failed" class="xref">AUTH_FAILED</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.7">
+                <p id="section-toc.1-1.9.2.7.1"><a href="#section-9.7" class="xref">9.7</a>.  <a href="#name-cr_response" class="xref">CR_RESPONSE</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.8">
+                <p id="section-toc.1-1.9.2.8.1"><a href="#section-9.8" class="xref">9.8</a>.  <a href="#name-info_pre-and-info" class="xref">INFO_PRE and INFO</a></p>
+</li>
+            </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10">
-            <p id="section-toc.1-1.10.1"><a href="#appendix-A" class="xref"></a><a href="#name-authors-addresses" class="xref">Authors' Addresses</a></p>
+            <p id="section-toc.1-1.10.1"><a href="#section-10" class="xref">10</a>. <a href="#name-cryptography" class="xref">Cryptography</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.1">
+                <p id="section-toc.1-1.10.2.1.1"><a href="#section-10.1" class="xref">10.1</a>.  <a href="#name-openvpn-and-the-ssl-tls-pro" class="xref">OpenVPN and the SSL/TLS protocol</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.2">
+                <p id="section-toc.1-1.10.2.2.1"><a href="#section-10.2" class="xref">10.2</a>.  <a href="#name-cipher-negotiation" class="xref">Cipher negotiation</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.3">
+                <p id="section-toc.1-1.10.2.3.1"><a href="#section-10.3" class="xref">10.3</a>.  <a href="#name-tls-mode-and-pki" class="xref">TLS mode and PKI</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11">
+            <p id="section-toc.1-1.11.1"><a href="#section-11" class="xref">11</a>. <a href="#name-user-authentication" class="xref">User authentication</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.1">
+                <p id="section-toc.1-1.11.2.1.1"><a href="#section-11.1" class="xref">11.1</a>.  <a href="#name-user-password-authenticatio" class="xref">User/password authentication</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.2">
+                <p id="section-toc.1-1.11.2.2.1"><a href="#section-11.2" class="xref">11.2</a>.  <a href="#name-challenge-response-authenti" class="xref">Challenge-Response authentication</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12">
+            <p id="section-toc.1-1.12.1"><a href="#section-12" class="xref">12</a>. <a href="#name-normative-references" class="xref">Normative References</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.13">
+            <p id="section-toc.1-1.13.1"><a href="#appendix-A" class="xref"></a><a href="#name-authors-addresses" class="xref">Authors' Addresses</a></p>
 </li>
         </ul>
 </nav>
@@ -1605,42 +1613,178 @@ li > p:last-of-type {
             key-direction.<a href="#section-2.3.1-1" class="pilcrow">¶</a></p>
 </section>
 </section>
-<section id="section-2.4">
-        <h3 id="name-encrypting-control-channel-">
-<a href="#section-2.4" class="section-number selfRef">2.4. </a><a href="#name-encrypting-control-channel-" class="section-name selfRef">Encrypting control channel packets</a>
-        </h3>
-<p id="section-2.4-1">
-          With OpenVPN v2.4 and later, the client and server MAY use TLS
-          control channel encryption instead of HMAC authentication.  This
-          operational mode will encrypt the control packet channel payload
-          with a static key.  The static keying material is the same which
-          HMAC authentication uses, but the key-direction is fixed according
-          to the local process' role (server or client).<a href="#section-2.4-1" class="pilcrow">¶</a></p>
-<p id="section-2.4-2">
-          TBD - [FIXME/syzzer]<a href="#section-2.4-2" class="pilcrow">¶</a></p>
-</section>
-<section id="section-2.5">
-        <h3 id="name-packet-replay-protection">
-<a href="#section-2.5" class="section-number selfRef">2.5. </a><a href="#name-packet-replay-protection" class="section-name selfRef">Packet replay protection</a>
-        </h3>
-<p id="section-2.5-1">TBD<a href="#section-2.5-1" class="pilcrow">¶</a></p>
-</section>
-<section id="section-2.6">
-        <h3 id="name-pushing-configuration-optio">
-<a href="#section-2.6" class="section-number selfRef">2.6. </a><a href="#name-pushing-configuration-optio" class="section-name selfRef">Pushing configuration options and OCC</a>
-        </h3>
-<p id="section-2.6-1">
-          TBD<a href="#section-2.6-1" class="pilcrow">¶</a></p>
-</section>
 </section>
 <section id="section-3">
-      <h2 id="name-openvpn-key">
-<a href="#section-3" class="section-number selfRef">3. </a><a href="#name-openvpn-key" class="section-name selfRef">OpenVPN Key</a>
+      <h2 id="name-encrypting-control-channel-">
+<a href="#section-3" class="section-number selfRef">3. </a><a href="#name-encrypting-control-channel-" class="section-name selfRef">Encrypting control channel packets</a>
       </h2>
 <p id="section-3-1">
+        With OpenVPN v2.4 and later, the client and server MAY use TLS
+        control channel encryption instead of HMAC authentication.  This
+        operational mode will encrypt the control packet channel payload
+        with a static key.  The static keying material is the same which
+        HMAC authentication uses, but the key-direction is fixed according
+        to the local process' role (server or client).<a href="#section-3-1" class="pilcrow">¶</a></p>
+<p id="section-3-2">
+        This feature is called tls-crypt, which uses a pre-shared static key (like
+        the tls-auth method) to encrypt control channel packets.<a href="#section-3-2" class="pilcrow">¶</a></p>
+<p id="section-3-3">
+        Encrypting control channel packets has three main advantages:<a href="#section-3-3" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-3-4.1"> It provides more privacy by hiding the certificate used
+          for the TLS connection.<a href="#section-3-4.1" class="pilcrow">¶</a>
+</li>
+        <li class="normal" id="section-3-4.2"> It is harder to identify OpenVPN traffic as such.<a href="#section-3-4.2" class="pilcrow">¶</a>
+</li>
+        <li class="normal" id="section-3-4.3">It provides "poor-man's" post-quantum security, against
+          attackers who will never know the pre-shared key
+          (i.e. no forward secrecy).<a href="#section-3-4.3" class="pilcrow">¶</a>
+</li>
+      </ul>
+<section id="section-3.1">
+        <h3 id="name-control-channel-packet-encr">
+<a href="#section-3.1" class="section-number selfRef">3.1. </a><a href="#name-control-channel-packet-encr" class="section-name selfRef">Control channel packet encryption</a>
+        </h3>
+<p id="section-3.1-1">
+          The  following encryption method is usee, based on the SIV
+          construction
+          <span>[<a href="#rogaway2006provable" class="xref">rogaway2006provable</a>]</span>,
+          to achieve nonce misuse-resistant authenticated encryption:<a href="#section-3.1-1" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-3.1-2">
+<pre>
+              msg      = control channel plaintext
+              header   = opcode (1 byte) || session_id (8 bytes) || packet_id (8
+              bytes)
+              Ka       = authentication key (256 bits)
+              Ke       = encryption key (256 bits)
+              (Ka and Ke are pre-shared keys, like with --tls-auth)
+
+              auth_tag = HMAC-SHA256(Ka, header || msg)
+              IV       = 128 most-significant bits of auth_tag
+              ciph     = AES256-CTR(Ke, IV, msg)
+
+              output   = Header || Tag || Ciph
+</pre><a href="#section-3.1-2" class="pilcrow">¶</a>
+</div>
+<p id="section-3.1-3">
+          This boils down to the following on-the-wire packet format:<a href="#section-3.1-3" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-3.1-4">
+<pre>
+
+              -opcode- || -session_id- || -packet_id- || auth_tag || * payload *
+
+</pre><a href="#section-3.1-4" class="pilcrow">¶</a>
+</div>
+<p id="section-3.1-5">
+          Where<a href="#section-3.1-5" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-3.1-6.1"> -XXX- means authenticated, and<a href="#section-3.1-6.1" class="pilcrow">¶</a>
+</li>
+          <li class="normal" id="section-3.1-6.2"> * XXX * means authenticated and encrypted.<a href="#section-3.1-6.2" class="pilcrow">¶</a>
+</li>
+        </ul>
+<p id="section-3.1-7">
+          Which is very similar to the current tls-auth packet format, and has
+          the same overhead as "--tls-auth" with "--auth SHA256".<a href="#section-3.1-7" class="pilcrow">¶</a></p>
+<p id="section-3.1-8">
+          The use of a nonce misuse-resistant authenticated encryption scheme
+          allows us to worry less about the risks of nonce collisions.  This is
+          important, because in contrast with the data channel in TLS mode, we
+          will not be able to rotate tls-crypt keys often or fully guarantee nonce
+          uniqueness.  For non misuse-resistant modes such as GCM
+          (   <span>[<a href="#ferguson2005authentication" class="xref">ferguson2005authentication</a>]</span>,
+          <span>[<a href="#joux2006authentication" class="xref">joux2006authentication</a>]</span>),
+          the data channel in TLS mode only has to ensure that the packet counter
+          never rolls over, while tls-crypt would have to provide nonce uniqueness
+          over all control channel packets sent by all clients, for the lifetime
+          of the tls-crypt key.<a href="#section-3.1-8" class="pilcrow">¶</a></p>
+<p id="section-3.1-9">
+          Unlike with tls-auth, no --key-direction has to be specified for
+          tls-crypt.  TLS servers always use key direction 1, and TLS clients
+          always use key direction 2, which means that client-&gt;server traffic and
+          server-&gt;client traffic always use different keys, without requiring
+          configuration.<a href="#section-3.1-9" class="pilcrow">¶</a></p>
+<p id="section-3.1-10">
+          Using fixed, secure, encryption and authentication algorithms makes both
+          implementation and configuration easier.  If we ever want to, we can
+          extend this to support other crypto primitives.  Since tls-crypt should
+          provide privacy as well as DoS protection, these should not be made
+          negotiable.<a href="#section-3.1-10" class="pilcrow">¶</a></p>
+</section>
+<section id="section-3.2">
+        <h3 id="name-tls-crypt-security-consider">
+<a href="#section-3.2" class="section-number selfRef">3.2. </a><a href="#name-tls-crypt-security-consider" class="section-name selfRef">tls-crypt Security considerations</a>
+        </h3>
+<p id="section-3.2-1">
+          tls-crypt is a best-effort mechanism that aims to provide as much
+          privacy and security as possible, while staying as simple as possible.
+          The following are some security considerations for this scheme.<a href="#section-3.2-1" class="pilcrow">¶</a></p>
+<p id="section-3.2-2">
+          The same tls-crypt key is potentially shared by a lot of peers, so it
+          is quite likely to get compromised.  Once an attacker acquires the
+          tls-crypt key, this mechanism no longer provides any security against
+          the attacker.<a href="#section-3.2-2" class="pilcrow">¶</a></p>
+<p id="section-3.2-3">
+          Since many peers potentially use the tls-crypt key for a long time, a
+          lot of data might be encrypted under the tls-crypt key.  This leads
+          to two potential problems:<a href="#section-3.2-3" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-3.2-4.1">
+            <p id="section-3.2-4.1.1">
+                The "opcode || session id || packet id" combination might collide.
+                This might happen in larger setups, because the session id contains
+                just 64 bits or random.  Using the uniqueness requirement from the
+                GCM spec <span>[<a href="#nistgcm" class="xref">nistgcm</a>]</span>
+                (a collision probability of less than 2^(-32)),
+                uniqueness is achieved when using the tls-crypt key for at most
+                2^16 (65536) connections per process start.  (The packet id
+                includes the daemon start time in the packet ID, which should be
+                different after stopping and (re)starting OpenPVN.)<a href="#section-3.2-4.1.1" class="pilcrow">¶</a></p>
+<p id="section-3.2-4.1.2">
+                And if a collision happens, an attacker can *only* learn whether
+                colliding packets contain the same plaintext.  Attackers will not
+                be able to learn anything else about the plaintext (unless the
+                attacker knows the plaintext of one of these packets, of course).
+                Since the impact is limited, I consider this an acceptable
+                remaining risk.<a href="#section-3.2-4.1.2" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-3.2-4.2">
+              The IVs used in encryption might collide.  When two IVs collide, an
+              attacker can learn the xor of the two plaintexts by xorring the
+              ciphertexts.  This is a serious loss of confidentiality.  The IVs
+              are 128-bit, so when HMAC-SHA256 is a secure PRF (an assumption
+              that must also hold for TLS), and we use the same uniqueness
+              requirement from [3], this limits the total amount of control
+              channel messages for all peers in the setup to 2^48.  Assuming a
+              large setup of 2^16 (65536) clients, and a (conservative) number of
+              2^16 control channel packets per connection on average, this means
+              that clients may set up 2^16 connections on average.  I think these
+              numbers are reasonable.<a href="#section-3.2-4.2" class="pilcrow">¶</a>
+</li>
+        </ul>
+</section>
+</section>
+<section id="section-4">
+      <h2 id="name-packet-replay-protection">
+<a href="#section-4" class="section-number selfRef">4. </a><a href="#name-packet-replay-protection" class="section-name selfRef">Packet replay protection</a>
+      </h2>
+<p id="section-4-1">TBD<a href="#section-4-1" class="pilcrow">¶</a></p>
+</section>
+<section id="section-5">
+      <h2 id="name-pushing-configuration-optio">
+<a href="#section-5" class="section-number selfRef">5. </a><a href="#name-pushing-configuration-optio" class="section-name selfRef">Pushing configuration options and OCC</a>
+      </h2>
+<p id="section-5-1">
+      TBD<a href="#section-5-1" class="pilcrow">¶</a></p>
+</section>
+<section id="section-6">
+      <h2 id="name-openvpn-key">
+<a href="#section-6" class="section-number selfRef">6. </a><a href="#name-openvpn-key" class="section-name selfRef">OpenVPN Key</a>
+      </h2>
+<p id="section-6-1">
       OpenVPN uses a 256 byte of key material for encryuption decrypting the data
-      channel. The format of this key material is the following:<a href="#section-3-1" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-3-2">
+      channel. The format of this key material is the following:<a href="#section-6-1" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-6-2">
 <pre>
       struct datakeys {
          uint8_t key_c2s[64];
@@ -1648,9 +1792,9 @@ li > p:last-of-type {
          uint8_t key_s2c[64];
          uint8_t auth_s2c[64];
       }
-</pre><a href="#section-3-2" class="pilcrow">¶</a>
+</pre><a href="#section-6-2" class="pilcrow">¶</a>
 </div>
-<p id="section-3-3">
+<p id="section-6-3">
 
       All these keys provide more than enough material to provide encryption keys
       are all encryption and authentication algorithms. E.g. when 128key is required
@@ -1664,28 +1808,28 @@ li > p:last-of-type {
       and using the 256 bytes length of the structure.
 
       Older clients use the mechansim described in the section OpenVPN data channel
-      PRF (TODO).<a href="#section-3-3" class="pilcrow">¶</a></p>
+      PRF (TODO).<a href="#section-6-3" class="pilcrow">¶</a></p>
 </section>
-<section id="section-4">
+<section id="section-7">
       <h2 id="name-communictaion-channels">
-<a href="#section-4" class="section-number selfRef">4. </a><a href="#name-communictaion-channels" class="section-name selfRef">Communictaion channels</a>
+<a href="#section-7" class="section-number selfRef">7. </a><a href="#name-communictaion-channels" class="section-name selfRef">Communictaion channels</a>
       </h2>
-<p id="section-4-1">
+<p id="section-7-1">
         OpenVPN communictates over two channels which are multiplexed over the
         same connection; control channel and data channel.  The control
         channel is used for passing configuration and environment data between
         each side of the tunnel, including encryption session keys.  The data
         channel carries the encrypted tunnel data.  The OPCODE determines which
-        channel the packet belongs to.<a href="#section-4-1" class="pilcrow">¶</a></p>
-<section id="section-4.1">
+        channel the packet belongs to.<a href="#section-7-1" class="pilcrow">¶</a></p>
+<section id="section-7.1">
         <h3 id="name-overview-of-opcodes">
-<a href="#section-4.1" class="section-number selfRef">4.1. </a><a href="#name-overview-of-opcodes" class="section-name selfRef">Overview of OPCODEs</a>
+<a href="#section-7.1" class="section-number selfRef">7.1. </a><a href="#name-overview-of-opcodes" class="section-name selfRef">Overview of OPCODEs</a>
         </h3>
-<p id="section-4.1-1">
+<p id="section-7.1-1">
           Each packet MUST contain an OPCODE.  This is located within the first
           byte in each UDP packet and the third byte in TCP packets.  The high 5
           bits contains the OPCODE and the lower 3 bits defines a key-id.  The
-          OPCODE defines the contents of the following payload.<a href="#section-4.1-1" class="pilcrow">¶</a></p>
+          OPCODE defines the contents of the following payload.<a href="#section-7.1-1" class="pilcrow">¶</a></p>
 <table class="center" id="table-1">
           <caption><a href="#table-1" class="selfRef">Table 1</a></caption>
 <thead>
@@ -1764,31 +1908,31 @@ li > p:last-of-type {
           </tbody>
         </table>
 </section>
-<section id="section-4.2">
+<section id="section-7.2">
         <h3 id="name-the-control-channel">
-<a href="#section-4.2" class="section-number selfRef">4.2. </a><a href="#name-the-control-channel" class="section-name selfRef">The Control Channel</a>
+<a href="#section-7.2" class="section-number selfRef">7.2. </a><a href="#name-the-control-channel" class="section-name selfRef">The Control Channel</a>
         </h3>
-<p id="section-4.2-1">
+<p id="section-7.2-1">
           The control channel is used to pass configuration and environment
           information in addition to handle the SSL/TLS handshake process
-          between the server and client.<a href="#section-4.2-1" class="pilcrow">¶</a></p>
-<section id="section-4.2.1">
+          between the server and client.<a href="#section-7.2-1" class="pilcrow">¶</a></p>
+<section id="section-7.2.1">
           <h4 id="name-control-channel-wire-packet">
-<a href="#section-4.2.1" class="section-number selfRef">4.2.1. </a><a href="#name-control-channel-wire-packet" class="section-name selfRef">Control channel wire packet structure</a>
+<a href="#section-7.2.1" class="section-number selfRef">7.2.1. </a><a href="#name-control-channel-wire-packet" class="section-name selfRef">Control channel wire packet structure</a>
           </h4>
-<p id="section-4.2.1-1">
+<p id="section-7.2.1-1">
             The following table lists all fields found in control channel
             packets.  The fields arrive in the order they are listed in the
-            table.<a href="#section-4.2.1-1" class="pilcrow">¶</a></p>
-<p id="section-4.2.1-2">
+            table.<a href="#section-7.2.1-1" class="pilcrow">¶</a></p>
+<p id="section-7.2.1-2">
             The  TCP/UDP column indicates if the corresponding field is present
             when using TCP and/or UDP as transport protocol.  When the TLS mode
             column contains an X it means the field is used when the connection
             is a server/clients based connection.  These fields are not used in
-            Peer-to-Peer connections.<a href="#section-4.2.1-2" class="pilcrow">¶</a></p>
-<p id="section-4.2.1-3">
+            Peer-to-Peer connections.<a href="#section-7.2.1-2" class="pilcrow">¶</a></p>
+<p id="section-7.2.1-3">
             The TLS auth column indicates fields used when additional
-            HMAC authentication data is added to the control channel packets<a href="#section-4.2.1-3" class="pilcrow">¶</a></p>
+            HMAC authentication data is added to the control channel packets<a href="#section-7.2.1-3" class="pilcrow">¶</a></p>
 <table class="center" id="table-2">
             <caption><a href="#table-2" class="selfRef">Table 2</a></caption>
 <thead>
@@ -1884,232 +2028,232 @@ li > p:last-of-type {
               </tr>
             </tbody>
           </table>
-<section id="section-4.2.1.1">
+<section id="section-7.2.1.1">
             <h5 id="name-field-pkt_len">
-<a href="#section-4.2.1.1" class="section-number selfRef">4.2.1.1. </a><a href="#name-field-pkt_len" class="section-name selfRef">Field: pkt_len</a>
+<a href="#section-7.2.1.1" class="section-number selfRef">7.2.1.1. </a><a href="#name-field-pkt_len" class="section-name selfRef">Field: pkt_len</a>
             </h5>
-<p id="section-4.2.1.1-1">
+<p id="section-7.2.1.1-1">
               This field is only present when TCP is used as the transport
               protocol.  This value should be the number of bytes being
-              transported in this packet, excluding the pkt_len field.<a href="#section-4.2.1.1-1" class="pilcrow">¶</a></p>
+              transported in this packet, excluding the pkt_len field.<a href="#section-7.2.1.1-1" class="pilcrow">¶</a></p>
 </section>
-<section id="section-4.2.1.2">
+<section id="section-7.2.1.2">
             <h5 id="name-field-opcode">
-<a href="#section-4.2.1.2" class="section-number selfRef">4.2.1.2. </a><a href="#name-field-opcode" class="section-name selfRef">Field: OPCODE</a>
+<a href="#section-7.2.1.2" class="section-number selfRef">7.2.1.2. </a><a href="#name-field-opcode" class="section-name selfRef">Field: OPCODE</a>
             </h5>
-<p id="section-4.2.1.2-1">
+<p id="section-7.2.1.2-1">
               The OPCODE field is described in detail in the
-              "Control Channel OPCODEs" section.<a href="#section-4.2.1.2-1" class="pilcrow">¶</a></p>
+              "Control Channel OPCODEs" section.<a href="#section-7.2.1.2-1" class="pilcrow">¶</a></p>
 </section>
-<section id="section-4.2.1.3">
+<section id="section-7.2.1.3">
             <h5 id="name-field-key_id">
-<a href="#section-4.2.1.3" class="section-number selfRef">4.2.1.3. </a><a href="#name-field-key_id" class="section-name selfRef">Field: key_id</a>
+<a href="#section-7.2.1.3" class="section-number selfRef">7.2.1.3. </a><a href="#name-field-key_id" class="section-name selfRef">Field: key_id</a>
             </h5>
-<p id="section-4.2.1.3-1">
+<p id="section-7.2.1.3-1">
               This is used to indicate which keys to use when
               processing the payload.  This has a range from 0 to
               7. All new sessions starts with key_id 0. After a key
               renogitation the key_id will increase by one. After
-              key_id 7, the key_id wraps to 1.<a href="#section-4.2.1.3-1" class="pilcrow">¶</a></p>
+              key_id 7, the key_id wraps to 1.<a href="#section-7.2.1.3-1" class="pilcrow">¶</a></p>
 </section>
-<section id="section-4.2.1.4">
+<section id="section-7.2.1.4">
             <h5 id="name-field-session_id">
-<a href="#section-4.2.1.4" class="section-number selfRef">4.2.1.4. </a><a href="#name-field-session_id" class="section-name selfRef">Field: session_id</a>
+<a href="#section-7.2.1.4" class="section-number selfRef">7.2.1.4. </a><a href="#name-field-session_id" class="section-name selfRef">Field: session_id</a>
             </h5>
-<p id="section-4.2.1.4-1">
+<p id="section-7.2.1.4-1">
               This is a unique random value for a particular connected
               session.  If an established session needs a full reconnect,
               the session ID MUST be changed.  Client and server have
-              their own independent session ID.<a href="#section-4.2.1.4-1" class="pilcrow">¶</a></p>
+              their own independent session ID.<a href="#section-7.2.1.4-1" class="pilcrow">¶</a></p>
 </section>
-<section id="section-4.2.1.5">
+<section id="section-7.2.1.5">
             <h5 id="name-field-hmac">
-<a href="#section-4.2.1.5" class="section-number selfRef">4.2.1.5. </a><a href="#name-field-hmac" class="section-name selfRef">Field: HMAC</a>
+<a href="#section-7.2.1.5" class="section-number selfRef">7.2.1.5. </a><a href="#name-field-hmac" class="section-name selfRef">Field: HMAC</a>
             </h5>
-<p id="section-4.2.1.5-1">
+<p id="section-7.2.1.5-1">
               Contains the HMAC signature for this packet if the HMAC
               authentication have been enabled.  The length of this
               field will vary according to the requirements of the
-              hashing algorithm.<a href="#section-4.2.1.5-1" class="pilcrow">¶</a></p>
+              hashing algorithm.<a href="#section-7.2.1.5-1" class="pilcrow">¶</a></p>
 </section>
-<section id="section-4.2.1.6">
+<section id="section-7.2.1.6">
             <h5 id="name-field-packet_id-and-timesta">
-<a href="#section-4.2.1.6" class="section-number selfRef">4.2.1.6. </a><a href="#name-field-packet_id-and-timesta" class="section-name selfRef">Field: packet_id and timestamp</a>
+<a href="#section-7.2.1.6" class="section-number selfRef">7.2.1.6. </a><a href="#name-field-packet_id-and-timesta" class="section-name selfRef">Field: packet_id and timestamp</a>
             </h5>
-<p id="section-4.2.1.6-1">
+<p id="section-7.2.1.6-1">
               This is an incremental ID for each packet which helps
               discovering packet replay attacks.  The short packet_id
               format is only 32 bits.  The long packet_id format adds
               a timestamp in addition.  For both fields the value is
-              transfered using network byte order.<a href="#section-4.2.1.6-1" class="pilcrow">¶</a></p>
-<p id="section-4.2.1.6-2">
+              transfered using network byte order.<a href="#section-7.2.1.6-1" class="pilcrow">¶</a></p>
+<p id="section-7.2.1.6-2">
               For CFB/OFB based ciphers, the long packet_id format MUST be
               used, as the packet_id is part of the cipher's IV.
-              [FIXME/syzzer: Elaborate more]<a href="#section-4.2.1.6-2" class="pilcrow">¶</a></p>
+              [FIXME/syzzer: Elaborate more]<a href="#section-7.2.1.6-2" class="pilcrow">¶</a></p>
 </section>
-<section id="section-4.2.1.7">
+<section id="section-7.2.1.7">
             <h5 id="name-field-acked_pktid_len">
-<a href="#section-4.2.1.7" class="section-number selfRef">4.2.1.7. </a><a href="#name-field-acked_pktid_len" class="section-name selfRef">Field: acked_pktid_len</a>
+<a href="#section-7.2.1.7" class="section-number selfRef">7.2.1.7. </a><a href="#name-field-acked_pktid_len" class="section-name selfRef">Field: acked_pktid_len</a>
             </h5>
-<p id="section-4.2.1.7-1">
+<p id="section-7.2.1.7-1">
               Defines the number of acked packet IDs being reported in this
               packet.  If set to 0, no acked packet ID elements wil be found,
               otherwise the following 4 bytes * acked_pktid_len of data
-              will contain the list of acked packet IDs.<a href="#section-4.2.1.7-1" class="pilcrow">¶</a></p>
+              will contain the list of acked packet IDs.<a href="#section-7.2.1.7-1" class="pilcrow">¶</a></p>
 </section>
-<section id="section-4.2.1.8">
+<section id="section-7.2.1.8">
             <h5 id="name-field-acked_pktid_list">
-<a href="#section-4.2.1.8" class="section-number selfRef">4.2.1.8. </a><a href="#name-field-acked_pktid_list" class="section-name selfRef">Field: acked_pktid_list</a>
+<a href="#section-7.2.1.8" class="section-number selfRef">7.2.1.8. </a><a href="#name-field-acked_pktid_list" class="section-name selfRef">Field: acked_pktid_list</a>
             </h5>
-<p id="section-4.2.1.8-1">
+<p id="section-7.2.1.8-1">
               This field contains the packet ID which the remote side have
               received and processed.  This field will appear up to
               acked_pktid_len number of times, each with an individual packet
               ID.  These packet IDs should be found in a local cache of sent
               packet IDs.  If not found, the communication may have been
-              manipulated.<a href="#section-4.2.1.8-1" class="pilcrow">¶</a></p>
+              manipulated.<a href="#section-7.2.1.8-1" class="pilcrow">¶</a></p>
 </section>
-<section id="section-4.2.1.9">
+<section id="section-7.2.1.9">
             <h5 id="name-field-payload">
-<a href="#section-4.2.1.9" class="section-number selfRef">4.2.1.9. </a><a href="#name-field-payload" class="section-name selfRef">Field: payload</a>
+<a href="#section-7.2.1.9" class="section-number selfRef">7.2.1.9. </a><a href="#name-field-payload" class="section-name selfRef">Field: payload</a>
             </h5>
-<p id="section-4.2.1.9-1">
+<p id="section-7.2.1.9-1">
               The payload to be processed.  This is most commonly an
               encrypted blob which is expected to be passed on to
               the SSL/TLS library for further processing.
-              [FIXME: Elaborate more]<a href="#section-4.2.1.9-1" class="pilcrow">¶</a></p>
+              [FIXME: Elaborate more]<a href="#section-7.2.1.9-1" class="pilcrow">¶</a></p>
 </section>
 </section>
-<section id="section-4.2.2">
+<section id="section-7.2.2">
           <h4 id="name-control-channel-opcodes">
-<a href="#section-4.2.2" class="section-number selfRef">4.2.2. </a><a href="#name-control-channel-opcodes" class="section-name selfRef">Control Channel OPCODEs</a>
+<a href="#section-7.2.2" class="section-number selfRef">7.2.2. </a><a href="#name-control-channel-opcodes" class="section-name selfRef">Control Channel OPCODEs</a>
           </h4>
-<section id="section-4.2.2.1">
+<section id="section-7.2.2.1">
             <h5 id="name-opcode-id-1-control_hard_re">
-<a href="#section-4.2.2.1" class="section-number selfRef">4.2.2.1. </a><a href="#name-opcode-id-1-control_hard_re" class="section-name selfRef">[OPCODE ID 1] CONTROL_HARD_RESET_CLIENT_V1</a>
+<a href="#section-7.2.2.1" class="section-number selfRef">7.2.2.1. </a><a href="#name-opcode-id-1-control_hard_re" class="section-name selfRef">[OPCODE ID 1] CONTROL_HARD_RESET_CLIENT_V1</a>
             </h5>
-<p id="section-4.2.2.1-1">
-              OBSOLETE: This OPCODE is not in use any more.<a href="#section-4.2.2.1-1" class="pilcrow">¶</a></p>
-<p id="section-4.2.2.1-2">
+<p id="section-7.2.2.1-1">
+              OBSOLETE: This OPCODE is not in use any more.<a href="#section-7.2.2.1-1" class="pilcrow">¶</a></p>
+<p id="section-7.2.2.1-2">
               This MAY be reused in the future once all other OPCODE
-              slots are in use.<a href="#section-4.2.2.1-2" class="pilcrow">¶</a></p>
+              slots are in use.<a href="#section-7.2.2.1-2" class="pilcrow">¶</a></p>
 </section>
-<section id="section-4.2.2.2">
+<section id="section-7.2.2.2">
             <h5 id="name-opcode-id-2-control_hard_re">
-<a href="#section-4.2.2.2" class="section-number selfRef">4.2.2.2. </a><a href="#name-opcode-id-2-control_hard_re" class="section-name selfRef">[OPCODE ID 2] CONTROL_HARD_RESET_SERVER_V1</a>
+<a href="#section-7.2.2.2" class="section-number selfRef">7.2.2.2. </a><a href="#name-opcode-id-2-control_hard_re" class="section-name selfRef">[OPCODE ID 2] CONTROL_HARD_RESET_SERVER_V1</a>
             </h5>
-<p id="section-4.2.2.2-1">
-              OBSOLETE: This OPCODE is not in use any more.<a href="#section-4.2.2.2-1" class="pilcrow">¶</a></p>
-<p id="section-4.2.2.2-2">
+<p id="section-7.2.2.2-1">
+              OBSOLETE: This OPCODE is not in use any more.<a href="#section-7.2.2.2-1" class="pilcrow">¶</a></p>
+<p id="section-7.2.2.2-2">
               This MAY be reused in the future once all other OPCODE
-              slots are in use.<a href="#section-4.2.2.2-2" class="pilcrow">¶</a></p>
+              slots are in use.<a href="#section-7.2.2.2-2" class="pilcrow">¶</a></p>
 </section>
-<section id="section-4.2.2.3">
+<section id="section-7.2.2.3">
             <h5 id="name-opcode-id-3-control_soft_re">
-<a href="#section-4.2.2.3" class="section-number selfRef">4.2.2.3. </a><a href="#name-opcode-id-3-control_soft_re" class="section-name selfRef">[OPCODE ID 3] CONTROL_SOFT_RESET_V1</a>
+<a href="#section-7.2.2.3" class="section-number selfRef">7.2.2.3. </a><a href="#name-opcode-id-3-control_soft_re" class="section-name selfRef">[OPCODE ID 3] CONTROL_SOFT_RESET_V1</a>
             </h5>
-<p id="section-4.2.2.3-1">
+<p id="section-7.2.2.3-1">
               Start new TLS session to generate a new data channel key
-              to allow a graceful transition from old to new key<a href="#section-4.2.2.3-1" class="pilcrow">¶</a></p>
-<p id="section-4.2.2.3-2">
+              to allow a graceful transition from old to new key<a href="#section-7.2.2.3-1" class="pilcrow">¶</a></p>
+<p id="section-7.2.2.3-2">
               This is used to rotate session keys.  It allows both
               a new key and the old ones to be valid for a limited
               transition window.  The transition window size is
               decided by the server.  This window SHOULD NOT
-              exceed the expected renegotiation cycle.<a href="#section-4.2.2.3-2" class="pilcrow">¶</a></p>
-<p id="section-4.2.2.3-3">
+              exceed the expected renegotiation cycle.<a href="#section-7.2.2.3-2" class="pilcrow">¶</a></p>
+<p id="section-7.2.2.3-3">
               Either client or server CAN send a CONTROL_SOFT_RESET_V1
               packet to the remote side.  The remote side MUST respond
               with a CONTROL_SOFT_RESET_V1 message to acknowledge that
               a renegotiation of the session keys will start.  Then
               the side receiving the last CONTROL_SOFT_RESET_V1 packet
               replies with a ACK_V1 message.  At this point the
-              renegotation can start using the CONTROL_V1 OPCODE.<a href="#section-4.2.2.3-3" class="pilcrow">¶</a></p>
-<p id="section-4.2.2.3-4">
+              renegotation can start using the CONTROL_V1 OPCODE.<a href="#section-7.2.2.3-3" class="pilcrow">¶</a></p>
+<p id="section-7.2.2.3-4">
               When the ACK_V1 packet is being sent, the key_id field
               MUST be incremented to ensure the connection can still
               use the old keys for a shorter time until the transistion
               has completed.  Any following packets need to use the new
               key-id until the old key have been removed and the new
-              key-id replaces it completely. (schwabe:FIXME THIS WRONG)<a href="#section-4.2.2.3-4" class="pilcrow">¶</a></p>
-<p id="section-4.2.2.3-5">
-              [FIXME: Elaborate more on how re-keying happens]<a href="#section-4.2.2.3-5" class="pilcrow">¶</a></p>
+              key-id replaces it completely. (schwabe:FIXME THIS WRONG)<a href="#section-7.2.2.3-4" class="pilcrow">¶</a></p>
+<p id="section-7.2.2.3-5">
+              [FIXME: Elaborate more on how re-keying happens]<a href="#section-7.2.2.3-5" class="pilcrow">¶</a></p>
 </section>
-<section id="section-4.2.2.4">
+<section id="section-7.2.2.4">
             <h5 id="name-opcode-id-4-control_v1">
-<a href="#section-4.2.2.4" class="section-number selfRef">4.2.2.4. </a><a href="#name-opcode-id-4-control_v1" class="section-name selfRef">[OPCODE ID 4] CONTROL_V1</a>
+<a href="#section-7.2.2.4" class="section-number selfRef">7.2.2.4. </a><a href="#name-opcode-id-4-control_v1" class="section-name selfRef">[OPCODE ID 4] CONTROL_V1</a>
             </h5>
-<p id="section-4.2.2.4-1">
-              Control channel packet, usually TLS protocol data<a href="#section-4.2.2.4-1" class="pilcrow">¶</a></p>
-<p id="section-4.2.2.4-2">
+<p id="section-7.2.2.4-1">
+              Control channel packet, usually TLS protocol data<a href="#section-7.2.2.4-1" class="pilcrow">¶</a></p>
+<p id="section-7.2.2.4-2">
               CONTROL_V1 is used to encapsulate the SSL/TLS protocol into the
               OpenVPN wire packet, primarily used for the SSL/TLS handshake
               process.  The payload of CONTROL_V1 packets are expected to be
               processed by an SSL/TLS library.  Once the SSL/TLS handshake
               have completed and the ephemeral session key have been
               negotiated, encrypted tunnel data will use either DATA_V1 or
-              DATA_V2 for the transport of those packets.<a href="#section-4.2.2.4-2" class="pilcrow">¶</a></p>
+              DATA_V2 for the transport of those packets.<a href="#section-7.2.2.4-2" class="pilcrow">¶</a></p>
 </section>
-<section id="section-4.2.2.5">
+<section id="section-7.2.2.5">
             <h5 id="name-opcode-id-5-ack_v1">
-<a href="#section-4.2.2.5" class="section-number selfRef">4.2.2.5. </a><a href="#name-opcode-id-5-ack_v1" class="section-name selfRef">[OPCODE ID 5] ACK_V1</a>
+<a href="#section-7.2.2.5" class="section-number selfRef">7.2.2.5. </a><a href="#name-opcode-id-5-ack_v1" class="section-name selfRef">[OPCODE ID 5] ACK_V1</a>
             </h5>
-<p id="section-4.2.2.5-1">
-              Acknowledgement for received control channel packets<a href="#section-4.2.2.5-1" class="pilcrow">¶</a></p>
-<p id="section-4.2.2.5-2">
+<p id="section-7.2.2.5-1">
+              Acknowledgement for received control channel packets<a href="#section-7.2.2.5-1" class="pilcrow">¶</a></p>
+<p id="section-7.2.2.5-2">
               When control channel packets have been received an ACK_V1
               packet is sent back to confirm its arrival.  It SHOULD NOT
-              be sent an ACK_V1 message upon receiving an ACK_V1 message.<a href="#section-4.2.2.5-2" class="pilcrow">¶</a></p>
+              be sent an ACK_V1 message upon receiving an ACK_V1 message.<a href="#section-7.2.2.5-2" class="pilcrow">¶</a></p>
 </section>
-<section id="section-4.2.2.6">
+<section id="section-7.2.2.6">
             <h5 id="name-opcode-id-7-control_hard_re">
-<a href="#section-4.2.2.6" class="section-number selfRef">4.2.2.6. </a><a href="#name-opcode-id-7-control_hard_re" class="section-name selfRef">[OPCODE ID 7] CONTROL_HARD_RESET_CLIENT_V2</a>
+<a href="#section-7.2.2.6" class="section-number selfRef">7.2.2.6. </a><a href="#name-opcode-id-7-control_hard_re" class="section-name selfRef">[OPCODE ID 7] CONTROL_HARD_RESET_CLIENT_V2</a>
             </h5>
-<p id="section-4.2.2.6-1">
-              Initial key from client, forget previous state<a href="#section-4.2.2.6-1" class="pilcrow">¶</a></p>
-<p id="section-4.2.2.6-2">
+<p id="section-7.2.2.6-1">
+              Initial key from client, forget previous state<a href="#section-7.2.2.6-1" class="pilcrow">¶</a></p>
+<p id="section-7.2.2.6-2">
               The client starts with a fresh new session key.  This tells the server
               to initiate a new TLS handshake and establish a new session key for
-              data channel going from client to server.<a href="#section-4.2.2.6-2" class="pilcrow">¶</a></p>
+              data channel going from client to server.<a href="#section-7.2.2.6-2" class="pilcrow">¶</a></p>
 </section>
-<section id="section-4.2.2.7">
+<section id="section-7.2.2.7">
             <h5 id="name-opcode-id-8-control_hard_re">
-<a href="#section-4.2.2.7" class="section-number selfRef">4.2.2.7. </a><a href="#name-opcode-id-8-control_hard_re" class="section-name selfRef">[OPCODE ID 8] CONTROL_HARD_RESET_SERVER_V2</a>
+<a href="#section-7.2.2.7" class="section-number selfRef">7.2.2.7. </a><a href="#name-opcode-id-8-control_hard_re" class="section-name selfRef">[OPCODE ID 8] CONTROL_HARD_RESET_SERVER_V2</a>
             </h5>
-<p id="section-4.2.2.7-1">
-              Initial key from server, forget previous state.<a href="#section-4.2.2.7-1" class="pilcrow">¶</a></p>
-<p id="section-4.2.2.7-2">
+<p id="section-7.2.2.7-1">
+              Initial key from server, forget previous state.<a href="#section-7.2.2.7-1" class="pilcrow">¶</a></p>
+<p id="section-7.2.2.7-2">
               [FIXME: TBD]
               Similar to CONTROL_HARD_RESET_CLIENT_V2, but initiated from
-              the server side.<a href="#section-4.2.2.7-2" class="pilcrow">¶</a></p>
+              the server side.<a href="#section-7.2.2.7-2" class="pilcrow">¶</a></p>
 </section>
 </section>
-<section id="section-4.2.3">
+<section id="section-7.2.3">
           <h4 id="name-push-messages">
-<a href="#section-4.2.3" class="section-number selfRef">4.2.3. </a><a href="#name-push-messages" class="section-name selfRef">PUSH messages</a>
+<a href="#section-7.2.3" class="section-number selfRef">7.2.3. </a><a href="#name-push-messages" class="section-name selfRef">PUSH messages</a>
         </h4>
 </section>
-<section id="section-4.2.4">
+<section id="section-7.2.4">
           <h4 id="name-peer-info">
-<a href="#section-4.2.4" class="section-number selfRef">4.2.4. </a><a href="#name-peer-info" class="section-name selfRef">Peer-Info</a>
+<a href="#section-7.2.4" class="section-number selfRef">7.2.4. </a><a href="#name-peer-info" class="section-name selfRef">Peer-Info</a>
         </h4>
 </section>
 </section>
-<section id="section-4.3">
+<section id="section-7.3">
         <h3 id="name-the-data-channel">
-<a href="#section-4.3" class="section-number selfRef">4.3. </a><a href="#name-the-data-channel" class="section-name selfRef">The Data Channel</a>
+<a href="#section-7.3" class="section-number selfRef">7.3. </a><a href="#name-the-data-channel" class="section-name selfRef">The Data Channel</a>
         </h3>
-<section id="section-4.3.1">
+<section id="section-7.3.1">
           <h4 id="name-opcode-id-9-data_v2">
-<a href="#section-4.3.1" class="section-number selfRef">4.3.1. </a><a href="#name-opcode-id-9-data_v2" class="section-name selfRef">[OPCODE ID 9] DATA_V2</a>
+<a href="#section-7.3.1" class="section-number selfRef">7.3.1. </a><a href="#name-opcode-id-9-data_v2" class="section-name selfRef">[OPCODE ID 9] DATA_V2</a>
           </h4>
-<p id="section-4.3.1-1">
+<p id="section-7.3.1-1">
             Data channel packet with 4-byte header.  This is
             similar to DATA_V1 with an additional field of 24 bits
-            for Peer-ID.<a href="#section-4.3.1-1" class="pilcrow">¶</a></p>
-<p id="section-4.3.1-2">
+            for Peer-ID.<a href="#section-7.3.1-1" class="pilcrow">¶</a></p>
+<p id="section-7.3.1-2">
             The table below describes each field and the order of the fields
-            found in DATA_V2 packets.<a href="#section-4.3.1-2" class="pilcrow">¶</a></p>
+            found in DATA_V2 packets.<a href="#section-7.3.1-2" class="pilcrow">¶</a></p>
 <table class="center" id="table-3">
             <caption><a href="#table-3" class="selfRef">Table 3</a></caption>
 <thead>
@@ -2143,21 +2287,21 @@ li > p:last-of-type {
             </tbody>
           </table>
 </section>
-<section id="section-4.3.2">
+<section id="section-7.3.2">
           <h4 id="name-opcode-id-6-data_v1">
-<a href="#section-4.3.2" class="section-number selfRef">4.3.2. </a><a href="#name-opcode-id-6-data_v1" class="section-name selfRef">[OPCODE ID 6] DATA_V1</a>
+<a href="#section-7.3.2" class="section-number selfRef">7.3.2. </a><a href="#name-opcode-id-6-data_v1" class="section-name selfRef">[OPCODE ID 6] DATA_V1</a>
           </h4>
-<p id="section-4.3.2-1">
+<p id="section-7.3.2-1">
             The DATA_V1 packet is identical to the DATA_V2 packet apart from
             op_code being 6 and the peer_id absent from the packet format
-            (all followings fields are shifted by 3 bytes to the left).<a href="#section-4.3.2-1" class="pilcrow">¶</a></p>
+            (all followings fields are shifted by 3 bytes to the left).<a href="#section-7.3.2-1" class="pilcrow">¶</a></p>
 </section>
 </section>
-<section id="section-4.4">
+<section id="section-7.4">
         <h3 id="name-aead-encrypted-data-channel">
-<a href="#section-4.4" class="section-number selfRef">4.4. </a><a href="#name-aead-encrypted-data-channel" class="section-name selfRef">AEAD encrypted data channel packet</a>
+<a href="#section-7.4" class="section-number selfRef">7.4. </a><a href="#name-aead-encrypted-data-channel" class="section-name selfRef">AEAD encrypted data channel packet</a>
         </h3>
-<div class="alignLeft art-text artwork" id="section-4.4-1">
+<div class="alignLeft art-text artwork" id="section-7.4-1">
 <pre>
 
               struct aead_packet {
@@ -2168,34 +2312,34 @@ li > p:last-of-type {
               uint8_t[16] authentication_tag;
               uint8_t* encrypted_payload;
               }
-</pre><a href="#section-4.4-1" class="pilcrow">¶</a>
+</pre><a href="#section-7.4-1" class="pilcrow">¶</a>
 </div>
-<p id="section-4.4-2">
-          The packet_id together with the implicit IV forms the IV for decryption.<a href="#section-4.4-2" class="pilcrow">¶</a></p>
-<p id="section-4.4-3">
-          IV = paket_id | implicit_iv;<a href="#section-4.4-3" class="pilcrow">¶</a></p>
-<p id="section-4.4-4">
+<p id="section-7.4-2">
+          The packet_id together with the implicit IV forms the IV for decryption.<a href="#section-7.4-2" class="pilcrow">¶</a></p>
+<p id="section-7.4-3">
+          IV = paket_id | implicit_iv;<a href="#section-7.4-3" class="pilcrow">¶</a></p>
+<p id="section-7.4-4">
           The implicit part of IV is filled by first bytes of the auth_c2s/auth_s2c of
           the data channel key. For the current implemented AEAD ciphers
           Chacha20-Poly1305 and AES-GCM the IV length is 96 bits, 32 bits are
           from packet_id and the remaining 64 bits (the implicit IV part) are
-          taken from the data channel key.<a href="#section-4.4-4" class="pilcrow">¶</a></p>
-<p id="section-4.4-5">
+          taken from the data channel key.<a href="#section-7.4-4" class="pilcrow">¶</a></p>
+<p id="section-7.4-5">
           For DATA_V2 packets the authenticated data *includes* opcode,
           key_id and peer_id. For DATA_V1 packets the authenticated data starts
-          on the first byte of packet_id, not including opcode and key_id.<a href="#section-4.4-5" class="pilcrow">¶</a></p>
-<p id="section-4.4-6">
-          authenticated_data_v1 = packet_id | payload<a href="#section-4.4-6" class="pilcrow">¶</a></p>
-<p id="section-4.4-7">
-          authenticated_data_v2 = opcode| key_id | peer_id | packet_id | payload<a href="#section-4.4-7" class="pilcrow">¶</a></p>
-<p id="section-4.4-8">
-          The tag size (as in TLS) is always 128 bit (16 bytes).<a href="#section-4.4-8" class="pilcrow">¶</a></p>
+          on the first byte of packet_id, not including opcode and key_id.<a href="#section-7.4-5" class="pilcrow">¶</a></p>
+<p id="section-7.4-6">
+          authenticated_data_v1 = packet_id | payload<a href="#section-7.4-6" class="pilcrow">¶</a></p>
+<p id="section-7.4-7">
+          authenticated_data_v2 = opcode| key_id | peer_id | packet_id | payload<a href="#section-7.4-7" class="pilcrow">¶</a></p>
+<p id="section-7.4-8">
+          The tag size (as in TLS) is always 128 bit (16 bytes).<a href="#section-7.4-8" class="pilcrow">¶</a></p>
 </section>
-<section id="section-4.5">
+<section id="section-7.5">
         <h3 id="name-cbc-ofb-ctr-encrypted-packe">
-<a href="#section-4.5" class="section-number selfRef">4.5. </a><a href="#name-cbc-ofb-ctr-encrypted-packe" class="section-name selfRef">CBC/OFB/CTR encrypted packet</a>
+<a href="#section-7.5" class="section-number selfRef">7.5. </a><a href="#name-cbc-ofb-ctr-encrypted-packe" class="section-name selfRef">CBC/OFB/CTR encrypted packet</a>
         </h3>
-<div class="alignLeft art-text artwork" id="section-4.5-1">
+<div class="alignLeft art-text artwork" id="section-7.5-1">
 <pre>
               struct data_packet_cbc {
               int opcode:5;
@@ -2206,9 +2350,9 @@ li > p:last-of-type {
               uint32_t encrypted_packet_id;
               uint8_t* encrypted_payload
               }
-</pre><a href="#section-4.5-1" class="pilcrow">¶</a>
+</pre><a href="#section-7.5-1" class="pilcrow">¶</a>
 </div>
-<div class="alignLeft art-text artwork" id="section-4.5-2">
+<div class="alignLeft art-text artwork" id="section-7.5-2">
 <pre>
 
               struct data_packet_xfb {
@@ -2219,42 +2363,42 @@ li > p:last-of-type {
               uint8_t[IV_LEN] iv;
               uint8_t* encrypted_payload
               }
-</pre><a href="#section-4.5-2" class="pilcrow">¶</a>
+</pre><a href="#section-7.5-2" class="pilcrow">¶</a>
 </div>
-<p id="section-4.5-3">HMAC_LEN depends on the length of the HMAC being used, e.g. 20 bytes for
+<p id="section-7.5-3">HMAC_LEN depends on the length of the HMAC being used, e.g. 20 bytes for
           SHA1, 32 for SHA256. If no authentication is used (DEPRECATED) then the
-          length of the field is 0.<a href="#section-4.5-3" class="pilcrow">¶</a></p>
-<p id="section-4.5-4">The HMAC is computed over the complete remainder of the packet. opcode,
+          length of the field is 0.<a href="#section-7.5-3" class="pilcrow">¶</a></p>
+<p id="section-7.5-4">The HMAC is computed over the complete remainder of the packet. opcode,
           key_id, and peer_id are NOT included in the HMAC calculation. If HMAC verification
           fails decryption of the packet MUST NOT be attempted. OpenVPN implements the
-          encrypt-then-MAC approach.<a href="#section-4.5-4" class="pilcrow">¶</a></p>
-<p id="section-4.5-5">IV_LEN depends on the IV of used cipher. For AES in CBC, CFB and OFB this
+          encrypt-then-MAC approach.<a href="#section-7.5-4" class="pilcrow">¶</a></p>
+<p id="section-7.5-5">IV_LEN depends on the IV of used cipher. For AES in CBC, CFB and OFB this
           is 128 bits, for Blowfish in CBC mode (DEPRECATED) 64 The. For generating
           the IV use best pratices. OpenVPN generates the CBC IV as random bytes
-          with an PRNG. For OFB and CFB the IV has the following format:<a href="#section-4.5-5" class="pilcrow">¶</a></p>
-<p id="section-4.5-6">IV = 64 bit packet ID | IV_remainder<a href="#section-4.5-6" class="pilcrow">¶</a></p>
-<p id="section-4.5-7">The IV_remainder SHOULD be random bytes. OpenVPN 2.x uses all zeros instead.<a href="#section-4.5-7" class="pilcrow">¶</a></p>
-<p id="section-4.5-8">bit packet ID in CBC mode is encrypted and before the payload. In contrast
-          to that, the packet ID in OFB and CFB mode are the first 64 bit of the IV.<a href="#section-4.5-8" class="pilcrow">¶</a></p>
-<p id="section-4.5-9">For unecrypted data packets the same format as CBC without IV is used.<a href="#section-4.5-9" class="pilcrow">¶</a></p>
+          with an PRNG. For OFB and CFB the IV has the following format:<a href="#section-7.5-5" class="pilcrow">¶</a></p>
+<p id="section-7.5-6">IV = 64 bit packet ID | IV_remainder<a href="#section-7.5-6" class="pilcrow">¶</a></p>
+<p id="section-7.5-7">The IV_remainder SHOULD be random bytes. OpenVPN 2.x uses all zeros instead.<a href="#section-7.5-7" class="pilcrow">¶</a></p>
+<p id="section-7.5-8">bit packet ID in CBC mode is encrypted and before the payload. In contrast
+          to that, the packet ID in OFB and CFB mode are the first 64 bit of the IV.<a href="#section-7.5-8" class="pilcrow">¶</a></p>
+<p id="section-7.5-9">For unecrypted data packets the same format as CBC without IV is used.<a href="#section-7.5-9" class="pilcrow">¶</a></p>
 </section>
-<section id="section-4.6">
+<section id="section-7.6">
         <h3 id="name-packet-id">
-<a href="#section-4.6" class="section-number selfRef">4.6. </a><a href="#name-packet-id" class="section-name selfRef">Packet ID</a>
+<a href="#section-7.6" class="section-number selfRef">7.6. </a><a href="#name-packet-id" class="section-name selfRef">Packet ID</a>
         </h3>
-<p id="section-4.6-1">
+<p id="section-7.6-1">
           The packet ID is an increasing ID that is tied to a key id. For each
           key_id the packet id is independent and starts at 0.
 
           TODO: Looking at AEAD packets allows figuring out how many packets have been
-          sent, is is a problem?<a href="#section-4.6-1" class="pilcrow">¶</a></p>
+          sent, is is a problem?<a href="#section-7.6-1" class="pilcrow">¶</a></p>
 </section>
 </section>
-<section id="section-5">
+<section id="section-8">
       <h2 id="name-peer-id">
-<a href="#section-5" class="section-number selfRef">5. </a><a href="#name-peer-id" class="section-name selfRef">Peer-ID</a>
+<a href="#section-8" class="section-number selfRef">8. </a><a href="#name-peer-id" class="section-name selfRef">Peer-ID</a>
       </h2>
-<p id="section-5-1">
+<p id="section-8-1">
         The Peer-ID implementation is optional.  The purpose of this feature
         is to allow a client to float between various client IP addresses and
         UDP ports.  When a client floats it means that the established
@@ -2262,12 +2406,12 @@ li > p:last-of-type {
         address or source port changes.  Reasons for such changes can be NAT
         firewalls interrupting longer lasting established connections, mobile
         devices moving from WLAN to a mobile data carrier (such as GPRS, 3G,
-        LTE, etc) and similar scenarios.<a href="#section-5-1" class="pilcrow">¶</a></p>
-<section id="section-5.1">
+        LTE, etc) and similar scenarios.<a href="#section-8-1" class="pilcrow">¶</a></p>
+<section id="section-8.1">
         <h3 id="name-requirements">
-<a href="#section-5.1" class="section-number selfRef">5.1. </a><a href="#name-requirements" class="section-name selfRef">Requirements</a>
+<a href="#section-8.1" class="section-number selfRef">8.1. </a><a href="#name-requirements" class="section-name selfRef">Requirements</a>
         </h3>
-<p id="section-5.1-1">
+<p id="section-8.1-1">
           Each client implementing Peer-ID support MUST support the IV_PROTO=2
           wire protocol and MUST indicate this to the server through the
           peer-info response.   By sending IV_PROTO=2 to the server, it means
@@ -2276,93 +2420,93 @@ li > p:last-of-type {
           it SHOULD assign a unique Peer-ID to the client.  The server is
           responsible of keeping track of which Peer-ID is related to which
           active session and MUST ensure no active clients share the same
-          Peer-ID.<a href="#section-5.1-1" class="pilcrow">¶</a></p>
-<p id="section-5.1-2">
+          Peer-ID.<a href="#section-8.1-1" class="pilcrow">¶</a></p>
+<p id="section-8.1-2">
           Clients MUST accept the peer-id option being passed to it via a
           PUSH_REPLY message and SHOULD use this value as the Peer-ID in all
           DATA_V2 packets.  Clients MUST provide a valid Peer-ID in all
           DATA_V2 packets, but it can be the ID used to indicate Peer-ID being
-          disabled.<a href="#section-5.1-2" class="pilcrow">¶</a></p>
-<p id="section-5.1-3">
+          disabled.<a href="#section-8.1-2" class="pilcrow">¶</a></p>
+<p id="section-8.1-3">
           Server implementations MUST support the IV_PROTO=2 and the DATA_V2
           packet format and MUST evaluate the response from the client before
           assigning and pushing a peer-id option to the client.  The server
           can use both DATA_V1 and DATA_V2 packet formats when communicating
           with the clients.  If the server chooses to use DATA_V2, the server
-          MUST use the disabled Peer-ID reference to the client.<a href="#section-5.1-3" class="pilcrow">¶</a></p>
-<p id="section-5.1-4">
+          MUST use the disabled Peer-ID reference to the client.<a href="#section-8.1-3" class="pilcrow">¶</a></p>
+<p id="section-8.1-4">
           The client is not expected to parse the Peer-ID in DATA_V2 packets.
           The server should send the same Peer-ID provided in packets from the
-          server to client.<a href="#section-5.1-4" class="pilcrow">¶</a></p>
-<p id="section-5.1-5">
+          server to client.<a href="#section-8.1-4" class="pilcrow">¶</a></p>
+<p id="section-8.1-5">
           The Peer-ID is included protected in the HMAC signature/AEAD tag 
-          of  DATA_V2 packets.<a href="#section-5.1-5" class="pilcrow">¶</a></p>
+          of  DATA_V2 packets.<a href="#section-8.1-5" class="pilcrow">¶</a></p>
 </section>
-<section id="section-5.2">
+<section id="section-8.2">
         <h3 id="name-allowing-floating-clients">
-<a href="#section-5.2" class="section-number selfRef">5.2. </a><a href="#name-allowing-floating-clients" class="section-name selfRef">Allowing floating clients</a>
+<a href="#section-8.2" class="section-number selfRef">8.2. </a><a href="#name-allowing-floating-clients" class="section-name selfRef">Allowing floating clients</a>
         </h3>
-<p id="section-5.2-1">
+<p id="section-8.2-1">
           The server MUST ensure the packet integrity is intact, through
           checking HMAC or GCM authentication tags, replay protection, etc
-          of the DATA_V2 packet<a href="#section-5.2-1" class="pilcrow">¶</a></p>
-<p id="section-5.2-2">
+          of the DATA_V2 packet<a href="#section-8.2-1" class="pilcrow">¶</a></p>
+<p id="section-8.2-2">
           In addition the server MUST ensure the float does not clobber
           a pre-existing client, such as a the client floating to a source
           IP address used by a different client unless it can be verified
           that the pre-existing client is a previous instance of the
           floating client.
 
-          [FIXME: Verify.  What if several independent clients float to same source IP?]<a href="#section-5.2-2" class="pilcrow">¶</a></p>
+          [FIXME: Verify.  What if several independent clients float to same source IP?]<a href="#section-8.2-2" class="pilcrow">¶</a></p>
 </section>
 </section>
-<section id="section-6">
+<section id="section-9">
       <h2 id="name-control-channel-messages">
-<a href="#section-6" class="section-number selfRef">6. </a><a href="#name-control-channel-messages" class="section-name selfRef">Control channel messages</a>
+<a href="#section-9" class="section-number selfRef">9. </a><a href="#name-control-channel-messages" class="section-name selfRef">Control channel messages</a>
       </h2>
-<section id="section-6.1">
+<section id="section-9.1">
         <h3 id="name-message-format">
-<a href="#section-6.1" class="section-number selfRef">6.1. </a><a href="#name-message-format" class="section-name selfRef">Message format</a>
+<a href="#section-9.1" class="section-number selfRef">9.1. </a><a href="#name-message-format" class="section-name selfRef">Message format</a>
         </h3>
-<p id="section-6.1-1">
+<p id="section-9.1-1">
           After the control channel has been established the format switch from the binary format of
           the key exchange message to a text based format. The message are sent in plain text. The
-          current implementation does not allow a message to span more than one TLS record.<a href="#section-6.1-1" class="pilcrow">¶</a></p>
+          current implementation does not allow a message to span more than one TLS record.<a href="#section-9.1-1" class="pilcrow">¶</a></p>
 </section>
-<section id="section-6.2">
+<section id="section-9.2">
         <h3 id="name-push_request">
-<a href="#section-6.2" class="section-number selfRef">6.2. </a><a href="#name-push_request" class="section-name selfRef">PUSH_REQUEST</a>
+<a href="#section-9.2" class="section-number selfRef">9.2. </a><a href="#name-push_request" class="section-name selfRef">PUSH_REQUEST</a>
         </h3>
-<p id="section-6.2-1">
-          Format: "PUSH_REQUEST"<a href="#section-6.2-1" class="pilcrow">¶</a></p>
-<p id="section-6.2-2">
+<p id="section-9.2-1">
+          Format: "PUSH_REQUEST"<a href="#section-9.2-1" class="pilcrow">¶</a></p>
+<p id="section-9.2-2">
           This message is sent from the client to the server and instructs the server that the
           client is ready to receive a "PUSH_RPELY" message. The message is periodically repeated
           until the PUSH_REPLY is received for compatibilit with old OpenVPN servers and to act as
-          a keepalive.<a href="#section-6.2-2" class="pilcrow">¶</a></p>
+          a keepalive.<a href="#section-9.2-2" class="pilcrow">¶</a></p>
 </section>
-<section id="section-6.3">
+<section id="section-9.3">
         <h3 id="name-push_reply">
-<a href="#section-6.3" class="section-number selfRef">6.3. </a><a href="#name-push_reply" class="section-name selfRef">PUSH_REPLY</a>
+<a href="#section-9.3" class="section-number selfRef">9.3. </a><a href="#name-push_reply" class="section-name selfRef">PUSH_REPLY</a>
         </h3>
-<p id="section-6.3-1">
-          Format: "PUSH_REPLY [comma seperated options]"<a href="#section-6.3-1" class="pilcrow">¶</a></p>
-<p id="section-6.3-2">
+<p id="section-9.3-1">
+          Format: "PUSH_REPLY [comma seperated options]"<a href="#section-9.3-1" class="pilcrow">¶</a></p>
+<p id="section-9.3-2">
           This message is sent from the server to the client and has dynamic configuration for the client.
-          See the section "dynamic configuration option" for a detailed description of the options.<a href="#section-6.3-2" class="pilcrow">¶</a></p>
+          See the section "dynamic configuration option" for a detailed description of the options.<a href="#section-9.3-2" class="pilcrow">¶</a></p>
 </section>
-<section id="section-6.4">
+<section id="section-9.4">
         <h3 id="name-auth_pending">
-<a href="#section-6.4" class="section-number selfRef">6.4. </a><a href="#name-auth_pending" class="section-name selfRef">AUTH_PENDING</a>
+<a href="#section-9.4" class="section-number selfRef">9.4. </a><a href="#name-auth_pending" class="section-name selfRef">AUTH_PENDING</a>
         </h3>
-<p id="section-6.4-1">
+<p id="section-9.4-1">
           Format:
           "AUTH_PENDING"
           
           or
           
-          "AUTH_PENDING,flags"<a href="#section-6.4-1" class="pilcrow">¶</a></p>
-<p id="section-6.4-2">
+          "AUTH_PENDING,flags"<a href="#section-9.4-1" class="pilcrow">¶</a></p>
+<p id="section-9.4-2">
           This message is sent from the server to the client to indicate that a multi factor authentication is in use
           and the authentication is not completed. The authentication can continue inband or out-of-band.
           
@@ -2370,13 +2514,13 @@ li > p:last-of-type {
           expects the client to stay in the pending auth state. 
           The client indicates if the extended format with flags is supported by setting
           the IV_PROTO_AUTH_PENDING_KW bit in the IV_PROTO
-          client variable. All new clients MUST support the extended format.<a href="#section-6.4-2" class="pilcrow">¶</a></p>
+          client variable. All new clients MUST support the extended format.<a href="#section-9.4-2" class="pilcrow">¶</a></p>
 </section>
-<section id="section-6.5">
+<section id="section-9.5">
         <h3 id="name-restart-and-halt">
-<a href="#section-6.5" class="section-number selfRef">6.5. </a><a href="#name-restart-and-halt" class="section-name selfRef">RESTART and HALT</a>
+<a href="#section-9.5" class="section-number selfRef">9.5. </a><a href="#name-restart-and-halt" class="section-name selfRef">RESTART and HALT</a>
         </h3>
-<p id="section-6.5-1">
+<p id="section-9.5-1">
           Format:
 
           "RESTART[,message]"
@@ -2384,8 +2528,8 @@ li > p:last-of-type {
 
           and
 
-          "RESTART,[[flags]]message"<a href="#section-6.5-1" class="pilcrow">¶</a></p>
-<p id="section-6.5-2">
+          "RESTART,[[flags]]message"<a href="#section-9.5-1" class="pilcrow">¶</a></p>
+<p id="section-9.5-2">
           These message are sent from the server to the client and the client to
           terminate a session. With HALT the client is expected to also not try to
           try reconnect. With RESTART the client is expected to reconnect. flags is
@@ -2396,13 +2540,13 @@ li > p:last-of-type {
           when the client receives a "RESTART[PN]" message it should reconnect to same
           server with the same username and password.
 
-          The optional message indicates a message that can relayed to the user.<a href="#section-6.5-2" class="pilcrow">¶</a></p>
+          The optional message indicates a message that can relayed to the user.<a href="#section-9.5-2" class="pilcrow">¶</a></p>
 </section>
-<section id="section-6.6">
+<section id="section-9.6">
         <h3 id="name-auth_failed">
-<a href="#section-6.6" class="section-number selfRef">6.6. </a><a href="#name-auth_failed" class="section-name selfRef">AUTH_FAILED</a>
+<a href="#section-9.6" class="section-number selfRef">9.6. </a><a href="#name-auth_failed" class="section-name selfRef">AUTH_FAILED</a>
         </h3>
-<p id="section-6.6-1">
+<p id="section-9.6-1">
           Format:
 
           AUTH_FAILED[,message]
@@ -2410,8 +2554,8 @@ li > p:last-of-type {
           AUTH_FAILED,SESSION:message
 
           AUTH_FAILED,TEMP[keywords]:message
-          AUTH_FAILED,TEMP:message<a href="#section-6.6-1" class="pilcrow">¶</a></p>
-<p id="section-6.6-2">
+          AUTH_FAILED,TEMP:message<a href="#section-9.6-1" class="pilcrow">¶</a></p>
+<p id="section-9.6-2">
           This message indicates to a client that an authentication attempt was unsuccessful.
           This message is mostly send in response to a PULL_REQUEST or when a client attempts to
           renegotiates a TLS session.
@@ -2424,99 +2568,111 @@ li > p:last-of-type {
           The AUTH_FAILED,TEMP message indicates that the authentication temporarily failed and should
           the client continue to retry to connect. The server can optionally give a user readable message
           and hint the client a behaviour how to proceed. The keywords of AUTH_FAILED,TEMP are comma seperated
-          keys/values. Currently defined are:<a href="#section-6.6-2" class="pilcrow">¶</a></p>
+          keys/values. Currently defined are:<a href="#section-9.6-2" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-6.6-3.1"> backoff s - instructs the client to wait at least s seconds before the next connection attempt. If
-            the client has already a higher delay before reconnecting, the dealy should NOT be shortend.<a href="#section-6.6-3.1" class="pilcrow">¶</a>
+<li class="normal" id="section-9.6-3.1"> backoff s - instructs the client to wait at least s seconds before the next connection attempt. If
+            the client has already a higher delay before reconnecting, the dealy should NOT be shortend.<a href="#section-9.6-3.1" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-6.6-3.2"> advance addr - Instructs the client to reconnect to the (IP) address of the current server.<a href="#section-6.6-3.2" class="pilcrow">¶</a>
+          <li class="normal" id="section-9.6-3.2"> advance addr - Instructs the client to reconnect to the (IP) address of the current server.<a href="#section-9.6-3.2" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-6.6-3.3"> advance remote - Instructs the client to skip the remaining IP addresses of the current server and instead
-            connect to the next server specified in the configuration file<a href="#section-6.6-3.3" class="pilcrow">¶</a>
+          <li class="normal" id="section-9.6-3.3"> advance remote - Instructs the client to skip the remaining IP addresses of the current server and instead
+            connect to the next server specified in the configuration file<a href="#section-9.6-3.3" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-6.6-3.4"> advance no - Instructs the client to retry connecting to the same server again.<a href="#section-6.6-3.4" class="pilcrow">¶</a>
+          <li class="normal" id="section-9.6-3.4"> advance no - Instructs the client to retry connecting to the same server again.<a href="#section-9.6-3.4" class="pilcrow">¶</a>
 </li>
         </ul>
-<p id="section-6.6-4">
+<p id="section-9.6-4">
           For example a server that might send "AUTH_FAILED,TEMP[backoff 42,advance no]: No free IP addresses" to indicate
           that the VPN connection can currently not succeed and instructs the client to retry in 42s again.
 
           The client will announce the capability of understanding AUTH_FAILED,TEMP message by setting the
           IV_PROTO_AUTH_FAILED_TEMP bit in IV_PROTO. A client that does not understand the AUTH_FAILED,TEMP message
-          will treat this recoverable error as a non-recoverable error.<a href="#section-6.6-4" class="pilcrow">¶</a></p>
+          will treat this recoverable error as a non-recoverable error.<a href="#section-9.6-4" class="pilcrow">¶</a></p>
 </section>
-<section id="section-6.7">
+<section id="section-9.7">
         <h3 id="name-cr_response">
-<a href="#section-6.7" class="section-number selfRef">6.7. </a><a href="#name-cr_response" class="section-name selfRef">CR_RESPONSE</a>
+<a href="#section-9.7" class="section-number selfRef">9.7. </a><a href="#name-cr_response" class="section-name selfRef">CR_RESPONSE</a>
         </h3>
-<p id="section-6.7-1">
+<p id="section-9.7-1">
           Format:
 
-          CR_RESPONSE,base64reply<a href="#section-6.7-1" class="pilcrow">¶</a></p>
-<p id="section-6.7-2">
+          CR_RESPONSE,base64reply<a href="#section-9.7-1" class="pilcrow">¶</a></p>
+<p id="section-9.7-2">
           This message indicates a reply to prior challenge/response request. The response is specific to the
-          challenge response and is encoded with base64.<a href="#section-6.7-2" class="pilcrow">¶</a></p>
+          challenge response and is encoded with base64.<a href="#section-9.7-2" class="pilcrow">¶</a></p>
 </section>
-<section id="section-6.8">
+<section id="section-9.8">
         <h3 id="name-info_pre-and-info">
-<a href="#section-6.8" class="section-number selfRef">6.8. </a><a href="#name-info_pre-and-info" class="section-name selfRef">INFO_PRE and INFO</a>
+<a href="#section-9.8" class="section-number selfRef">9.8. </a><a href="#name-info_pre-and-info" class="section-name selfRef">INFO_PRE and INFO</a>
         </h3>
-<p id="section-6.8-1">
+<p id="section-9.8-1">
           Format:
 
           INFO_PRE,EXTRA
 
-          INFO,EXTRA<a href="#section-6.8-1" class="pilcrow">¶</a></p>
-<p id="section-6.8-2">
+          INFO,EXTRA<a href="#section-9.8-1" class="pilcrow">¶</a></p>
+<p id="section-9.8-2">
           This message is used to send pending auth parameters. See the section on pending auth for more details
-          on the format of the EXTRA parameter.<a href="#section-6.8-2" class="pilcrow">¶</a></p>
+          on the format of the EXTRA parameter.<a href="#section-9.8-2" class="pilcrow">¶</a></p>
 </section>
 </section>
-<section id="section-7">
+<section id="section-10">
       <h2 id="name-cryptography">
-<a href="#section-7" class="section-number selfRef">7. </a><a href="#name-cryptography" class="section-name selfRef">Cryptography</a>
+<a href="#section-10" class="section-number selfRef">10. </a><a href="#name-cryptography" class="section-name selfRef">Cryptography</a>
       </h2>
-<section id="section-7.1">
+<section id="section-10.1">
         <h3 id="name-openvpn-and-the-ssl-tls-pro">
-<a href="#section-7.1" class="section-number selfRef">7.1. </a><a href="#name-openvpn-and-the-ssl-tls-pro" class="section-name selfRef">OpenVPN and the SSL/TLS protocol</a>
+<a href="#section-10.1" class="section-number selfRef">10.1. </a><a href="#name-openvpn-and-the-ssl-tls-pro" class="section-name selfRef">OpenVPN and the SSL/TLS protocol</a>
         </h3>
-<p id="section-7.1-1">TBD<a href="#section-7.1-1" class="pilcrow">¶</a></p>
+<p id="section-10.1-1">TBD<a href="#section-10.1-1" class="pilcrow">¶</a></p>
 </section>
-<section id="section-7.2">
+<section id="section-10.2">
         <h3 id="name-cipher-negotiation">
-<a href="#section-7.2" class="section-number selfRef">7.2. </a><a href="#name-cipher-negotiation" class="section-name selfRef">Cipher negotiation</a>
+<a href="#section-10.2" class="section-number selfRef">10.2. </a><a href="#name-cipher-negotiation" class="section-name selfRef">Cipher negotiation</a>
         </h3>
-<p id="section-7.2-1">TBD<a href="#section-7.2-1" class="pilcrow">¶</a></p>
+<p id="section-10.2-1">TBD<a href="#section-10.2-1" class="pilcrow">¶</a></p>
 </section>
-<section id="section-7.3">
+<section id="section-10.3">
         <h3 id="name-tls-mode-and-pki">
-<a href="#section-7.3" class="section-number selfRef">7.3. </a><a href="#name-tls-mode-and-pki" class="section-name selfRef">TLS mode and PKI</a>
+<a href="#section-10.3" class="section-number selfRef">10.3. </a><a href="#name-tls-mode-and-pki" class="section-name selfRef">TLS mode and PKI</a>
         </h3>
-<p id="section-7.3-1">TBD<a href="#section-7.3-1" class="pilcrow">¶</a></p>
+<p id="section-10.3-1">TBD<a href="#section-10.3-1" class="pilcrow">¶</a></p>
 </section>
 </section>
-<section id="section-8">
+<section id="section-11">
       <h2 id="name-user-authentication">
-<a href="#section-8" class="section-number selfRef">8. </a><a href="#name-user-authentication" class="section-name selfRef">User authentication</a>
+<a href="#section-11" class="section-number selfRef">11. </a><a href="#name-user-authentication" class="section-name selfRef">User authentication</a>
       </h2>
-<section id="section-8.1">
+<section id="section-11.1">
         <h3 id="name-user-password-authenticatio">
-<a href="#section-8.1" class="section-number selfRef">8.1. </a><a href="#name-user-password-authenticatio" class="section-name selfRef">User/password authentication</a>
+<a href="#section-11.1" class="section-number selfRef">11.1. </a><a href="#name-user-password-authenticatio" class="section-name selfRef">User/password authentication</a>
         </h3>
-<p id="section-8.1-1">TBD<a href="#section-8.1-1" class="pilcrow">¶</a></p>
+<p id="section-11.1-1">TBD<a href="#section-11.1-1" class="pilcrow">¶</a></p>
 </section>
-<section id="section-8.2">
+<section id="section-11.2">
         <h3 id="name-challenge-response-authenti">
-<a href="#section-8.2" class="section-number selfRef">8.2. </a><a href="#name-challenge-response-authenti" class="section-name selfRef">Challenge-Response authentication</a>
+<a href="#section-11.2" class="section-number selfRef">11.2. </a><a href="#name-challenge-response-authenti" class="section-name selfRef">Challenge-Response authentication</a>
         </h3>
-<p id="section-8.2-1">TBD<a href="#section-8.2-1" class="pilcrow">¶</a></p>
+<p id="section-11.2-1">TBD<a href="#section-11.2-1" class="pilcrow">¶</a></p>
 </section>
 </section>
-<section id="section-9">
+<section id="section-12">
       <h2 id="name-normative-references">
-<a href="#section-9" class="section-number selfRef">9. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
+<a href="#section-12" class="section-number selfRef">12. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
       </h2>
 <dl class="references">
+<dt id="ferguson2005authentication">[ferguson2005authentication]</dt>
+      <dd>
+<span class="refAuthor">Ferguson, N.</span>, <span class="refTitle">"Authentication weaknesses in GCM"</span>, <time datetime="2005" class="refDate">2005</time>. </dd>
+<dd class="break"></dd>
+<dt id="joux2006authentication">[joux2006authentication]</dt>
+      <dd>
+<span class="refAuthor">Joux, A.</span>, <span class="refTitle">"Authentication failures in NIST version of GCM (2006)"</span>, <time datetime="2006" class="refDate">2006</time>. </dd>
+<dd class="break"></dd>
+<dt id="nistgcm">[nistgcm]</dt>
+      <dd>
+<span class="refAuthor">Dworkin, M. J.</span>, <span class="refTitle">"Sp 800-38d. recommendation for block cipher modes of operation: Galois/counter mode (gcm) and gmac"</span>, <time datetime="2007" class="refDate">2007</time>. </dd>
+<dd class="break"></dd>
 <dt id="RFC2104">[RFC2104]</dt>
       <dd>
 <span class="refAuthor">Krawczyk, H.</span>, <span class="refAuthor">Bellare, M.</span>, and <span class="refAuthor">R. Canetti</span>, <span class="refTitle">"HMAC: Keyed-Hashing for Message Authentication"</span>, <span class="seriesInfo">RFC 2104</span>, <span class="seriesInfo">DOI 10.17487/RFC2104</span>, <time datetime="1997-02" class="refDate">February 1997</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc2104">https://www.rfc-editor.org/info/rfc2104</a>&gt;</span>. </dd>
@@ -2530,8 +2686,12 @@ li > p:last-of-type {
 <span class="refAuthor">Dierks, T.</span> and <span class="refAuthor">E. Rescorla</span>, <span class="refTitle">"The Transport Layer Security (TLS) Protocol Version 1.2"</span>, <span class="seriesInfo">RFC 5246</span>, <span class="seriesInfo">DOI 10.17487/RFC5246</span>, <time datetime="2008-08" class="refDate">August 2008</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc5246">https://www.rfc-editor.org/info/rfc5246</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC5280">[RFC5280]</dt>
-    <dd>
+      <dd>
 <span class="refAuthor">Cooper, D.</span>, <span class="refAuthor">Santesson, S.</span>, <span class="refAuthor">Farrell, S.</span>, <span class="refAuthor">Boeyen, S.</span>, <span class="refAuthor">Housley, R.</span>, and <span class="refAuthor">W. Polk</span>, <span class="refTitle">"Internet X.509 Public Key Infrastructure Certificate and Certificate Revocation List (CRL) Profile"</span>, <span class="seriesInfo">RFC 5280</span>, <span class="seriesInfo">DOI 10.17487/RFC5280</span>, <time datetime="2008-05" class="refDate">May 2008</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc5280">https://www.rfc-editor.org/info/rfc5280</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="rogaway2006provable">[rogaway2006provable]</dt>
+    <dd>
+<span class="refAuthor">Rogaway, P.</span> and <span class="refAuthor">T. Shrimpton</span>, <span class="refTitle">"A provable-security treatment of the key-wrap problem"</span>, <time datetime="2006" class="refDate">2006</time>. </dd>
 <dd class="break"></dd>
 </dl>
 </section>
