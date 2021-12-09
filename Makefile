@@ -11,5 +11,6 @@ clean:
 
 
 #pip3 install bibtex2rfc
+# https://datatracker.ietf.org/doc/html/rfc7991
 bibtex:
 	bibtex2rfc bibliography.bib

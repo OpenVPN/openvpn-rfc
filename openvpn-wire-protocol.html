@@ -1339,6 +1339,9 @@ li > p:last-of-type {
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.2">
                 <p id="section-toc.1-1.3.2.2.1"><a href="#section-3.2" class="xref">3.2</a>.  <a href="#name-tls-crypt-security-consider" class="xref">tls-crypt Security considerations</a></p>
 </li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.3">
+                <p id="section-toc.1-1.3.2.3.1"><a href="#section-3.3" class="xref">3.3</a>.  <a href="#name-client-specific-tls-crypt-k" class="xref">Client-specific tls-crypt keys (tls-crypt-v2)</a></p>
+</li>
             </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4">
@@ -1762,6 +1765,230 @@ li > p:last-of-type {
               numbers are reasonable.<a href="#section-3.2-4.2" class="pilcrow">¶</a>
 </li>
         </ul>
+</section>
+<section id="section-3.3">
+        <h3 id="name-client-specific-tls-crypt-k">
+<a href="#section-3.3" class="section-number selfRef">3.3. </a><a href="#name-client-specific-tls-crypt-k" class="section-name selfRef">Client-specific tls-crypt keys (tls-crypt-v2)</a>
+        </h3>
+<p id="section-3.3-1">
+          This section describes OpenVPN to use of client-specific tls-crypt keys.<a href="#section-3.3-1" class="pilcrow">¶</a></p>
+<section id="section-3.3.1">
+          <h4 id="name-rationale">
+<a href="#section-3.3.1" class="section-number selfRef">3.3.1. </a><a href="#name-rationale" class="section-name selfRef">Rationale</a>
+          </h4>
+<p id="section-3.3.1-1">
+            ``--tls-auth`` and ``tls-crypt`` use a pre-shared group key,
+            which is shared among all clients and servers in an OpenVPN
+            deployment.  If any client or server is compromised, the
+            attacker will have access to this shared key, and it
+            will no longer provide any security.  To reduce the risk of
+            losing pre-shared keys, ``tls-crypt-v2`` adds the ability to
+            supply each client with a unique tls-crypt key.  This allows
+            large organisations and VPN providers to profit from the same
+            DoS and TLS stack protection that small deployments can already
+            achieve using ``tls-auth`` or ``tls-crypt``.<a href="#section-3.3.1-1" class="pilcrow">¶</a></p>
+<p id="section-3.3.1-2">
+            Also, for ``tls-crypt``, even if all these peers succeed in
+            keeping the key secret, the key lifetime is limited to roughly
+            8000 years, divided by the number of clients (see the
+            ``--tls-crypt`` section of the man page).  Using client-specific
+            keys, we lift this lifetime requirement to roughly 8000 years
+            for each client key (which "Should Be Enough For Everybody (tm)").<a href="#section-3.3.1-2" class="pilcrow">¶</a></p>
+</section>
+<section id="section-3.3.2">
+          <h4 id="name-introduction-2">
+<a href="#section-3.3.2" class="section-number selfRef">3.3.2. </a><a href="#name-introduction-2" class="section-name selfRef">Introduction</a>
+          </h4>
+<p id="section-3.3.2-1">
+            ``tls-crypt-v2`` uses an encrypted cookie mechanism to introduce
+            client-specific tls-crypt keys without introducing a lot of server-side state.
+            The client-specific key is encrypted using a server key.  The server key is the
+            same for all servers in a group.  When a client connects, it first sends the
+            encrypted key to the server, such that the server can decrypt the key and all
+            messages can thereafter be encrypted using the client-specific key.<a href="#section-3.3.2-1" class="pilcrow">¶</a></p>
+<p id="section-3.3.2-2">
+            A wrapped (encrypted and authenticated) client-specific key can also contain
+            metadata.  The metadata is wrapped together with the key, and can be used to
+            allow servers to identify clients and/or key validity.  This allows the server
+            to abort the connection immediately after receiving the first packet, rather
+            than performing an entire TLS handshake.  Aborting the connection this early
+            greatly improves the DoS resilience and reduces attack surface against
+            malicious clients that have the ``tls-crypt`` or ``tls-auth`` key.  This is
+            particularly relevant for large deployments (think lost key or disgruntled
+            employee) and VPN providers (clients are not trusted).<a href="#section-3.3.2-2" class="pilcrow">¶</a></p>
+<p id="section-3.3.2-3">
+            To allow for a smooth transition, ``tls-crypt-v2`` is designed such that a
+            server can enable both ``tls-crypt-v2`` and either ``tls-crypt`` or
+            ``tls-auth``.  This is achieved by introducing a P_CONTROL_HARD_RESET_CLIENT_V3
+            opcode, that indicates that the client wants to use ``tls-crypt-v2`` for the
+            current connection.<a href="#section-3.3.2-3" class="pilcrow">¶</a></p>
+</section>
+<section id="section-3.3.3">
+          <h4 id="name-implementation">
+<a href="#section-3.3.3" class="section-number selfRef">3.3.3. </a><a href="#name-implementation" class="section-name selfRef">Implementation</a>
+          </h4>
+<p id="section-3.3.3-1">
+            When setting up a tls-crypt-v2 group (similar to generating a tls-crypt or
+            tls-auth key previously):<a href="#section-3.3.3-1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-3.3.3-2">
+              <li id="section-3.3.3-2.1">
+              <p id="section-3.3.3-2.1.1">
+                Generate a tls-crypt-v2 server key using OpenVPN's ``--genkey tls-crypt-v2-server``.
+                This key contains 2 512-bit keys, of which we use:<a href="#section-3.3.3-2.1.1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-3.3.3-2.1.2.1"> the first 256 bits of key 1 as AES-256-CTR encryption key ``Ke``<a href="#section-3.3.3-2.1.2.1" class="pilcrow">¶</a>
+</li>
+                <li class="normal" id="section-3.3.3-2.1.2.2"> the first 256 bits of key 2 as HMAC-SHA-256 authentication key ``Ka``<a href="#section-3.3.3-2.1.2.2" class="pilcrow">¶</a>
+</li>
+              </ul>
+<p id="section-3.3.3-2.1.3">
+                This format is similar to the format for regular ``tls-crypt``/``tls-auth``
+                and data channel keys, which allows us to reuse code.<a href="#section-3.3.3-2.1.3" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-3.3.3-2.2">
+                Add the tls-crypt-v2 server key to all server configs
+                (``tls-crypt-v2 /path/to/server.key``)<a href="#section-3.3.3-2.2" class="pilcrow">¶</a>
+</li>
+          </ol>
+<p id="section-3.3.3-3">
+            When provisioning a client, create a client-specific tls-crypt key:<a href="#section-3.3.3-3" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-3.3.3-4">
+              <li id="section-3.3.3-4.1">. Generate 2048 bits client-specific key ``Kc`` using OpenVPN's ``--genkey tls-crypt-v2-client``<a href="#section-3.3.3-4.1" class="pilcrow">¶</a>
+</li>
+            <li id="section-3.3.3-4.2">
+              <p id="section-3.3.3-4.2.1"> Optionally generate metadata.
+
+                 The first byte of the metadata determines the type.  The initial
+              implementation supports the following types:<a href="#section-3.3.3-4.2.1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-3.3.3-4.2.2.1">   0x00 (USER):         User-defined free-form data.<a href="#section-3.3.3-4.2.2.1" class="pilcrow">¶</a>
+</li>
+                <li class="normal" id="section-3.3.3-4.2.2.2">   0x01 (TIMESTAMP):    64-bit network order unix timestamp of key generation.<a href="#section-3.3.3-4.2.2.2" class="pilcrow">¶</a>
+</li>
+              </ul>
+<p id="section-3.3.3-4.2.3">
+                The timestamp can be used to reject too-old tls-crypt-v2 client keys.<a href="#section-3.3.3-4.2.3" class="pilcrow">¶</a></p>
+<p id="section-3.3.3-4.2.4">
+                User metadata could for example contain the users certificate serial, such
+                that the incoming connection can be verified against a CRL.<a href="#section-3.3.3-4.2.4" class="pilcrow">¶</a></p>
+<p id="section-3.3.3-4.2.5">
+                If no metadata is supplied during key generation, openvpn defaults to the
+                TIMESTAMP metadata type.<a href="#section-3.3.3-4.2.5" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-3.3.3-4.3">
+              <p id="section-3.3.3-4.3.1"> Create a wrapped client key ``WKc``, using the same nonce-misuse-resistant
+              SIV construction we use for tls-crypt:<a href="#section-3.3.3-4.3.1" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-3.3.3-4.3.2">
+<pre>
+``len = len(WKc)`` (16 bit, network byte order)
+
+``T = HMAC-SHA256(Ka, len || Kc || metadata)``
+
+``IV = 128 most significant bits of T``
+
+``WKc = T || AES-256-CTR(Ke, IV, Kc || metadata) || len``
+</pre><a href="#section-3.3.3-4.3.2" class="pilcrow">¶</a>
+</div>
+<p id="section-3.3.3-4.3.3">
+
+              Note that the length of ``WKc`` can be computed before composing ``WKc``,
+              because the length of each component is known (and AES-256-CTR does not add
+              any padding).<a href="#section-3.3.3-4.3.3" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-3.3.3-4.4"> Create a tls-crypt-v2 client key: PEM-encode ``Kc || WKc`` and store in a
+              file, using the header ``-----BEGIN OpenVPN tls-crypt-v2 client key-----``
+              and the footer ``-----END OpenVPN tls-crypt-v2 client key-----``.  (The PEM
+              format is simple, and following PEM allows us to use the crypto lib function
+              for en/decoding.)<a href="#section-3.3.3-4.4" class="pilcrow">¶</a>
+</li>
+            <li id="section-3.3.3-4.5"> Add the tls-crypt-v2 client key to the client config
+              (``tls-crypt-v2 /path/to/client-specific.key``)<a href="#section-3.3.3-4.5" class="pilcrow">¶</a>
+</li>
+          </ol>
+<p id="section-3.3.3-5">
+            When setting up the openvpn connection:<a href="#section-3.3.3-5" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-3.3.3-6">
+
+              <li id="section-3.3.3-6.1">. The client reads the tls-crypt-v2 key from its config, and:
+
+              1. loads ``Kc`` as its tls-crypt key,
+              2. stores ``WKc`` in memory for sending to the server.<a href="#section-3.3.3-6.1" class="pilcrow">¶</a>
+</li>
+            <li id="section-3.3.3-6.2">. To start the connection, the client creates a P_CONTROL_HARD_RESET_CLIENT_V3
+              message, wraps it with tls-crypt using ``Kc`` as the key, and appends
+              ``WKc``.  (``WKc`` must not be encrypted, to prevent a chicken-and-egg
+              problem.)<a href="#section-3.3.3-6.2" class="pilcrow">¶</a>
+</li>
+            <li id="section-3.3.3-6.3"> The server receives the P_CONTROL_HARD_RESET_CLIENT_V3 message, and
+
+              1. reads the WKc length field from the end of the message, and extracts WKc
+              from the message
+              2. unwraps ``WKc``
+              3. uses unwrapped ``Kc`` to verify the remaining
+              P_CONTROL_HARD_RESET_CLIENT_V3 message's (encryption and) authentication.
+
+              The message is dropped and no error response is sent when either 3.1, 3.2 or
+              3.3 fails (DoS protection).<a href="#section-3.3.3-6.3" class="pilcrow">¶</a>
+</li>
+            <li id="section-3.3.3-6.4"> Server optionally checks metadata using a --tls-crypt-v2-verify script
+
+              This allows early abort of connection, *before* we expose any of the
+              notoriously dangerous TLS, X.509 and ASN.1 parsers and thereby reduces the
+              attack surface of the server.
+
+              The metadata is checked *after* the OpenVPN three-way handshake has
+              completed, to prevent DoS attacks.  (That is, once the client has proved to
+              the server that it possesses Kc, by authenticating a packet that contains the
+              session ID picked by the server.)
+
+              A server should not send back any error messages if metadata verification
+              fails, to reduce attack surface and maximize DoS resilience.<a href="#section-3.3.3-6.4" class="pilcrow">¶</a>
+</li>
+            <li id="section-3.3.3-6.5"> Client and server use ``Kc`` for (un)wrapping any following control channel
+              messages.<a href="#section-3.3.3-6.5" class="pilcrow">¶</a>
+</li>
+          </ol>
+</section>
+<section id="section-3.3.4">
+          <h4 id="name-considerations">
+<a href="#section-3.3.4" class="section-number selfRef">3.3.4. </a><a href="#name-considerations" class="section-name selfRef">Considerations</a>
+          </h4>
+<p id="section-3.3.4-1">
+To allow for a smooth transition, the server implementation allows
+``tls-crypt`` or ``tls-auth`` to be used simultaneously with ``tls-crypt-v2``.
+This specification does not allow simultaneously using ``tls-crypt-v2`` and
+connections without any control channel wrapping, because that would break DoS
+resilience.<a href="#section-3.3.4-1" class="pilcrow">¶</a></p>
+<p id="section-3.3.4-2">
+WKc includes a length field, so we leave the option for future extension of the
+P_CONTROL_HEAD_RESET_CLIENT_V3 message open.  (E.g. add payload to the reset to
+indicate low-level protocol features.)<a href="#section-3.3.4-2" class="pilcrow">¶</a></p>
+<p id="section-3.3.4-3">
+``tls-crypt-v2`` uses fixed crypto algorithms, because:<a href="#section-3.3.4-3" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-3.3.4-4.1">The crypto is used before we can do any negotiation, so the algorithms have
+   to be predefined.<a href="#section-3.3.4-4.1" class="pilcrow">¶</a>
+</li>
+            <li class="normal" id="section-3.3.4-4.2">The crypto primitives are chosen conservatively, making problems with these
+   primitives unlikely.<a href="#section-3.3.4-4.2" class="pilcrow">¶</a>
+</li>
+            <li class="normal" id="section-3.3.4-4.3">Making anything configurable adds complexity, both in implementation and
+usage.  We should not add any more complexity than is absolutely necessary.<a href="#section-3.3.4-4.3" class="pilcrow">¶</a>
+</li>
+          </ul>
+<p id="section-3.3.4-5">
+Potential ``tls-crypt-v2`` risks:<a href="#section-3.3.4-5" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-3.3.4-6.1">Slightly more work on first connection (``WKc`` unwrap + hard reset unwrap)
+   than with ``tls-crypt`` (hard reset unwrap) or ``tls-auth`` (hard reset auth).<a href="#section-3.3.4-6.1" class="pilcrow">¶</a>
+</li>
+            <li class="normal" id="section-3.3.4-6.2">Flexible metadata allow mistakes
+   (So we should make it easy to do it right.  Provide tooling to create client
+   keys based on cert serial + CA fingerprint, provide script that uses CRL (if
+available) to drop revoked keys.)<a href="#section-3.3.4-6.2" class="pilcrow">¶</a>
+</li>
+          </ul>
+</section>
 </section>
 </section>
 <section id="section-4">
