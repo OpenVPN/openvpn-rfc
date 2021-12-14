@@ -1,0 +1,102 @@
+Control packet wire format
+
+[header] [1-byte ack array len] [[4 bytes acked packet-id]] [8 bytes dest session-id] [4 bytes message-packet-id] [tls-encrypted payload]
+
+    [header]
+
+    tls-plain
+
+      [1 byte opcode/key-id] [8 bytes self session-id]
+
+    tls-auth
+
+      [1 byte opcode/key-id] [8 bytes self session-id] [hmac] [4 bytes packet-id] [4 bytes packet-datetime]
+
+      [8 bytes self session-id] - 8 bytes of randomness, generated at the beginning of protocol session
+
+      [hmac] - calculate hmac over:
+        - packet-id and packet-datetime
+        - opcode/key-id and self session-id
+        - payload
+
+        for hmac hash alg, use either
+          - "tls-auth-digest" opt value
+          - "auth" opt value
+          - sha1
+
+        for hmac key, use "tls-auth" opt value
+
+      [packet-id] - counter used for replay pretection, incremented with each packet transmission
+
+      [packet-datetime] - datetime when session has been established
+
+    [1-byte ack array len] - length of acks array, zero if array is empty
+
+    [[4 bytes acked packet-id]] - packet-ids which have been received, may be omitted
+
+    [8 bytes dest session-id] - may be omitted if ack array is empty
+
+    [4 bytes message-packet-id] - counter used by reliability layer, incremented when packet is generated, not incremented on retransmit
+
+    [tls-encrypted payload] - presents only in P_CONTROL_V1
+
+
+Session establishment:
+
+  C -> S CONTROL_HARD_RESET_CLIENT_V2
+           client session-id
+           acks: 0
+           message-packet-id 0
+
+  S -> C CONTROL_HARD_RESET_CLIENT_V2
+           server session-id
+           acks: 1
+           ack 0
+           client session-id
+           message-packet-id 0
+
+  C -> S P_CONTROL_V1
+          client session-id
+          acks: 1
+          ack 0
+          server session-id
+          message-packet-id 1
+
+          payload:
+            "send_auth" aka "key_method2_write"
+            auth_prefix  { 0, 0, 0, 0, 2 }
+            pre_master key (48 bytes)
+            random1 (32 bytes)
+            random2 (32 bytes)
+            options string (prefixed with len, ends with NULL)
+              (strings sent below are sent in the same way)
+            username/password
+            peer info (IV_* values)
+
+          Note that sending TLS payload triggers TLS handshake, where TLS packets content is provided by crypto backend (like OpenSSL) on both
+          ends.
+
+  After receiving "send_auth/key_method2_write", server replies with own "send_auth", which is same as client one except without pre_master key.
+  When client receives "send_auth" from the server, 256-bytes data channel key is generated:
+
+    - master secret is computed with SSL backend key derivation API from:
+      - pre_master key
+      - client random1
+      - server random1
+
+    - session key is computed with SSL backend key derivation API from:
+      - master secret
+      - client random2
+      - server random2
+      - client session-id
+      - server session-id
+
+  Data channel key is then sliced into:
+    - cipher encrypt key
+    - cipher decrypt key
+    - hmac encrypt key
+    - hmac decrypt key
+
+  Which key to use for encryption or decryption is based on key direction - normal for server, reverse for client.
+
+  If "key-derivation tls-ekm" option specified, key derivation is done using TLS keying material export.
