@@ -40,13 +40,13 @@
  <front>
    <title abbrev="OpenVPN Wire Protocol">OpenVPN Wire Protocol</title>
    <author fullname="Arne Schwabe" initials="A.S." surname="Schwabe">
-     <organization>OpenVPN , Inc</organization>
+     <organization>OpenVPN, Inc</organization>
      <address>
        <email>david.sommerseth@openvpn.net</email>
      </address>
    </author>
    <author fullname="David Sommerseth" initials="D.S." surname="Sommerseth">
-      <organization>OpenVPN , Inc</organization>
+      <organization>OpenVPN, Inc</organization>
       <address>
         <email>david.sommerseth@openvpn.net</email>
       </address>
@@ -790,80 +790,63 @@ available) to drop revoked keys.)</li>
           <texttable>
             <ttcol>Field name</ttcol>
             <ttcol align="right">Length (bits)</ttcol>
-            <ttcol align="center">TCP/UDP</ttcol>
-            <ttcol align="center">TLS mode</ttcol>
             <ttcol align="center">TLS auth</ttcol>
             <ttcol>Comment</ttcol>
 
             <c>pkt_len</c>
             <c>16</c>
-            <c>TCP</c>
             <c></c>
-            <c></c>
-            <c>Packet length</c>
+            <c>Packet length (TCP only)</c>
 
             <c>OPCODE</c>
             <c>5</c>
-            <c>TCP/UDP</c>
-            <c>X</c>
             <c></c>
             <c></c>
 
             <c>key_id</c>
             <c>3</c>
-            <c>TCP/UDP</c>
             <c>X</c>
-            <c></c>
             <c></c>
 
             <c>own session_id</c>
             <c>64</c>
-            <c>TCP/UDP</c>
             <c>X</c>
-            <c></c>
             <c></c>
 
             <c>HMAC</c>
             <c>128-512</c>
-            <c>TCP/UDP</c>
-            <c>X</c>
             <c>X</c>
             <c>Algorithm defines length</c>
 
-            <c>packet_id</c>
-            <c>32</c>
-            <c>TCP/UDP</c>
+            <c>replay_packet_id</c>
+            <c>64</c>
             <c>X</c>
-            <c>X</c>
-            <c></c>
-
-            <c>timestamp</c>
-            <c>32</c>
-            <c>TCP/UDP</c>
-            <c>X?</c>
-            <c>X</c>
-            <c>OPTIONAL</c>
+            <c>Id used for replay protection</c>
 
             <c>acked_pktid_len</c>
             <c>8</c>
-            <c>TCP/UDP</c>
-            <c>X</c>
             <c>X</c>
             <c>OPTIONAL</c>
 
             <c>acked_pktid_list</c>
             <c>32 * n</c>
-            <c>TCP/UDP</c>
-            <c>X</c>
             <c>X</c>
             <c>List length defined by acked_pktid_len.</c>
 
+            <c>peer session id</c>
+            <c>64</c>
+            <c>X</c>
+            <c>Session ID of the remote peer. Present if acked_pktid_len >= 1</c>
+
+            <c>packet_id</c>
+            <c>64</c>
+            <c>X</c>
+            <c>ID of the control channel packet</c>
+
             <c>payload</c>
             <c>(var)</c>
-            <c>TCP/UDP</c>
-            <c>*</c>
-            <c>*</c>
-            <c>REQUIRED</c>
+            <c>X</c>
+            <c>Can be empty</c>
           </texttable>
 
           <section title="Field: pkt_len">
@@ -909,18 +892,20 @@ available) to drop revoked keys.)</li>
             </t>
           </section>
 
-          <section title="Field: packet_id and timestamp">
+          
+          <section title="Field: replay_packet_id">
             <t>
               This is an incremental ID for each packet which helps
-              discovering packet replay attacks.  The short packet_id
-              format is only 32 bits.  The long packet_id format adds
-              a timestamp in addition.  For both fields the value is
-              transfered using network byte order.
+              discovering packet replay attacks. Usually consists of
+              a 32 bit time + 32 bit counter but can be any monotonically
+              increasing sequence For both fields the value is
+              transfered using network byte order
             </t>
             <t>
               For CFB/OFB based ciphers, the long packet_id format MUST be
               used, as the packet_id is part of the cipher's IV.
               [FIXME/syzzer: Elaborate more]
+              [FIXME/schabe: move to data channel]
             </t>
           </section>
 
@@ -941,6 +926,22 @@ available) to drop revoked keys.)</li>
               ID.  These packet IDs should be found in a local cache of sent
               packet IDs.  If not found, the communication may have been
               manipulated.
+            </t>
+          </section>
+          <section title="Field: peer_session_id">
+            If acked_pktid_len is 1 or greater this field MUST be present and
+            specify the remote session id. If acked_pktid_len is 0 the field MUST
+            be absent.
+          </section>
+
+          <section title="Field: packet_id">
+            <t>
+              The ID of the control channel packet. The packet ID ids
+              are used to ensure a TCP like connection even if UDP is
+              used as protocol. The id MUST start at 0 and MUST be
+              sequential without gaps. Retransmission must have the same
+              packet_id as the original message but can have a different
+              replay_packet_id.
             </t>
           </section>
 

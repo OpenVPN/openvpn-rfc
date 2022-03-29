@@ -31,7 +31,7 @@
 <meta content="draft-openvpntech-openvpn-wire-protocol-01" name="ietf.draft">
 <!-- Generator version information:
   xml2rfc 3.11.1
-    Python 3.9.8
+    Python 3.9.9
     appdirs 1.4.4
     ConfigArgParse 1.5.3
     google-i18n-address 2.5.0
@@ -45,7 +45,7 @@
     pyflakes 2.4.0
     PyYAML 6.0
     requests 2.26.0
-    setuptools 58.5.3
+    setuptools 59.0.1
     six 1.15.0
 -->
 <link href="openvpn-wire-protocol.xml" rel="alternate" type="application/rfc+xml">
@@ -1230,11 +1230,11 @@ li > p:last-of-type {
 <dd class="authors">
 <div class="author">
       <div class="author-name">A.S. Schwabe</div>
-<div class="org">OpenVPN , Inc</div>
+<div class="org">OpenVPN, Inc</div>
 </div>
 <div class="author">
       <div class="author-name">D.S. Sommerseth</div>
-<div class="org">OpenVPN , Inc</div>
+<div class="org">OpenVPN, Inc</div>
 </div>
 <div class="author">
       <div class="author-name">S.K. Karger</div>
@@ -2166,8 +2166,6 @@ available) to drop revoked keys.)<a href="#section-3.3.4-6.2" class="pilcrow">¶
               <tr>
                 <th class="text-left" rowspan="1" colspan="1">Field name</th>
                 <th class="text-right" rowspan="1" colspan="1">Length (bits)</th>
-                <th class="text-center" rowspan="1" colspan="1">TCP/UDP</th>
-                <th class="text-center" rowspan="1" colspan="1">TLS mode</th>
                 <th class="text-center" rowspan="1" colspan="1">TLS auth</th>
                 <th class="text-left" rowspan="1" colspan="1">Comment</th>
               </tr>
@@ -2176,82 +2174,68 @@ available) to drop revoked keys.)<a href="#section-3.3.4-6.2" class="pilcrow">¶
               <tr>
                 <td class="text-left" rowspan="1" colspan="1">pkt_len</td>
                 <td class="text-right" rowspan="1" colspan="1">16</td>
-                <td class="text-center" rowspan="1" colspan="1">TCP</td>
                 <td class="text-center" rowspan="1" colspan="1"></td>
-                <td class="text-center" rowspan="1" colspan="1"></td>
-                <td class="text-left" rowspan="1" colspan="1">Packet length</td>
+                <td class="text-left" rowspan="1" colspan="1">Packet length (TCP only)</td>
               </tr>
               <tr>
                 <td class="text-left" rowspan="1" colspan="1">OPCODE</td>
                 <td class="text-right" rowspan="1" colspan="1">5</td>
-                <td class="text-center" rowspan="1" colspan="1">TCP/UDP</td>
-                <td class="text-center" rowspan="1" colspan="1">X</td>
                 <td class="text-center" rowspan="1" colspan="1"></td>
                 <td class="text-left" rowspan="1" colspan="1"></td>
               </tr>
               <tr>
                 <td class="text-left" rowspan="1" colspan="1">key_id</td>
                 <td class="text-right" rowspan="1" colspan="1">3</td>
-                <td class="text-center" rowspan="1" colspan="1">TCP/UDP</td>
                 <td class="text-center" rowspan="1" colspan="1">X</td>
-                <td class="text-center" rowspan="1" colspan="1"></td>
                 <td class="text-left" rowspan="1" colspan="1"></td>
               </tr>
               <tr>
-                <td class="text-left" rowspan="1" colspan="1">session_id</td>
+                <td class="text-left" rowspan="1" colspan="1">own session_id</td>
                 <td class="text-right" rowspan="1" colspan="1">64</td>
-                <td class="text-center" rowspan="1" colspan="1">TCP/UDP</td>
                 <td class="text-center" rowspan="1" colspan="1">X</td>
-                <td class="text-center" rowspan="1" colspan="1"></td>
                 <td class="text-left" rowspan="1" colspan="1"></td>
               </tr>
               <tr>
                 <td class="text-left" rowspan="1" colspan="1">HMAC</td>
                 <td class="text-right" rowspan="1" colspan="1">128-512</td>
-                <td class="text-center" rowspan="1" colspan="1">TCP/UDP</td>
-                <td class="text-center" rowspan="1" colspan="1">X</td>
                 <td class="text-center" rowspan="1" colspan="1">X</td>
                 <td class="text-left" rowspan="1" colspan="1">Algorithm defines length</td>
               </tr>
               <tr>
-                <td class="text-left" rowspan="1" colspan="1">packet_id</td>
-                <td class="text-right" rowspan="1" colspan="1">32</td>
-                <td class="text-center" rowspan="1" colspan="1">TCP/UDP</td>
+                <td class="text-left" rowspan="1" colspan="1">replay_packet_id</td>
+                <td class="text-right" rowspan="1" colspan="1">64</td>
                 <td class="text-center" rowspan="1" colspan="1">X</td>
-                <td class="text-center" rowspan="1" colspan="1">X</td>
-                <td class="text-left" rowspan="1" colspan="1"></td>
-              </tr>
-              <tr>
-                <td class="text-left" rowspan="1" colspan="1">timestamp</td>
-                <td class="text-right" rowspan="1" colspan="1">32</td>
-                <td class="text-center" rowspan="1" colspan="1">TCP/UDP</td>
-                <td class="text-center" rowspan="1" colspan="1">X</td>
-                <td class="text-center" rowspan="1" colspan="1">X</td>
-                <td class="text-left" rowspan="1" colspan="1">OPTIONAL</td>
+                <td class="text-left" rowspan="1" colspan="1">Id used for replay protection</td>
               </tr>
               <tr>
                 <td class="text-left" rowspan="1" colspan="1">acked_pktid_len</td>
                 <td class="text-right" rowspan="1" colspan="1">8</td>
-                <td class="text-center" rowspan="1" colspan="1">TCP/UDP</td>
-                <td class="text-center" rowspan="1" colspan="1">X</td>
                 <td class="text-center" rowspan="1" colspan="1">X</td>
                 <td class="text-left" rowspan="1" colspan="1">OPTIONAL</td>
               </tr>
               <tr>
                 <td class="text-left" rowspan="1" colspan="1">acked_pktid_list</td>
                 <td class="text-right" rowspan="1" colspan="1">32 * n</td>
-                <td class="text-center" rowspan="1" colspan="1">TCP/UDP</td>
-                <td class="text-center" rowspan="1" colspan="1">X</td>
                 <td class="text-center" rowspan="1" colspan="1">X</td>
                 <td class="text-left" rowspan="1" colspan="1">List length defined by acked_pktid_len.</td>
               </tr>
               <tr>
+                <td class="text-left" rowspan="1" colspan="1">peer session id</td>
+                <td class="text-right" rowspan="1" colspan="1">64</td>
+                <td class="text-center" rowspan="1" colspan="1">X</td>
+                <td class="text-left" rowspan="1" colspan="1">Session ID of the remote peer. Present if acked_pktid_len &gt;= 1</td>
+              </tr>
+              <tr>
+                <td class="text-left" rowspan="1" colspan="1">packet_id</td>
+                <td class="text-right" rowspan="1" colspan="1">64</td>
+                <td class="text-center" rowspan="1" colspan="1">X</td>
+                <td class="text-left" rowspan="1" colspan="1">ID of the control channel packet</td>
+              </tr>
+              <tr>
                 <td class="text-left" rowspan="1" colspan="1">payload</td>
                 <td class="text-right" rowspan="1" colspan="1">(var)</td>
-                <td class="text-center" rowspan="1" colspan="1">TCP/UDP</td>
-                <td class="text-center" rowspan="1" colspan="1">*</td>
-                <td class="text-center" rowspan="1" colspan="1">*</td>
-                <td class="text-left" rowspan="1" colspan="1">REQUIRED</td>
+                <td class="text-center" rowspan="1" colspan="1">X</td>
+                <td class="text-left" rowspan="1" colspan="1">Can be empty</td>
               </tr>
             </tbody>
           </table>
@@ -2304,19 +2288,20 @@ available) to drop revoked keys.)<a href="#section-3.3.4-6.2" class="pilcrow">¶
               hashing algorithm.<a href="#section-7.2.1.5-1" class="pilcrow">¶</a></p>
 </section>
 <section id="section-7.2.1.6">
-            <h5 id="name-field-packet_id-and-timesta">
-<a href="#section-7.2.1.6" class="section-number selfRef">7.2.1.6. </a><a href="#name-field-packet_id-and-timesta" class="section-name selfRef">Field: packet_id and timestamp</a>
+            <h5 id="name-field-replay_packet_id">
+<a href="#section-7.2.1.6" class="section-number selfRef">7.2.1.6. </a><a href="#name-field-replay_packet_id" class="section-name selfRef">Field: replay_packet_id</a>
             </h5>
 <p id="section-7.2.1.6-1">
               This is an incremental ID for each packet which helps
-              discovering packet replay attacks.  The short packet_id
-              format is only 32 bits.  The long packet_id format adds
-              a timestamp in addition.  For both fields the value is
-              transfered using network byte order.<a href="#section-7.2.1.6-1" class="pilcrow">¶</a></p>
+              discovering packet replay attacks. Usually consists of
+              a 32 bit time + 32 bit counter but can be any monotonically
+              increasing sequence For both fields the value is
+              transfered using network byte order<a href="#section-7.2.1.6-1" class="pilcrow">¶</a></p>
 <p id="section-7.2.1.6-2">
               For CFB/OFB based ciphers, the long packet_id format MUST be
               used, as the packet_id is part of the cipher's IV.
-              [FIXME/syzzer: Elaborate more]<a href="#section-7.2.1.6-2" class="pilcrow">¶</a></p>
+              [FIXME/syzzer: Elaborate more]
+              [FIXME/schabe: move to data channel]<a href="#section-7.2.1.6-2" class="pilcrow">¶</a></p>
 </section>
 <section id="section-7.2.1.7">
             <h5 id="name-field-acked_pktid_len">
@@ -2929,7 +2914,7 @@ available) to drop revoked keys.)<a href="#section-3.3.4-6.2" class="pilcrow">¶
       </h2>
 <address class="vcard">
         <div dir="auto" class="left"><span class="fn nameRole">Arne Schwabe</span></div>
-<div dir="auto" class="left"><span class="org">OpenVPN , Inc</span></div>
+<div dir="auto" class="left"><span class="org">OpenVPN, Inc</span></div>
 <div class="email">
 <span>Email:</span>
 <a href="mailto:david.sommerseth@openvpn.net" class="email">david.sommerseth@openvpn.net</a>
@@ -2937,7 +2922,7 @@ available) to drop revoked keys.)<a href="#section-3.3.4-6.2" class="pilcrow">¶
 </address>
 <address class="vcard">
         <div dir="auto" class="left"><span class="fn nameRole">David Sommerseth</span></div>
-<div dir="auto" class="left"><span class="org">OpenVPN , Inc</span></div>
+<div dir="auto" class="left"><span class="org">OpenVPN, Inc</span></div>
 <div class="email">
 <span>Email:</span>
 <a href="mailto:david.sommerseth@openvpn.net" class="email">david.sommerseth@openvpn.net</a>
