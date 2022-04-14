@@ -6,7 +6,6 @@
 
 <!ENTITY RFC2104 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2104.xml">
 <!ENTITY RFC2119 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
-<!ENTITY RFC2629 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2629.xml">
 <!ENTITY RFC3552 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3552.xml">
 <!ENTITY RFC5226 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5226.xml">
 <!ENTITY RFC5246 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5246.xml">
@@ -841,7 +840,7 @@ available) to drop revoked keys.)</li>
             <c>packet_id</c>
             <c>64</c>
             <c>X</c>
-            <c>ID of the control channel packet</c>
+            <c>ID of the control channel packet. ACK packets lack a packet_id</c>
 
             <c>payload</c>
             <c>(var)</c>
@@ -929,9 +928,11 @@ available) to drop revoked keys.)</li>
             </t>
           </section>
           <section title="Field: peer_session_id">
-            If acked_pktid_len is 1 or greater this field MUST be present and
-            specify the remote session id. If acked_pktid_len is 0 the field MUST
-            be absent.
+            <t>
+              If acked_pktid_len is 1 or greater this field MUST be present and
+              specify the remote session id. If acked_pktid_len is 0 the field MUST
+              be absent.
+            </t>
           </section>
 
           <section title="Field: packet_id">
@@ -941,7 +942,7 @@ available) to drop revoked keys.)</li>
               used as protocol. The id MUST start at 0 and MUST be
               sequential without gaps. Retransmission must have the same
               packet_id as the original message but can have a different
-              replay_packet_id.
+              replay_packet_id. ACK packages MUST NOT have a packet_id
             </t>
           </section>
 
@@ -1038,23 +1039,54 @@ available) to drop revoked keys.)</li>
 
           <section title="[OPCODE ID 7] CONTROL_HARD_RESET_CLIENT_V2">
             <t>
-              Initial key from client, forget previous state
+             Used to start a VPN connection from client, first packet of the three way shake.
             </t>
             <t>
               The client starts with a fresh new session key.  This tells the server
               to initiate a new TLS handshake and establish a new session key for
               data channel going from client to server.
+
+              Note that the payload of this packet MUST be ignored but might
+              be used to implement early protocol negotiation in the future.
             </t>
           </section>
 
           <section title="[OPCODE ID 8] CONTROL_HARD_RESET_SERVER_V2">
             <t>
-              Initial key from server, forget previous state.
+              Initial packet from server, reply to a CONTROL_HARD_RESET_CLIENT_V2 packet.
+              Second packet in the three-way handshake
             </t>
             <t>
-              [FIXME: TBD]
-              Similar to CONTROL_HARD_RESET_CLIENT_V2, but initiated from
+              In the P2P mode for TLS Similar to CONTROL_HARD_RESET_CLIENT_V2, but initiated from
               the server side.
+
+              Note that the payload of this packet MUST be ignored but might
+              be later used to implement early protocol negotiation in the future.
+            </t>
+          </section>
+          <section title="[OPCODE ID 10] CONTROL_HARD_RESET_SERVER_V3">
+            <t>
+              Initial key packet from the client in the three way handshake from the client
+              when tls-crypt-v2 is in use. See the tls-crypt-v2 section for more details.
+            </t>
+            <t>
+              Note that the payload of this packet is interpreted by OpenVPN 2.x to be already
+              part of the TLS session. The payload of this packet SHOULD be empty.
+            </t>
+            <t>
+              The tls-crypt packet id is used to of this packet is used to indicate
+              early protocol negotiation. Without early protocol negotiation the first four octets
+              are normally a uint32 starting at 0 in network byte order and increase linearly
+              with later packets. When early protocol negotiation is supported these the value is
+              instead 0x0f &lt;f&gt; 00 00. The most significant byte of 0x0f indicates that the
+              second highest byte contains flags of supported features. The third byte SHOULD be also
+              0x00. The fourth byte is expected to be used for retransmission and will linearly
+              increase with retransmissions of the control packet. For packets other than the reset
+              packet, the packet id is just a normal replay counter.
+
+              Currently only 0x01 for the second byte is defined which indicates that the client
+              supports resending the CONTROL_HARD_RESET_SERVER_V3 with the server session id to allow
+              a state 
             </t>
           </section>
         </section>
