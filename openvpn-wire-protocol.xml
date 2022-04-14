@@ -37,7 +37,7 @@
     they will automatically be output with "(if approved)" -->
 
  <front>
-   <title abbrev="OpenVPN Wire Protocol">OpenVPN Wire Protocol</title>
+   <title abbrev="OpenVPN Wire Protocol">OpenVPN Wire Protocol (work in progress)</title>
    <author fullname="Arne Schwabe" initials="A.S." surname="Schwabe">
      <organization>OpenVPN, Inc</organization>
      <address>
@@ -83,6 +83,13 @@
   </front>
 
   <middle>
+    <section title="WORK IN PROGRESS">
+      <t>
+        Please not that this document is work in progress and should not considered a
+        complete or correct documentation of the OpenVPN protocol yet. Please check
+        the current implementations.
+      </t>
+    </section>
     <section title="Introduction">
       <t>
         OpenVPN is an open source SSL/TLS based VPN soltion which was
