@@ -9,6 +9,13 @@ Work in progress
 Please not that this document is work in progress and should not considered a complete or correct documentation
 of the OpenVPN protocol yet. 
 
+Building
+========
+
+Building can be done using xml2rfc. The github actions also provide access to the built html and txt as artefacts.
+
+[![Build](https://github.com/openvpn/openvpn-rfc/actions/workflows/build.yaml/badge.svg)](https://github.com/openvpn/openvpn-rfc/actions/workflows/build.yaml)
+
 
 Various resources
 -----------------

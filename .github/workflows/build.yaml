@@ -1,0 +1,37 @@
+# The name of our workflow
+name: Build
+on: [push, pull_request]
+
+jobs:
+  build:
+    name: "build"
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Install dependencies
+      run: sudo apt update && sudo apt install -y make python3-lxml python3-pycountry python3-html5lib sgml-base python3-pip  python3-google-i18n-address python3-jinja2 python3-markupsafe python3-pyflakes python3-requests 
+    - name: Install xml2rfc
+      run: sudo pip3 install xml2rfc
+    - name: Checkout OpenVPN
+      uses: actions/checkout@v2
+      with:
+        path: rfc
+    - name: build html
+      working-directory: rfc
+      run: make openvpn-wire-protocol.html
+    - name: build txt
+      working-directory: rfc
+      run: make openvpn-wire-protocol.txt
+    - name: Archive html artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: openvpn-wire-protocol.html
+        path: rfc/openvpn-wire-protocol.html
+    - name: Archive txt artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: openvpn-wire-protocol.txt
+        path: rfc/openvpn-wire-protocol.txt
+
+          
+      
+      
