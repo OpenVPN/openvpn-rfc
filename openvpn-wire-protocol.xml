@@ -1162,9 +1162,6 @@ available) to drop revoked keys.)</li>
         <t>
           The packet ID is an increasing ID that is tied to a key id. For each
           key_id the packet id is independent and starts at 0.
-
-          TODO: Looking at AEAD packets allows figuring out how many packets have been
-          sent, is is a problem?
         </t>
       </section>
       
@@ -1262,6 +1259,26 @@ available) to drop revoked keys.)</li>
           floating client.
         </t>
       </section>
+      <section title="Replay protection">
+	<t>
+	  The replay protection in OpenVPN uses a fairly standard approach
+	  with a sliding window with a number of packets n and a timeout t
+
+	  <ol>
+	    <li>If a packet arrives that has a higher sequence number than the highest packet sequence seen so far, it is accepted</li>
+	    <li>If a packet arrives out of order, it will only be accepted if the difference between its sequence number and the highest sequence number received so far is less than n. </li>
+	    <li>If a packet arrives out of order, it will only be accepted if it arrives no later than t seconds after any packet containing a higher sequence number.</li>
+	    <li> A packet will be rejected if it is a replay</li>
+	  </ol>
+
+	  This means that a client needs to keep track of the highest received
+	  sequence number and the n sequence ids lower than the highest received
+	  sequence number.
+
+	  Old OpenVPN peers before 2.4 will enforce a strict packet ordering
+	  when using TCP that does not allow reordering.
+	</t>
+      </section>
     </section>
       <section anchor="dataaead" title="AEAD encrypted data channel packet">
         <t>
@@ -1280,7 +1297,8 @@ available) to drop revoked keys.)</li>
           </figure>
         </t>
         <t>
-          The packet_id together with the implicit IV forms the IV for decryption.
+          The packet_id together with the implicit IV forms the IV for
+	  decryption. The packet_id is also used for the replay proetection.
         </t>
         
         <t>
@@ -1288,7 +1306,8 @@ available) to drop revoked keys.)</li>
         </t>
         
         <t>
-          The implicit part of IV is filled by first bytes of the auth_c2s/auth_s2c of
+          The implicit part of IV is filled by first bytes of the
+	  auth_c2s/auth_s2c of
           the data channel key. For the current implemented AEAD ciphers
           Chacha20-Poly1305 and AES-GCM the IV length is 96 bits, 32 bits are
           from packet_id and the remaining 64 bits (the implicit IV part) are
@@ -1310,7 +1329,7 @@ available) to drop revoked keys.)</li>
         </t>
 
         <t>
-          The tag size (as in TLS) is always 128 bit (16 bytes). 
+          The tag size is always 128 bit (16 bytes). (Same size as in TLS)
         </t>
       </section>
       <section anchor="datacbc" title="CBC/OFB/CTR encrypted packet">          
