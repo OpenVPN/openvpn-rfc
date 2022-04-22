@@ -135,17 +135,32 @@
           SSL/TLS packets and adding a reliability layer to avoid issues
           when packets gets resent.
         </t>
+      </section>
+      <section title="Basic OpenVPN packet format">
         <t>
-          The wire packet identical for both transport modes with one
-          exception.  For UDP packets the size of a payload packet is
-          derived from UDP packet length. Since TCP present a stream
-          of bytes to the application, TCP payloads carry a 16 bits
-          packet length indicator of the size of the payload.
-          Splitting too large payload and combining multiple payload
-          into packets is done by the TCP/IP of the operating system.
+          The wire packet identical for both UDP and TCP transport
+          modes with one exception.  For UDP packets the size of a
+          payload  packet is  derived from UDP packet length. Since
+          TCP present a stream  of bytes to the application, TCP
+          payloads carry a 16 bits  packet length indicator of the
+          size of the payload. Splitting too large payload and
+          combining multiple payloadinto packets is done by the
+          TCP/IP of the operating system.
+        </t>
+
+        <t>
+          The basic OpenVPN packet form that this common to both
+          data channel is that the first byte (after the length in
+          TCP mode) in a packet consists of an opcode (highest 5 bits)
+          that determines the packet type and a keyid (low 3 bit)
+          that determine the key id.
+        </t>
+        <t>
+          The <xref target="datachannel">data channel section</xref>
+          and <xref target="controlchannel">control channel</xref>
+          sections describe the formats of the packets in details.
         </t>
       </section>
-
       <section title="Static-key mode and TLS operational modes">
         <section title="Static-key mode">
         <t>
@@ -691,9 +706,6 @@ available) to drop revoked keys.)</li>
     </section>
     </section>
   
-  <section title="Packet replay protection">
-    <t>TBD</t>
-  </section>
   
   <section title="Pushing configuration options and OCC">
     <t>
@@ -702,7 +714,7 @@ available) to drop revoked keys.)</li>
   </section>
   
 
-    <section title="Communictaion channels">
+    <section anchor="controlchannel" title="Control channel">
       <t>
         OpenVPN communictates over two channels which are multiplexed over the
         same connection; control channel and data channel.  The control
@@ -857,7 +869,7 @@ available) to drop revoked keys.)</li>
             <c>acked_pktid_len</c>
             <c>8</c>
             <c>X</c>
-            <c>OPTIONAL</c>
+            <c></c>
 
             <c>acked_pktid_list</c>
             <c>32 * n</c>
@@ -1157,17 +1169,130 @@ available) to drop revoked keys.)</li>
         <section title="Peer-Info">
         </section>
       </section>
-
-      <section title="Packet ID">
+      <section title="message packet ids">
         <t>
-          The packet ID is an increasing ID that is tied to a key id. For each
-          key_id the packet id is independent and starts at 0.
+          Control channel packets have a message id that orders them and identifies for ack messages.
+          The message ids are idependent for both direction and MUST start at 0. If the message id reaches
+          MAX_UINT32, the implementation MAY implement a rollover to 0 again. However, since such a
+          huge number of control message is unrelatistic, an implementation MAY refuse new packets if
+          the message packet id rolls over.
         </t>
       </section>
-      
+      <section title="Acknowledgements">
+        <t>
+          OpenVPN has dedicated acknowledgment messages and also allows adding
+          acknowledgments to other control messages. A P_ACK_V1 message usually
+          carries up to 8 acknowledgments while other messages only carry 4
+          acknowledgments. Unlike other protocols like TCP, OpenVPN does not
+          have cumulative  ACKs and each ACK only allows acknowledging a
+          single packet.
+        </t>
+        <t>
+          To avoid retransmissions it is recommended to keep an LRU cache of the
+          most recently seen packets from the peer and always put ACKs for these
+          packets in messages (4 for non P_ACK_V1 and 8 for P_ACK_V1).
+        </t>
+        <t>
+          To ensure compatibility to with existing OpenVPN implementation the
+          number of ACKs in a single packet (acked_pktid_list) should be limited
+          to 8.
+        </t>
+      </section>
+      <section title="Control message framing">
+        <t>
+        The current implementation expects control to be 1250 or smaller. Apart from the early protocol
+        negotiation, all payloads of control packets are TLS data.
+        </t>
+
+        <t>
+        For the plaintext messages, OpenVPN considers a control message to corrospond to a single TLS
+        record. Splitting a plaintext message into two TLS records, will result it to be treated as
+        two sperate messages. To send a control message with a larger plaintext, a single TLS record
+        must be split over multiple control messages.
+        </t>
+      </section>
+      <section title="key exchange message">
+        <t>
+          <figure>
+            <artwork>
+              struct key_exchange {
+              uint_32 null;
+              uint8 method = 2;
+              uint8 key_random[48];
+              uint8_t random1[32];
+              uint8_t random2[32];
+              uint8_t* ooc_string;
+              uint8_t* username;
+              uint8_t* password;
+              uint8_t* peerinfo;
+              }
+            </artwork>
+          </figure>
+        </t>
+
+        <t>
+          All the strings in this packets are expected to be valid UTF8 nullterminated string. If they are not
+          used (e.g. passsword and username), they are just a single zero byte.
+        </t>
+
+        <t>
+          The packets always starts with 4 bytes of zero, followed by one byte of 0x02. After that come
+          random data that used with legacy client to derive the <xref target="openvpnkey">data channel keys</xref>
+          using a TLS1.0/TLS1.1 style PRF function. These fields are not used in the modern protocol anymore
+          since the data channel key derivation is using TLS export key feature but SHOULD be set to random
+          values.
+        </t>
+
+        <t>
+          The OCC string is a string that contains a number of parameters that are used to check if client
+          and server are using compatible configuration and warn on mismatches. With more and more dynamic
+          configuration in the OpenVPN protocol, its usefulness is highly dimished.
+        </t>
+        <t>
+          During the handshake, the client will have username and password if username and apssword authentication
+          is used. <xref target="peerinfo">Peerinfo</xref> is also present. The server replies with a key_exchange
+          packet on its own with occ_string, username, password and empty peerinfo.
+        </t>
+        
+      </section>
+      <section anchor="peerinfo" title="Peerinfo">
+        <t>
+          The peerinfo is a UTF8 encoded string that contains newline seperated (\n) variables
+          in the form of VAR=VALLUE. The following variables are specified:
+          <ul>
+            <li> IV_PROTO: A bitfield containing supported protocol extensions by the peer. </li>
+            <li> IV_CIPHERS: A list of : seperated allowed data channel ciphers. </li>
+            <li> IV_HWADDR: A MAC adddress or UUID address that uniquely identifies the client </li>
+            <li> IV_GUI_VER: name and version number of the UI of the openvpn client </li>
+            <li> IV_VER: version of the openvpn library/program</li>
+            <li> IV_PLAT: operating system the peer uses</li>
+            <li> IV_NCP: if equal to 2 the client supports AES-128-GCM and AES-256-GCM, IV_NCP is
+            deprecated in favour of IV_CIPHERS </li>
+            <li> IV_SSO: supported out of band (auth pending) methods, the client supports</li>
+            <li> variables starting with UV_. This are variables set by the user by a
+            configuration file or similar means. These do not have any fixed meaning.</li>
+          </ul>
+
+          Most of the variables are considered optional. Only IV_CIPHERS, IV_PROTO and IV_SSO (if
+          auth pending is supported) MUST be implemented.
+        </t>
+        <t>
+          For IV_PROTO, the bits have the following meaning:
+          <ul>
+            <li>bit 1: The peer supports peer-id floating mechanism</li>
+            <li>bit 2: The client expects a push-reply and the server may
+            send this reply without waiting for a push-request first. </li>
+            <li>bit 3: The client is capable of doing key derivation using
+            RFC5705 key material exporter. </li>
+            <li>bit 4: The client is capable of accepting additional arguments
+            to the <xref target="authpending">AUTH_PENDING</xref> message.</li>
+          </ul>
+        </t>
+      </section>
+
     </section>
     
-  <section title="Data channel">
+  <section title="Data channel" anchor="datachannel">
     <section anchor="openvpnkey" title="OpenVPN Key">
       <t>
         OpenVPN uses a 256 byte of key material for encryption/decrypting of the data
@@ -1383,108 +1508,6 @@ available) to drop revoked keys.)</li>
           to that, the packet ID in OFB and CFB mode are the first 64 bit of the IV.</t>
 
           <t>For unecrypted data packets the same format as CBC without IV is used.</t>
-        </t>
-      </section>
-    </section>
-    <section title="Control channel">
-      <section title="message packet ids">
-        <t>
-          Control channel packets have a message id that orders them and identifies for ack messages.
-          The message ids are idependent for both direction and MUST start at 0. If the message id reaches
-          MAX_UINT32, the MAY implement a rollover to 0 again. However, since such a huge number of
-          control message is unrelatistic, an implementation MAY refuse new packets if
-          the message packet id rolls over.
-        </t>
-      </section>
-      <section title="Control message framing">
-        <t>
-        The current implementation expects control to be 1250 or smaller. Apart from the early protocol
-        negotiation, all payloads of control packets are TLS data.
-        </t>
-
-        <t>
-        For the plaintext messages, OpenVPN considers a control message to corrospond to a single TLS
-        record. Splitting a plaintext message into two TLS records, will result it to be treated as
-        two sperate messages. To send a control message with a larger plaintext, a single TLS record
-        must be split over multiple control messages.
-        </t>
-      </section>
-      <section title="key exchange message">
-        <t>
-          <figure>
-            <artwork>
-              struct key_exchange {
-              uint_32 null;
-              uint8 method = 2;
-              uint8 key_random[48];
-              uint8_t random1[32];
-              uint8_t random2[32];
-              uint8_t* ooc_string;
-              uint8_t* username;
-              uint8_t* password;
-              uint8_t* peerinfo;
-              }
-            </artwork>
-          </figure>
-        </t>
-
-        <t>
-          All the strings in this packets are expected to be valid UTF8 nullterminated string. If they are not
-          used (e.g. passsword and username), they are just a single zero byte.
-        </t>
-
-        <t>
-          The packets always starts with 4 bytes of zero, followed by one byte of 0x02. After that come
-          random data that used with legacy client to derive the <xref target="openvpnkey">data channel keys</xref>
-          using a TLS1.0/TLS1.1 style PRF function. These fields are not used in the modern protocol anymore
-          since the data channel key derivation is using TLS export key feature but SHOULD be set to random
-          values.
-        </t>
-
-        <t>
-          The OCC string is a string that contains a number of parameters that are used to check if client
-          and server are using compatible configuration and warn on mismatches. With more and more dynamic
-          configuration in the OpenVPN protocol, its usefulness is highly dimished.
-        </t>
-        <t>
-          During the handshake, the client will have username and password if username and apssword authentication
-          is used. <xref target="peerinfo">Peerinfo</xref> is also present. The server replies with a key_exchange
-          packet on its own with occ_string, username, password and empty peerinfo.
-        </t>
-        
-      </section>
-      <section anchor="peerinfo" title="Peerinfo">
-        <t>
-          The peerinfo is a UTF8 encoded string that contains newline seperated (\n) variables
-          in the form of VAR=VALLUE. The following variables are specified:
-          <ul>
-            <li> IV_PROTO: A bitfield containing supported protocol extensions by the peer. </li>
-            <li> IV_CIPHERS: A list of : seperated allowed data channel ciphers. </li>
-            <li> IV_HWADDR: A MAC adddress or UUID address that uniquely identifies the client </li>
-            <li> IV_GUI_VER: name and version number of the UI of the openvpn client </li>
-            <li> IV_VER: version of the openvpn library/program</li>
-            <li> IV_PLAT: operating system the peer uses</li>
-            <li> IV_NCP: if equal to 2 the client supports AES-128-GCM and AES-256-GCM, IV_NCP is
-            deprecated in favour of IV_CIPHERS </li>
-            <li> IV_SSO: supported out of band (auth pending) methods, the client supports</li>
-            <li> variables starting with UV_. This are variables set by the user by a
-            configuration file or similar means. These do not have any fixed meaning.</li>
-          </ul>
-
-          Most of the variables are considered optional. Only IV_CIPHERS, IV_PROTO and IV_SSO (if
-          auth pending is supported) MUST be implemented.
-        </t>
-        <t>
-          For IV_PROTO, the bits have the following meaning:
-          <ul>
-            <li>bit 1: The peer supports peer-id floating mechanism</li>
-            <li>bit 2: The client expects a push-reply and the server may
-            send this reply without waiting for a push-request first. </li>
-            <li>bit 3: The client is capable of doing key derivation using
-            RFC5705 key material exporter. </li>
-            <li>bit 4: The client is capable of accepting additional arguments
-            to the <xref target="authpending">AUTH_PENDING</xref> message.</li>
-          </ul>
         </t>
       </section>
     </section>
