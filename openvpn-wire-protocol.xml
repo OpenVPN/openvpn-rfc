@@ -92,7 +92,7 @@
     </section>
     <section title="Introduction">
       <t>
-        OpenVPN is an open source SSL/TLS based VPN soltion which was
+        OpenVPN is an open source SSL/TLS based VPN solution which was
         first released in 2001.  The communication between OpenVPN
         instances are based on SSL/TLS but it has added several
         additional features on top of the standard SSL/TLS protocol.
@@ -118,7 +118,7 @@
       <t>
         Since OpenVPN can work both in a traditional server-client setup
         as well as a peer-to-peer setup, this document tries to avoid the
-        concept of server and clients.  It will be refered to these as
+        concept of server and clients.  It will be referred to these as
         either the local or remote sites. In a peer-to-peer setup only
         a single tunnel can be established, while in a server-client setup
         several clients can connect to a single server at the same time.
@@ -144,7 +144,7 @@
           TCP present a stream  of bytes to the application, TCP
           payloads carry a 16 bits  packet length indicator of the
           size of the payload. Splitting too large payload and
-          combining multiple payloadinto packets is done by the
+          combining multiple payload into packets is done by the
           TCP/IP of the operating system.
         </t>
 
@@ -152,7 +152,7 @@
           The basic OpenVPN packet form that this common to both
           data channel is that the first byte (after the length in
           TCP mode) in a packet consists of an opcode (highest 5 bits)
-          that determines the packet type and a keyid (low 3 bit)
+          that determines the packet type and a key id (low 3 bit)
           that determine the key id.
         </t>
         <t>
@@ -175,14 +175,14 @@
           Peer-to-peer mode also depends on a shared secret key between
           both ends of the VPN tunnel.  Again, as there are no SSL/TLS
           handshakes between either side, this method does not have any
-          possibilties to enable Perfect Forward Secrecy (PFS).  The
+          possibilities to enable Perfect Forward Secrecy (PFS).  The
           data channel is encrypted solely by the shared static secret.
           This mode does not negotiate any ephemeral session keys for the
-          tunnelled data.
+          tunneled data.
 
           Using pre-shared significantly also weakens the guarantees for
           no IV reuse, so modern ciphers like AES in GCM mode are not
-          avaiable in this mode
+          available in this mode
 
           This mode is deprecated and this document does not provide
           documentation for it.
@@ -261,8 +261,8 @@
             to verify signatures from the remote side.  The OpenVPN
             terminology for this is key-direction.  The key-direction
             defines which set of keys is used for signing and for
-            verification.  Alle clients MUST use the same
-            key-direction while the server MUST use the oposite
+            verification.  All clients MUST use the same
+            key-direction while the server MUST use the opposite
             key-direction.
           </t>
         </section>
@@ -298,7 +298,7 @@
       <section title="Control channel packet encryption">
 
         <t>
-          The  following encryption method is usee, based on the SIV
+          The  following encryption method is used, based on the SIV
           construction
           <xref target="rogaway2006provable" format="default" sectionFormat="of" derivedContent="rogaway2006provable"/>,
           to achieve nonce misuse-resistant authenticated encryption:
@@ -397,7 +397,7 @@
                 uniqueness is achieved when using the tls-crypt key for at most
                 2^16 (65536) connections per process start.  (The packet id
                 includes the daemon start time in the packet ID, which should be
-                different after stopping and (re)starting OpenPVN.)
+                different after stopping and (re)starting OpenVPN.)
               </t>
               <t>
                 And if a collision happens, an attacker can *only* learn whether
@@ -440,7 +440,7 @@
             will no longer provide any security.  To reduce the risk of
             losing pre-shared keys, ``tls-crypt-v2`` adds the ability to
             supply each client with a unique tls-crypt key.  This allows
-            large organisations and VPN providers to profit from the same
+            large organizations and VPN providers to profit from the same
             DoS and TLS stack protection that small deployments can already
             achieve using ``tls-auth`` or ``tls-crypt``.
           </t>
@@ -535,7 +535,7 @@
               </t>
 
               <t>
-                If no metadata is supplied during key generation, openvpn defaults to the
+                If no metadata is supplied during key generation, OpenVPN defaults to the
                 TIMESTAMP metadata type.
               </t>
               </li>
@@ -573,7 +573,7 @@
           </t>
           
           <t>
-            When setting up the openvpn connection:
+            When setting up the OpenVPN connection:
 
             <ol>
 
@@ -622,7 +622,7 @@
             Setting up connection with cookie support
 
             To avoid exhaustion attack and keeping state for connections that fail to
-            complete thethree way handshake, the OpenVPN server will use its own session
+            complete the three way handshake, the OpenVPN server will use its own session
             id as challenge that the client must repeat in the third packet of the
             handshake. This introduces a problem. If the server does not keep the wrapped
             client key from the initial packet, the server cannot decode the third packet.
@@ -659,7 +659,7 @@
               
               When directly sending the TLS Client Hello message in the P_CONTROL_WKC_V1
               message, the client must ensure that the resulting P_CONTROL_WKC_V1 message
-              with the appended Wkc does not extend the control message length.
+              with the appended WKc does not extend the control message length.
               </li>
             </ol>
           </t>
@@ -716,7 +716,7 @@ available) to drop revoked keys.)</li>
 
     <section anchor="controlchannel" title="Control channel">
       <t>
-        OpenVPN communictates over two channels which are multiplexed over the
+        OpenVPN communicates over two channels which are multiplexed over the
         same connection; control channel and data channel.  The control
         channel is used for passing configuration and environment data between
         each side of the tunnel, including encryption session keys.  The data
@@ -912,7 +912,7 @@ available) to drop revoked keys.)</li>
               This is used to indicate which keys to use when
               processing the payload.  This has a range from 0 to
               7. All new sessions starts with key_id 0. After a key
-              renogitation the key_id will increase by one. After
+              renegotiation the key_id will increase by one. After
               key_id 7, the key_id wraps to 1.
             </t>
           </section>
@@ -942,7 +942,7 @@ available) to drop revoked keys.)</li>
               discovering packet replay attacks. Usually consists of
               a 32 bit time + 32 bit counter but can be any monotonically
               increasing sequence For both fields the value is
-              transfered using network byte order
+              transferred using network byte order
             </t>
             <t>
               For CFB/OFB based ciphers, the long packet_id format MUST be
@@ -955,7 +955,7 @@ available) to drop revoked keys.)</li>
           <section title="Field: acked_pktid_len">
             <t>
               Defines the number of acked packet IDs being reported in this
-              packet.  If set to 0, no acked packet ID elements wil be found,
+              packet.  If set to 0, no acked packet ID elements will be found,
               otherwise the following 4 bytes * acked_pktid_len of data
               will contain the list of acked packet IDs.
             </t>
@@ -1040,12 +1040,12 @@ available) to drop revoked keys.)</li>
               a renegotiation of the session keys will start.  Then
               the side receiving the last CONTROL_SOFT_RESET_V1 packet
               replies with a ACK_V1 message.  At this point the
-              renegotation can start using the CONTROL_V1 OPCODE.
+              renegotiation can start using the CONTROL_V1 OPCODE.
             </t>
             <t>
               When the ACK_V1 packet is being sent, the key_id field
               MUST be incremented to ensure the connection can still
-              use the old keys for a shorter time until the transistion
+              use the old keys for a shorter time until the transition
               has completed.  Any following packets need to use the new
               key-id until the old key have been removed and the new
               key-id replaces it completely. (schwabe:FIXME THIS WRONG)
@@ -1072,7 +1072,7 @@ available) to drop revoked keys.)</li>
 
           <section title="[OPCODE ID 5] ACK_V1">
             <t>
-              Acknowledgement for received control channel packets
+              Acknowledgment for received control channel packets
             </t>
             <t>
               When control channel packets have been received an ACK_V1
@@ -1172,9 +1172,9 @@ available) to drop revoked keys.)</li>
       <section title="message packet ids">
         <t>
           Control channel packets have a message id that orders them and identifies for ack messages.
-          The message ids are idependent for both direction and MUST start at 0. If the message id reaches
+          The message ids are independent for both direction and MUST start at 0. If the message id reaches
           MAX_UINT32, the implementation MAY implement a rollover to 0 again. However, since such a
-          huge number of control message is unrelatistic, an implementation MAY refuse new packets if
+          huge number of control message is unrealistic, an implementation MAY refuse new packets if
           the message packet id rolls over.
         </t>
       </section>
@@ -1205,9 +1205,9 @@ available) to drop revoked keys.)</li>
         </t>
 
         <t>
-        For the plaintext messages, OpenVPN considers a control message to corrospond to a single TLS
+        For the plaintext messages, OpenVPN considers a control message to correspond to a single TLS
         record. Splitting a plaintext message into two TLS records, will result it to be treated as
-        two sperate messages. To send a control message with a larger plaintext, a single TLS record
+        two separate messages. To send a control message with a larger plaintext, a single TLS record
         must be split over multiple control messages.
         </t>
       </section>
@@ -1231,8 +1231,8 @@ available) to drop revoked keys.)</li>
         </t>
 
         <t>
-          All the strings in this packets are expected to be valid UTF8 nullterminated string. If they are not
-          used (e.g. passsword and username), they are just a single zero byte.
+          All the strings in this packets are expected to be valid UTF8 null-terminated string. If they are not
+          used (e.g. password and username), they are just a single zero byte.
         </t>
 
         <t>
@@ -1246,10 +1246,10 @@ available) to drop revoked keys.)</li>
         <t>
           The OCC string is a string that contains a number of parameters that are used to check if client
           and server are using compatible configuration and warn on mismatches. With more and more dynamic
-          configuration in the OpenVPN protocol, its usefulness is highly dimished.
+          configuration in the OpenVPN protocol, its usefulness is highly diminished.
         </t>
         <t>
-          During the handshake, the client will have username and password if username and apssword authentication
+          During the handshake, the client will have username and password if username and password authentication
           is used. <xref target="peerinfo">Peerinfo</xref> is also present. The server replies with a key_exchange
           packet on its own with occ_string, username, password and empty peerinfo.
         </t>
@@ -1257,17 +1257,17 @@ available) to drop revoked keys.)</li>
       </section>
       <section anchor="peerinfo" title="Peerinfo">
         <t>
-          The peerinfo is a UTF8 encoded string that contains newline seperated (\n) variables
-          in the form of VAR=VALLUE. The following variables are specified:
+          The peerinfo is a UTF8 encoded string that contains newline separated (\n) variables
+          in the form of VAR=VALUE. The following variables are specified:
           <ul>
-            <li> IV_PROTO: A bitfield containing supported protocol extensions by the peer. </li>
-            <li> IV_CIPHERS: A list of : seperated allowed data channel ciphers. </li>
-            <li> IV_HWADDR: A MAC adddress or UUID address that uniquely identifies the client </li>
-            <li> IV_GUI_VER: name and version number of the UI of the openvpn client </li>
-            <li> IV_VER: version of the openvpn library/program</li>
+            <li> IV_PROTO: A bit field containing supported protocol extensions by the peer. </li>
+            <li> IV_CIPHERS: A list of : separated allowed data channel ciphers. </li>
+            <li> IV_HWADDR: A MAC address or UUID address that uniquely identifies the client </li>
+            <li> IV_GUI_VER: name and version number of the UI of the OpenVPN client </li>
+            <li> IV_VER: version of the OpenVPN library/program</li>
             <li> IV_PLAT: operating system the peer uses</li>
             <li> IV_NCP: if equal to 2 the client supports AES-128-GCM and AES-256-GCM, IV_NCP is
-            deprecated in favour of IV_CIPHERS </li>
+            deprecated in favor of IV_CIPHERS </li>
             <li> IV_SSO: supported out of band (auth pending) methods, the client supports</li>
             <li> variables starting with UV_. This are variables set by the user by a
             configuration file or similar means. These do not have any fixed meaning.</li>
@@ -1295,7 +1295,7 @@ available) to drop revoked keys.)</li>
   <section title="Data channel" anchor="datachannel">
     <section anchor="openvpnkey" title="OpenVPN Key">
       <t>
-        OpenVPN uses a 256 byte of key material for encryption/decrypting of the data
+        OpenVPN uses a 256 byte of key material for encryption/decryption of the data
         channel. The format of this key material is the following:
 
         <figure>
@@ -1320,7 +1320,7 @@ available) to drop revoked keys.)</li>
         from the Control Channel session with the label ``EXPORTER-OpenVPN-datakeys``
         and using the 256 bytes length of the structure.
         
-        Older clients use the mechansim described in the section OpenVPN data channel
+        Older clients use the mechanism described in the section OpenVPN data channel
         PRF.
       </t>
     </section>  
@@ -1423,11 +1423,11 @@ available) to drop revoked keys.)</li>
         </t>
         <t>
           The packet_id together with the implicit IV forms the IV for
-	  decryption. The packet_id is also used for the replay proetection.
+	  decryption. The packet_id is also used for the replay protection.
         </t>
         
         <t>
-          IV = paket_id | implicit_iv;
+          IV = packet_id | implicit_iv;
         </t>
         
         <t>
@@ -1497,7 +1497,7 @@ available) to drop revoked keys.)</li>
 
           <t>IV_LEN depends on the IV of used cipher. For AES in CBC, CFB and OFB this
           is 128 bits, for Blowfish in CBC mode (DEPRECATED) 64 The. For generating
-          the IV use best pratices. OpenVPN generates the CBC IV as random bytes
+          the IV use best practices. OpenVPN generates the CBC IV as random bytes
           with an PRNG. For OFB and CFB the IV has the following format:</t>
 
           <t>IV = 64 bit packet ID | IV_remainder</t>
@@ -1507,7 +1507,7 @@ available) to drop revoked keys.)</li>
           <t>bit packet ID in CBC mode is encrypted and before the payload. In contrast
           to that, the packet ID in OFB and CFB mode are the first 64 bit of the IV.</t>
 
-          <t>For unecrypted data packets the same format as CBC without IV is used.</t>
+          <t>For unencrypted data packets the same format as CBC without IV is used.</t>
         </t>
       </section>
     </section>
@@ -1525,14 +1525,14 @@ available) to drop revoked keys.)</li>
         </t>
         <t>
           This message is sent from the client to the server and instructs the server that the
-          client is ready to receive a "PUSH_RPELY" message. The message is periodically repeated
-          until the PUSH_REPLY is received for compatibilit with old OpenVPN servers and to act as
+          client is ready to receive a "PUSH_REPLY" message. The message is periodically repeated
+          until the PUSH_REPLY is received for compatibility with old OpenVPN servers and to act as
           a keepalive.
         </t>
       </section>
       <section title="PUSH_REPLY">
         <t>
-          Format: "PUSH_REPLY [comma seperated options]"
+          Format: "PUSH_REPLY [comma separated options]"
         </t>
         <t>
           This message is sent from the server to the client and has dynamic configuration for the client.
@@ -1552,7 +1552,7 @@ available) to drop revoked keys.)</li>
           This message is sent from the server to the client to indicate that a multi factor authentication is in use
           and the authentication is not completed. The authentication can continue inband or out-of-band.
           
-          flags is a comma seperate key-value list. Currently timeout time is defined and defines the maximum time the server
+          flags is a comma separate key-value list. Currently timeout time is defined and defines the maximum time the server
           expects the client to stay in the pending auth state. 
           The client indicates if the extended format with flags is supported by setting
           the IV_PROTO_AUTH_PENDING_KW bit in the IV_PROTO
@@ -1574,7 +1574,7 @@ available) to drop revoked keys.)</li>
           These message are sent from the server to the client and the client to
           terminate a session. With HALT the client is expected to also not try to
           try reconnect. With RESTART the client is expected to reconnect. flags is
-          a list of characters that must follow direclty after the comman and is
+          a list of characters that must follow directly after the comma and is
           enclosed in [ and ]. The client SHOULD purge username and password before
           reconnecting if flags contains 'P' and reconnect to the next server unless
           'N' is in flags in which case it should reconnect to the same server. E.g.
@@ -1602,18 +1602,18 @@ available) to drop revoked keys.)</li>
           renegotiates a TLS session.
 
           The optional message can be relayed to the user. If the message starts with SESSION, this
-          indicates that current creditals are longer valid. This is mostly used to indicate that
-          the temporary session creditionals that were pushed with "auth-token" and "auth-token-user"
+          indicates that current credentials are longer valid. This is mostly used to indicate that
+          the temporary session credentials that were pushed with "auth-token" and "auth-token-user"
           should be purged and the client should reconnect in the same way as a new connection.
 
           The AUTH_FAILED,TEMP message indicates that the authentication temporarily failed and should
           the client continue to retry to connect. The server can optionally give a user readable message
-          and hint the client a behaviour how to proceed. The keywords of AUTH_FAILED,TEMP are comma seperated
+          and hint the client a behavior how to proceed. The keywords of AUTH_FAILED,TEMP are comma separated
           keys/values. Currently defined are:
 
           <ul>
             <li> backoff s - instructs the client to wait at least s seconds before the next connection attempt. If
-            the client has already a higher delay before reconnecting, the dealy should NOT be shortend. </li>
+            the client has already a higher delay before reconnecting, the delay should NOT be shortened. </li>
             <li> advance addr - Instructs the client to reconnect to the (IP) address of the current server. </li>
             <li> advance remote - Instructs the client to skip the remaining IP addresses of the current server and instead
             connect to the next server specified in the configuration file </li>
