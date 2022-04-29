@@ -118,7 +118,7 @@
       <t>
         Since OpenVPN can work both in a traditional server-client setup
         as well as a peer-to-peer setup, this document tries to avoid the
-        concept of server and clients.  It will be referred to these as
+        concept of server and clients.  It will refer to these as
         either the local or remote sites. In a peer-to-peer setup only
         a single tunnel can be established, while in a server-client setup
         several clients can connect to a single server at the same time.
@@ -133,27 +133,26 @@
           SSL/TLS traffic.  The SSL/TLS protocol is strictly written for
           TCP but OpenVPN makes that possible through encapsulating the
           SSL/TLS packets and adding a reliability layer to avoid issues
-          when packets gets resent.
+          when packets get resent.
         </t>
       </section>
       <section title="Basic OpenVPN packet format">
         <t>
           The wire packet identical for both UDP and TCP transport
           modes with one exception.  For UDP packets the size of a
-          payload  packet is  derived from UDP packet length. Since
-          TCP present a stream  of bytes to the application, TCP
-          payloads carry a 16 bits  packet length indicator of the
+          payload  packet is derived from UDP packet length. Since
+          TCP present a stream of bytes to the application, TCP
+          payloads carry a 16 bits packet length indicator of the
           size of the payload. Splitting too large payload and
           combining multiple payload into packets is done by the
-          TCP/IP of the operating system.
+          TCP/IP stack of the operating system.
         </t>
 
         <t>
-          The basic OpenVPN packet form that this common to both
-          data channel is that the first byte (after the length in
+          The basic OpenVPN packet format that is common to both
+          control and data channel is that the first byte (after the length in
           TCP mode) in a packet consists of an opcode (highest 5 bits)
-          that determines the packet type and a key id (low 3 bit)
-          that determine the key id.
+          that determines the packet type and a key id (low 3 bit).
         </t>
         <t>
           The <xref target="datachannel">data channel section</xref>
@@ -165,9 +164,9 @@
         <section title="Static-key mode">
         <t>
           The OpenVPN protocol has a mode where it does not use
-          dynamic key derivation but instead uses static keys. 
+          dynamic key derivation but instead uses static keys.
           The mode does not make use of any TLS features, so
-          and is called static key mode.  In this mode there is no control
+          it is called static key mode.  In this mode there is no control
           channel and all the data on the wire is plain encrypted packets
           transported over a standard UDP or TCP connection.
         </t>
@@ -180,9 +179,9 @@
           This mode does not negotiate any ephemeral session keys for the
           tunneled data.
 
-          Using pre-shared significantly also weakens the guarantees for
+          Using pre-shared secrets also significantly weakens the guarantees for
           no IV reuse, so modern ciphers like AES in GCM mode are not
-          available in this mode
+          available in this mode.
 
           This mode is deprecated and this document does not provide
           documentation for it.
@@ -194,15 +193,15 @@
           With TLS mode the control channel gets activated and this
           requires both sides to make use of private keys and
           <xref target="RFC5280">X.509</xref> Certificates.  These requirements are due to this
-          operational mode utilizing the  <xref target="RFC5246">TLS/SSL</xref> protocol
+          operational mode utilizing the <xref target="RFC5246">TLS/SSL</xref> protocol.
           This mode is also the only operational mode which uses the
           client-server terminology in OpenVPN.
         </t>
         <t>
           The use of X.509 certificates on the client side is OPTIONAL
-          and it is REQUIRED on the server side.  It is highly
+          and is REQUIRED on the server side.  It is highly
           RECOMMENDED to always enable user/password authentication when X.509
-          client certificates is not used.
+          client certificates are not used.
         </t>
         <t>
           It is highly RECOMMENDED to enforce certificate authentication
@@ -219,8 +218,8 @@
         <t>
           The TLS mode will use the same communication channel for
           both TLS handshakes and the tunnel data.  The TLS handshakes
-          is referred to as the control channel and tunnel data is
-          referred to as the data channel.  Each packet in TLS mode,
+          are referred to as the control channel and tunnel data is
+          referred to as the data channel.  Each packet in TLS mode
           contains an OPCODE which defines if the following payload is
           a control channel or data channel packet.
         </t>
@@ -237,7 +236,7 @@
           payload.
         </t>
         <t>
-          This authentication can strengthen the overall security on
+          This authent0ication can strengthen the overall security on
           both client and server side as OpenVPN will validate the HMAC
           signature before it is sent to the SSL/TLS layer for decryption.
           This can protect server and client from SSL/TLS protocol
@@ -247,7 +246,7 @@
           The keys used for HMAC signatures are static and shared between
           server and all clients.  The default hashing algorithm is HMAC-SHA1
           but any hashing algorithms supported by the SSL/TLS protocol can
-          be used as long as the clients and server uses the same algorithm.
+          be used as long as the clients and server use the same algorithm.
           The choice of hashing algorithms defines the length of the HMAC
           field in the control packet.  HMAC-SHA1 uses 20 bytes, HMAC-SHA512
           uses 64 bytes.
@@ -255,8 +254,8 @@
 
         <section title="HMAC authentication subkeys">
           <t>
-            HMAC packet authentication use two independent
-            preshared static keys for the authentication.  One key
+            HMAC packet authentication uses two independent
+            pre-shared static keys for the authentication.  One key
             is used for signing packets and the other key is used
             to verify signatures from the remote side.  The OpenVPN
             terminology for this is key-direction.  The key-direction
@@ -284,12 +283,12 @@
       </t>
       <t>
         Encrypting control channel packets has three main advantages:
-        
+
         <ul>
           <li> It provides more privacy by hiding the certificate used
           for the TLS connection. </li>
           <li> It is harder to identify OpenVPN traffic as such. </li>
-          <li>It provides "poor-man's" post-quantum security, against
+          <li> It provides "poor-man's" post-quantum security, against
           attackers who will never know the pre-shared key
           (i.e. no forward secrecy). </li>
         </ul>
@@ -298,25 +297,24 @@
       <section title="Control channel packet encryption">
 
         <t>
-          The  following encryption method is used, based on the SIV
+          The following encryption method is used, based on the SIV
           construction
           <xref target="rogaway2006provable" format="default" sectionFormat="of" derivedContent="rogaway2006provable"/>,
           to achieve nonce misuse-resistant authenticated encryption:
           <figure>
-            <artwork>
-              msg      = control channel plaintext
-              header   = opcode (1 byte) || session_id (8 bytes) || packet_id (8
-              bytes)
-              Ka       = authentication key (256 bits)
-              Ke       = encryption key (256 bits)
-              (Ka and Ke are pre-shared keys, like with --tls-auth)
-              
-              auth_tag = HMAC-SHA256(Ka, header || msg)
-              IV       = 128 most-significant bits of auth_tag
-              ciph     = AES256-CTR(Ke, IV, msg)
-              
-              output   = Header || Tag || Ciph
-            </artwork>
+            <sourcecode>
+msg      = control channel plaintext
+header   = opcode (1 byte) || session_id (8 bytes) || packet_id (8 bytes)
+Ka       = authentication key (256 bits)
+Ke       = encryption key (256 bits)
+(Ka and Ke are pre-shared keys, like with --tls-auth)
+
+auth_tag = HMAC-SHA256(Ka, header || msg)
+IV       = 128 most-significant bits of auth_tag
+ciph     = AES256-CTR(Ke, IV, msg)
+
+output   = Header || Tag || Ciph
+            </sourcecode>
           </figure>
         </t>
 
@@ -324,15 +322,15 @@
           This boils down to the following on-the-wire packet format:
           <figure>
             <artwork>
-              
-              -opcode- || -session_id- || -packet_id- || auth_tag || * payload *
-              
+
+-opcode- || -session_id- || -packet_id- || auth_tag || * payload *
+
             </artwork>
           </figure>
           Where
           <ul>
-            <li> -XXX- means authenticated, and </li>
-            <li> * XXX * means authenticated and encrypted. </li>
+            <li> <tt>-XXX-</tt> means authenticated, and </li>
+            <li> <tt>* XXX *</tt> means authenticated and encrypted. </li>
           </ul>
           Which is very similar to the current tls-auth packet format, and has
           the same overhead as "--tls-auth" with "--auth SHA256".
@@ -344,7 +342,7 @@
           important, because in contrast with the data channel in TLS mode, we
           will not be able to rotate tls-crypt keys often or fully guarantee nonce
           uniqueness.  For non misuse-resistant modes such as GCM
-          (   <xref target="ferguson2005authentication" format="default" sectionFormat="of" derivedContent="ferguson2005authentication"/>,
+          (<xref target="ferguson2005authentication" format="default" sectionFormat="of" derivedContent="ferguson2005authentication"/>,
           <xref target="joux2006authentication" format="default" sectionFormat="of" derivedContent="joux2006authentication"/>),
           the data channel in TLS mode only has to ensure that the packet counter
           never rolls over, while tls-crypt would have to provide nonce uniqueness
@@ -359,7 +357,7 @@
           server->client traffic always use different keys, without requiring
           configuration.
         </t>
-        
+
         <t>
           Using fixed, secure, encryption and authentication algorithms makes both
           implementation and configuration easier.  If we ever want to, we can
@@ -389,9 +387,9 @@
           <ul>
             <li>
               <t>
-                The "opcode || session id || packet id" combination might collide.
+                The <tt>opcode || session id || packet id</tt> combination might collide.
                 This might happen in larger setups, because the session id contains
-                just 64 bits or random.  Using the uniqueness requirement from the
+                just 64 bits of random.  Using the uniqueness requirement from the
                 GCM spec <xref target="nistgcm" format="default" sectionFormat="of" derivedContent="nistgcm"/>
                 (a collision probability of less than 2^(-32)),
                 uniqueness is achieved when using the tls-crypt key for at most
@@ -404,22 +402,23 @@
                 colliding packets contain the same plaintext.  Attackers will not
                 be able to learn anything else about the plaintext (unless the
                 attacker knows the plaintext of one of these packets, of course).
-                Since the impact is limited, I consider this an acceptable
+                Since the impact is limited, we consider this an acceptable
                 remaining risk.
               </t>
             </li>
-            
+
             <li>
               The IVs used in encryption might collide.  When two IVs collide, an
-              attacker can learn the xor of the two plaintexts by xorring the
+              attacker can learn the xor of the two plaintexts by xor-ing the
               ciphertexts.  This is a serious loss of confidentiality.  The IVs
               are 128-bit, so when HMAC-SHA256 is a secure PRF (an assumption
               that must also hold for TLS), and we use the same uniqueness
-              requirement from [3], this limits the total amount of control
+              requirement from <xref target="nistgcm" format="default" sectionFormat="of" derivedContent="nistgcm"/>,
+              this limits the total amount of control
               channel messages for all peers in the setup to 2^48.  Assuming a
               large setup of 2^16 (65536) clients, and a (conservative) number of
               2^16 control channel packets per connection on average, this means
-              that clients may set up 2^16 connections on average.  I think these
+              that clients may set up 2^16 connections on average.  We think these
               numbers are reasonable.
             </li>
           </ul>
@@ -427,7 +426,7 @@
       </section>
       <section anchor="tlscryptv2" title="Client-specific tls-crypt keys (tls-crypt-v2)">
         <t>
-          This section describes OpenVPN to use of client-specific tls-crypt keys.
+          This section describes configuring OpenVPN to use client-specific tls-crypt keys.
         </t>
 
 
@@ -449,7 +448,9 @@
             Also, for ``tls-crypt``, even if all these peers succeed in
             keeping the key secret, the key lifetime is limited to roughly
             8000 years, divided by the number of clients (see the
-            ``--tls-crypt`` section of the man page).  Using client-specific
+            ``--tls-crypt`` section of the man page).
+            [FIXME/flichtenheld: either include or remove reference]
+            Using client-specific
             keys, we lift this lifetime requirement to roughly 8000 years
             for each client key (which "Should Be Enough For Everybody (tm)").
           </t>
@@ -480,7 +481,7 @@
           <t>
             To allow for a smooth transition, ``tls-crypt-v2`` is designed such that a
             server can enable both ``tls-crypt-v2`` and either ``tls-crypt`` or
-            ``tls-auth``.  This is achieved by introducing a P_CONTROL_HARD_RESET_CLIENT_V3
+            ``tls-auth``.  This is achieved by introducing a CONTROL_HARD_RESET_CLIENT_V3
             opcode, that indicates that the client wants to use ``tls-crypt-v2`` for the
             current connection.
           </t>
@@ -494,7 +495,7 @@
               <li>
                 Generate a tls-crypt-v2 server key using OpenVPN's ``--genkey tls-crypt-v2-server``.
                 This key contains 2 512-bit keys, of which we use:
-                
+
                 <ul>
                   <li> the first 256 bits of key 1 as AES-256-CTR encryption key ``Ke``</li>
                   <li> the first 256 bits of key 2 as HMAC-SHA-256 authentication key ``Ka`` </li>
@@ -520,10 +521,10 @@
 
                  The first byte of the metadata determines the type.  The initial
               implementation supports the following types:
-              
+
               <ul>
-                <li>   0x00 (USER):         User-defined free-form data.</li>
-                <li>   0x01 (TIMESTAMP):    64-bit network order unix timestamp of key generation.</li>
+                <li> 0x00 (USER): User-defined free-form data. </li>
+                <li> 0x01 (TIMESTAMP): 64-bit network order unix timestamp of key generation. </li>
               </ul>
                 </t>
               <t>
@@ -544,15 +545,15 @@
               SIV construction we use for tls-crypt:
 
               <figure>
-                <artwork>
-``len = len(WKc)`` (16 bit, network byte order)
+                <sourcecode>
+len = len(WKc) (16 bit, network byte order)
 
-``T = HMAC-SHA256(Ka, len || Kc || metadata)``
+T = HMAC-SHA256(Ka, len || Kc || metadata)
 
-``IV = 128 most significant bits of T``
+IV = 128 most significant bits of T
 
-``WKc = T || AES-256-CTR(Ke, IV, Kc || metadata) || len``
-                </artwork>
+WKc = T || AES-256-CTR(Ke, IV, Kc || metadata) || len
+                </sourcecode>
               </figure>
 
               Note that the length of ``WKc`` can be computed before composing ``WKc``,
@@ -561,9 +562,9 @@
               </li>
 
               <li> Create a tls-crypt-v2 client key: PEM-encode ``Kc || WKc`` and store in a
-              file, using the header ``-----BEGIN OpenVPN tls-crypt-v2 client key-----``
-              and the footer ``-----END OpenVPN tls-crypt-v2 client key-----``.  (The PEM
-              format is simple, and following PEM allows us to use the crypto lib function
+              file, using the header <tt>-----BEGIN OpenVPN tls-crypt-v2 client key-----</tt>
+              and the footer <tt>-----END OpenVPN tls-crypt-v2 client key-----</tt>.  (The PEM
+              format is simple, and following PEM allows us to use the crypto library functions
               for en/decoding.)
               </li>
 
@@ -571,33 +572,35 @@
               (``tls-crypt-v2 /path/to/client-specific.key``)</li>
             </ol>
           </t>
-          
+
           <t>
             When setting up the OpenVPN connection:
 
             <ol>
 
-              <li>. The client reads the tls-crypt-v2 key from its config, and:
-
-              1. loads ``Kc`` as its tls-crypt key,
-              2. stores ``WKc`` in memory for sending to the server.
+              <li> The client reads the tls-crypt-v2 key from its config, and:
+              <ol>
+                <li> loads ``Kc`` as its tls-crypt key, </li>
+                <li> stores ``WKc`` in memory for sending to the server. </li>
+              </ol>
               </li>
 
-              <li>. To start the connection, the client creates a P_CONTROL_HARD_RESET_CLIENT_V3
+              <li> To start the connection, the client creates a P_CONTROL_HARD_RESET_CLIENT_V3
               message, wraps it with tls-crypt using ``Kc`` as the key, and appends
               ``WKc``.  (``WKc`` must not be encrypted, to prevent a chicken-and-egg
               problem.)</li>
 
               <li> The server receives the P_CONTROL_HARD_RESET_CLIENT_V3 message, and
 
-              1. reads the WKc length field from the end of the message, and extracts WKc
-              from the message
-              2. unwraps ``WKc``
-              3. uses unwrapped ``Kc`` to verify the remaining
-              P_CONTROL_HARD_RESET_CLIENT_V3 message's (encryption and) authentication.
+              <ol>
+                <li> reads the WKc length field from the end of the message, and extracts WKc
+                from the message </li>
+                <li> unwraps ``WKc`` </li>
+                <li> uses unwrapped ``Kc`` to verify the remaining
+                P_CONTROL_HARD_RESET_CLIENT_V3 message's (encryption and) authentication. </li>
+              </ol>
 
-              The message is dropped and no error response is sent when either 3.1, 3.2 or
-              3.3 fails (DoS protection).
+              The message is dropped and no error response is sent when any of these steps fails (DoS protection).
               </li>
 
               <li> Server optionally checks metadata using a --tls-crypt-v2-verify script
@@ -635,7 +638,7 @@
               but to indicate that it supports resending the wrapped key by setting the
               packet id of the replay id to 0x0f010000 where the first byte indicates the
               early negotiation support and the next bytes the flags.</li>
-              
+
               <li>The server responds with a P_CONTROL_HARD_RESET_V2 message. Instead of having
               an empty payload like normally, the payload consists of TLV (type (uint16),
               length (uint16), value) packets. TLV was chosen
@@ -643,20 +646,20 @@
               defined:
 
               flags - type 0x01, length 2.
-              
+
               Bit 1 indicates that the client needs to resend the WKC in the third packet.
               </li>
 
               <li>Instead of normal P_ACK_V1 or P_CONTROL_V1 packet, the client will send a
               P_CONTROL_WKC_V1 packet. The P_CONTROL_WKC_V1 is identical to a normal
               P_CONTROL_V1 packet but with the WKc appended.
-              
+
               Normally the first message of the client is either P_ACK_V1, directly
               followed by a P_CONTROL_V1 message that contains the TLS Client Hello or
               just a P_CONTROL_V1 message. Instead of a P_ACK_V1 message the client should
               send a P_CONTROL_WKC_V1 message with an empty payload. This message must
               also include an ACK for the P_CONTROL_HARD_RESET_V2 message.
-              
+
               When directly sending the TLS Client Hello message in the P_CONTROL_WKC_V1
               message, the client must ensure that the resulting P_CONTROL_WKC_V1 message
               with the appended WKc does not extend the control message length.
@@ -665,54 +668,53 @@
           </t>
         </section>
 
-<section title="Considerations">
-<t>
-To allow for a smooth transition, the server implementation allows
-``tls-crypt`` or ``tls-auth`` to be used simultaneously with ``tls-crypt-v2``.
-This specification does not allow simultaneously using ``tls-crypt-v2`` and
-connections without any control channel wrapping, because that would break DoS
-resilience.
-</t>
-<t>
-WKc includes a length field, so we leave the option for future extension of the
-P_CONTROL_HEAD_RESET_CLIENT_V3 message open.  (E.g. add payload to the reset to
-indicate low-level protocol features.)
-</t>
-<t>
-``tls-crypt-v2`` uses fixed crypto algorithms, because:
+        <section title="Considerations">
+          <t>
+            To allow for a smooth transition, the server implementation allows
+            ``tls-crypt`` or ``tls-auth`` to be used simultaneously with ``tls-crypt-v2``.
+            This specification does not allow simultaneously using ``tls-crypt-v2`` and
+            connections without any control channel wrapping, because that would break DoS
+            resilience.
+          </t>
+          <t>
+            WKc includes a length field, so we leave the option for future extension of the
+            P_CONTROL_HEAD_RESET_CLIENT_V3 message open.  (E.g. add payload to the reset to
+            indicate low-level protocol features.)
+          </t>
+          <t>
+            ``tls-crypt-v2`` uses fixed crypto algorithms, because:
 
-<ul>
-<li>The crypto is used before we can do any negotiation, so the algorithms have
-   to be predefined.</li>
-<li>The crypto primitives are chosen conservatively, making problems with these
-   primitives unlikely.</li>
-<li>Making anything configurable adds complexity, both in implementation and
-usage.  We should not add any more complexity than is absolutely necessary.</li>
-</ul>
-</t>
-<t>
-Potential ``tls-crypt-v2`` risks:
-<ul>
-<li>Slightly more work on first connection (``WKc`` unwrap + hard reset unwrap)
-   than with ``tls-crypt`` (hard reset unwrap) or ``tls-auth`` (hard reset auth).</li>
-<li>Flexible metadata allow mistakes
-   (So we should make it easy to do it right.  Provide tooling to create client
-   keys based on cert serial + CA fingerprint, provide script that uses CRL (if
+            <ul>
+              <li>The crypto is used before we can do any negotiation, so the algorithms have
+              to be predefined.</li>
+              <li>The crypto primitives are chosen conservatively, making problems with these
+              primitives unlikely.</li>
+              <li>Making anything configurable adds complexity, both in implementation and
+              usage.  We should not add any more complexity than is absolutely necessary.</li>
+            </ul>
+          </t>
+          <t>
+            Potential ``tls-crypt-v2`` risks:
+            <ul>
+              <li>Slightly more work on first connection (``WKc`` unwrap + hard reset unwrap)
+              than with ``tls-crypt`` (hard reset unwrap) or ``tls-auth`` (hard reset auth).</li>
+              <li>Flexible metadata allow mistakes
+              (So we should make it easy to do it right.  Provide tooling to create client
+              keys based on cert serial + CA fingerprint, provide script that uses CRL (if
 available) to drop revoked keys.)</li>
-</ul>
-</t>
-</section>
+            </ul>
+          </t>
+        </section>
 
+      </section>
     </section>
+
+
+    <section title="Pushing configuration options and OCC">
+      <t>
+        TBD
+      </t>
     </section>
-  
-  
-  <section title="Pushing configuration options and OCC">
-    <t>
-      TBD
-    </t>
-  </section>
-  
 
     <section anchor="controlchannel" title="Control channel">
       <t>
@@ -820,15 +822,8 @@ available) to drop revoked keys.)</li>
             table.
           </t>
           <t>
-            The  TCP/UDP column indicates if the corresponding field is present
-            when using TCP and/or UDP as transport protocol.  When the TLS mode
-            column contains an X it means the field is used when the connection
-            is a server/clients based connection.  These fields are not used in
-            Peer-to-Peer connections.
-          </t>
-          <t>
             The TLS auth column indicates fields used when additional
-            HMAC authentication data is added to the control channel packets
+            HMAC authentication data is added to the control channel packets.
           </t>
           <texttable>
             <ttcol>Field name</ttcol>
@@ -903,7 +898,7 @@ available) to drop revoked keys.)</li>
           <section title="Field: OPCODE">
             <t>
               The OPCODE field is described in detail in the
-              "Control Channel OPCODEs" section.
+              <xref target="opcodes">Control Channel OPCODEs</xref> section.
             </t>
           </section>
 
@@ -935,20 +930,19 @@ available) to drop revoked keys.)</li>
             </t>
           </section>
 
-          
           <section title="Field: replay_packet_id">
             <t>
               This is an incremental ID for each packet which helps
               discovering packet replay attacks. Usually consists of
               a 32 bit time + 32 bit counter but can be any monotonically
-              increasing sequence For both fields the value is
-              transferred using network byte order
+              increasing sequence. For both fields the value is
+              transferred using network byte order.
             </t>
             <t>
               For CFB/OFB based ciphers, the long packet_id format MUST be
               used, as the packet_id is part of the cipher's IV.
               [FIXME/syzzer: Elaborate more]
-              [FIXME/schabe: move to data channel]
+              [FIXME/schwabe: move to data channel]
             </t>
           </section>
 
@@ -983,10 +977,10 @@ available) to drop revoked keys.)</li>
             <t>
               The ID of the control channel packet. The packet ID ids
               are used to ensure a TCP like connection even if UDP is
-              used as protocol. The id MUST start at 0 and MUST be
+              used as protocol. The ID MUST start at 0 and MUST be
               sequential without gaps. Retransmission must have the same
               packet_id as the original message but can have a different
-              replay_packet_id. ACK packages MUST NOT have a packet_id
+              replay_packet_id. ACK packages MUST NOT have a packet_id.
             </t>
           </section>
 
@@ -1000,10 +994,10 @@ available) to drop revoked keys.)</li>
           </section>
         </section>
 
-        <section title="Control Channel OPCODEs">
+        <section anchor="opcodes" title="Control Channel OPCODEs">
           <section title="[OPCODE ID 1] CONTROL_HARD_RESET_CLIENT_V1">
             <t>
-              OBSOLETE: This OPCODE is not in use any more.
+              <em>OBSOLETE</em>: This OPCODE is not in use any more.
             </t>
             <t>
               This MAY be reused in the future once all other OPCODE
@@ -1013,7 +1007,7 @@ available) to drop revoked keys.)</li>
 
           <section title="[OPCODE ID 2] CONTROL_HARD_RESET_SERVER_V1">
             <t>
-              OBSOLETE: This OPCODE is not in use any more.
+              <em>OBSOLETE</em>: This OPCODE is not in use any more.
             </t>
             <t>
               This MAY be reused in the future once all other OPCODE
@@ -1024,7 +1018,7 @@ available) to drop revoked keys.)</li>
           <section title="[OPCODE ID 3] CONTROL_SOFT_RESET_V1">
             <t>
               Start new TLS session to generate a new data channel key
-              to allow a graceful transition from old to new key 
+              to allow a graceful transition from old to new key.
             </t>
             <t>
               This is used to rotate session keys.  It allows both
@@ -1039,7 +1033,7 @@ available) to drop revoked keys.)</li>
               with a CONTROL_SOFT_RESET_V1 message to acknowledge that
               a renegotiation of the session keys will start.  Then
               the side receiving the last CONTROL_SOFT_RESET_V1 packet
-              replies with a ACK_V1 message.  At this point the
+              replies with an ACK_V1 message.  At this point the
               renegotiation can start using the CONTROL_V1 OPCODE.
             </t>
             <t>
@@ -1048,7 +1042,7 @@ available) to drop revoked keys.)</li>
               use the old keys for a shorter time until the transition
               has completed.  Any following packets need to use the new
               key-id until the old key have been removed and the new
-              key-id replaces it completely. (schwabe:FIXME THIS WRONG)
+              key-id replaces it completely. [FIXME/schwabe:THIS IS WRONG)
             </t>
             <t>
               [FIXME: Elaborate more on how re-keying happens]
@@ -1057,7 +1051,7 @@ available) to drop revoked keys.)</li>
 
           <section title="[OPCODE ID 4] CONTROL_V1">
             <t>
-              Control channel packet, usually TLS protocol data
+              Control channel packet, usually TLS protocol data.
             </t>
             <t>
               CONTROL_V1 is used to encapsulate the SSL/TLS protocol into the
@@ -1072,18 +1066,18 @@ available) to drop revoked keys.)</li>
 
           <section title="[OPCODE ID 5] ACK_V1">
             <t>
-              Acknowledgment for received control channel packets
+              Acknowledgment for received control channel packets.
             </t>
             <t>
               When control channel packets have been received an ACK_V1
-              packet is sent back to confirm its arrival.  It SHOULD NOT
-              be sent an ACK_V1 message upon receiving an ACK_V1 message.
+              packet is sent back to confirm its arrival.  An ACK_V1
+              message SHOULD NOT be sent upon receiving an ACK_V1 message.
             </t>
           </section>
 
           <section title="[OPCODE ID 7] CONTROL_HARD_RESET_CLIENT_V2">
             <t>
-             Used to start a VPN connection from client, first packet of the three way shake.
+             Used to start a VPN connection from client, first packet of the three-way handshake.
             </t>
             <t>
               The client starts with a fresh new session key.  This tells the server
@@ -1098,10 +1092,10 @@ available) to drop revoked keys.)</li>
           <section title="[OPCODE ID 8] CONTROL_HARD_RESET_SERVER_V2">
             <t>
               Initial packet from server, reply to a CONTROL_HARD_RESET_CLIENT_V2 packet.
-              Second packet in the three-way handshake
+              Second packet in the three-way handshake.
             </t>
             <t>
-              In the P2P mode for TLS Similar to CONTROL_HARD_RESET_CLIENT_V2, but initiated from
+              In the P2P mode for TLS.  Similar to CONTROL_HARD_RESET_CLIENT_V2, but initiated from
               the server side.
 
               Note that the payload of this packet MUST be ignored but might
@@ -1118,10 +1112,10 @@ available) to drop revoked keys.)</li>
               part of the TLS session. The payload of this packet SHOULD be empty.
             </t>
             <t>
-              The tls-crypt packet id is used to of this packet is used to indicate
+              The tls-crypt packet id of this packet is used to indicate
               early protocol negotiation. Without early protocol negotiation the first four octets
               are normally a uint32 starting at 0 in network byte order and increase linearly
-              with later packets. When early protocol negotiation is supported these the value is
+              with later packets. When early protocol negotiation is supported the value is
               instead 0x0f &lt;f&gt; 00 00. The most significant byte of 0x0f indicates that the
               second highest byte contains flags of supported features. The third byte SHOULD be also
               0x00. The fourth byte is expected to be used for retransmission and will linearly
@@ -1129,8 +1123,8 @@ available) to drop revoked keys.)</li>
               packet, the packet id is just a normal replay counter.
 
               Currently only 0x01 for the second byte is defined which indicates that the client
-              supports resending the CONTROL_HARD_RESET_SERVER_V3 with the server session id to allow
-              a state 
+              supports sending CONTROL_WKC_V1 as part of the three-way handshake to support
+              a stateless handshake on the server side.
             </t>
           </section>
           <section title="[OPCODE ID 11] CONTROL_WKC_V1">
@@ -1147,8 +1141,8 @@ available) to drop revoked keys.)</li>
             similar to DATA_V1 with an additional field of 24 bits
             for Peer-ID.
 
-            For details about this opcode see sections about <xref target="dataaead">AEAD
-            </xref> and <xref target="datacbc">CBC/OFB/CTR</xref> packet format.
+            For details about this opcode see sections about <xref target="dataaead">AEAD</xref>
+            and <xref target="datacbc">CBC/OFB/CTR</xref> packet format.
           </t>
           </section>
           <section title="[OPCODE ID 6] DATA_V1">
@@ -1162,16 +1156,17 @@ available) to drop revoked keys.)</li>
           </t>
         </section>
 
-        </section>
+      </section>
+
         <section title="PUSH messages">
         </section>
 
         <section title="Peer-Info">
         </section>
       </section>
-      <section title="message packet ids">
+      <section title="Message Packet IDs">
         <t>
-          Control channel packets have a message id that orders them and identifies for ack messages.
+          Control channel packets have a message id that orders them and identifies them for ack messages.
           The message ids are independent for both direction and MUST start at 0. If the message id reaches
           MAX_UINT32, the implementation MAY implement a rollover to 0 again. However, since such a
           huge number of control message is unrealistic, an implementation MAY refuse new packets if
@@ -1214,19 +1209,19 @@ available) to drop revoked keys.)</li>
       <section title="key exchange message">
         <t>
           <figure>
-            <artwork>
-              struct key_exchange {
-              uint_32 null;
-              uint8 method = 2;
-              uint8 key_random[48];
-              uint8_t random1[32];
-              uint8_t random2[32];
-              uint8_t* ooc_string;
-              uint8_t* username;
-              uint8_t* password;
-              uint8_t* peerinfo;
-              }
-            </artwork>
+            <sourcecode>
+struct key_exchange {
+    uint_32 null;
+    uint8 method = 2;
+    uint8 key_random[48];
+    uint8_t random1[32];
+    uint8_t random2[32];
+    uint8_t* ooc_string;
+    uint8_t* username;
+    uint8_t* password;
+    uint8_t* peerinfo;
+}
+            </sourcecode>
           </figure>
         </t>
 
@@ -1253,7 +1248,7 @@ available) to drop revoked keys.)</li>
           is used. <xref target="peerinfo">Peerinfo</xref> is also present. The server replies with a key_exchange
           packet on its own with occ_string, username, password and empty peerinfo.
         </t>
-        
+
       </section>
       <section anchor="peerinfo" title="Peerinfo">
         <t>
@@ -1291,7 +1286,7 @@ available) to drop revoked keys.)</li>
       </section>
 
     </section>
-    
+
   <section title="Data channel" anchor="datachannel">
     <section anchor="openvpnkey" title="OpenVPN Key">
       <t>
@@ -1299,31 +1294,31 @@ available) to drop revoked keys.)</li>
         channel. The format of this key material is the following:
 
         <figure>
-          <artwork>
-            struct datakeys {
-            uint8_t key_c2s[64];
-            uint8_t auth_c2s[64];
-            uint8_t key_s2c[64];
-            uint8_t auth_s2c[64];
-            }
-          </artwork>
+          <sourcecode>
+struct datakeys {
+    uint8_t key_c2s[64];
+    uint8_t auth_c2s[64];
+    uint8_t key_s2c[64];
+    uint8_t auth_s2c[64];
+}
+          </sourcecode>
         </figure>
-        
+
         All these keys provide more than enough material to provide encryption keys
-        are all encryption and authentication algorithms. E.g. when 128key is required
+        are all encryption and authentication algorithms. E.g. when 128 bit are required
         for a encryption cipher, only the first 16 bytes are used.
-        
+
         key_c2s and auth_c2s are used to encrypt/authenticate data from client to server
         and key_s2c and auth_s2c are used to encrypt/authenticate from server to client.
-        
+
         This key structure is normally generated by using RFC 5705 Key Material Exporter
         from the Control Channel session with the label ``EXPORTER-OpenVPN-datakeys``
         and using the 256 bytes length of the structure.
-        
+
         Older clients use the mechanism described in the section OpenVPN data channel
         PRF.
       </t>
-    </section>  
+    </section>
     <section title="Peer-ID">
       <t>
         The purpose of this feature is to allow a client to float between various client
@@ -1366,8 +1361,8 @@ available) to drop revoked keys.)</li>
           server to client.
         </t>
         <t>
-          The Peer-ID is included protected in the HMAC signature/AEAD tag 
-          of  DATA_V2 packets.
+          The Peer-ID is included protected in the HMAC signature/AEAD tag
+          of DATA_V2 packets.
         </t>
       </section>
       <section title="Allowing floating clients">
@@ -1408,28 +1403,27 @@ available) to drop revoked keys.)</li>
       <section anchor="dataaead" title="AEAD encrypted data channel packet">
         <t>
           <figure>
-            <artwork>
-              
-              struct aead_packet {
-              int opcode:5;
-              int key_id:3;
-              int peer_id:24;
-              uint32_t packet_id;
-              uint8_t[16] authentication_tag;
-              uint8_t* encrypted_payload;
-              }
-            </artwork>
+            <sourcecode>
+struct aead_packet {
+    int opcode:5;
+    int key_id:3;
+    int peer_id:24;
+    uint32_t packet_id;
+    uint8_t[16] authentication_tag;
+    uint8_t* encrypted_payload;
+}
+            </sourcecode>
           </figure>
         </t>
         <t>
           The packet_id together with the implicit IV forms the IV for
 	  decryption. The packet_id is also used for the replay protection.
         </t>
-        
+
         <t>
-          IV = packet_id | implicit_iv;
+          <sourcecode>IV = packet_id | implicit_iv;</sourcecode>
         </t>
-        
+
         <t>
           The implicit part of IV is filled by first bytes of the
 	  auth_c2s/auth_s2c of
@@ -1438,19 +1432,18 @@ available) to drop revoked keys.)</li>
           from packet_id and the remaining 64 bits (the implicit IV part) are
           taken from the data channel key.
         </t>
-        
+
         <t>
           For DATA_V2 packets the authenticated data *includes* opcode,
           key_id and peer_id. For DATA_V1 packets the authenticated data starts
           on the first byte of packet_id, not including opcode and key_id.
         </t>
-        
+
         <t>
-          authenticated_data_v1 = packet_id | payload
-        </t>
-        
-        <t>
-          authenticated_data_v2 = opcode| key_id | peer_id | packet_id | payload
+          <sourcecode>
+authenticated_data_v1 = packet_id | payload
+authenticated_data_v2 = opcode| key_id | peer_id | packet_id | payload
+          </sourcecode>
         </t>
 
         <t>
@@ -1460,30 +1453,29 @@ available) to drop revoked keys.)</li>
       <section anchor="datacbc" title="CBC/OFB/CTR encrypted packet">          
         <t>
           <figure>
-            <artwork>
-              struct data_packet_cbc {
-              int opcode:5;
-              int key_id:3;
-              int peer_id:24;
-              uint8_t[HMAC_LEN] hmac;
-              uint8_t[IV_LEN] iv;
-              uint32_t encrypted_packet_id;
-              uint8_t* encrypted_payload
-              }
-            </artwork>
+            <sourcecode>
+struct data_packet_cbc {
+    int opcode:5;
+    int key_id:3;
+    int peer_id:24;
+    uint8_t[HMAC_LEN] hmac;
+    uint8_t[IV_LEN] iv;
+    uint32_t encrypted_packet_id;
+    uint8_t* encrypted_payload
+}
+            </sourcecode>
           </figure>
           <figure>
-            <artwork>
-
-              struct data_packet_xfb {
-              int opcode:5;
-              int key_id:3;
-              int peer_id:24;
-              uint8_t[HMAC_LEN] hmac;
-              uint8_t[IV_LEN] iv;
-              uint8_t* encrypted_payload
-              }
-            </artwork>
+            <sourcecode>
+struct data_packet_xfb {
+    int opcode:5;
+    int key_id:3;
+    int peer_id:24;
+    uint8_t[HMAC_LEN] hmac;
+    uint8_t[IV_LEN] iv;
+    uint8_t* encrypted_payload
+}
+            </sourcecode>
           </figure>
 
           <t>HMAC_LEN depends on the length of the HMAC being used, e.g. 20 bytes for
