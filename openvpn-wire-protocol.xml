@@ -636,9 +636,11 @@ WKc = T || AES-256-CTR(Ke, IV, Kc || metadata) || len
             <ol>
               <li> The client creates the P_CONTROL_HARD_RESET_CLIENT_V3 message as before
               but to indicate that it supports resending the wrapped key by setting the
-              packet id of the replay id to 0x0f010000 where the first byte indicates the
-              early negotiation support and the next bytes the flags.</li>
-
+              packet id of the replay id to 0x0f000000 where the first byte indicates the
+              early negotiation support and the next byte the flags. All tls-crypt-v2
+              implementations that support early negotiation, MUST
+              also support resending the wrapped key. The flags byte is therefore empty.
+              </li>
               <li>The server responds with a P_CONTROL_HARD_RESET_V2 message. Instead of having
               an empty payload like normally, the payload consists of TLV (type (uint16),
               length (uint16), value) packets. TLV was chosen
