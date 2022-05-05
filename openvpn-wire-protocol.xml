@@ -10,6 +10,7 @@
 <!ENTITY RFC5226 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5226.xml">
 <!ENTITY RFC5246 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5246.xml">
 <!ENTITY RFC5280 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5280.xml">
+<!ENTITY RFC5705 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5705.xml">
 ]>
 <!-- give errors regarding ID-nits and DTD validation -->
 <?rfc strict="yes" ?>
@@ -236,7 +237,7 @@
           payload.
         </t>
         <t>
-          This authent0ication can strengthen the overall security on
+          This authentication can strengthen the overall security on
           both client and server side as OpenVPN will validate the HMAC
           signature before it is sent to the SSL/TLS layer for decryption.
           This can protect server and client from SSL/TLS protocol
@@ -999,7 +1000,7 @@ available) to drop revoked keys.)</li>
         <section anchor="opcodes" title="Control Channel OPCODEs">
           <section title="[OPCODE ID 1] CONTROL_HARD_RESET_CLIENT_V1">
             <t>
-              <em>OBSOLETE</em>: This OPCODE is not in use any more.
+              <em>OBSOLETE:</em> This OPCODE is not in use any more.
             </t>
             <t>
               This MAY be reused in the future once all other OPCODE
@@ -1009,7 +1010,7 @@ available) to drop revoked keys.)</li>
 
           <section title="[OPCODE ID 2] CONTROL_HARD_RESET_SERVER_V1">
             <t>
-              <em>OBSOLETE</em>: This OPCODE is not in use any more.
+              <em>OBSOLETE:</em> This OPCODE is not in use any more.
             </t>
             <t>
               This MAY be reused in the future once all other OPCODE
@@ -1043,7 +1044,7 @@ available) to drop revoked keys.)</li>
               MUST be incremented to ensure the connection can still
               use the old keys for a shorter time until the transition
               has completed.  Any following packets need to use the new
-              key-id until the old key have been removed and the new
+              key-id until the old key has been removed and the new
               key-id replaces it completely. [FIXME/schwabe:THIS IS WRONG)
             </t>
             <t>
@@ -1060,7 +1061,7 @@ available) to drop revoked keys.)</li>
               OpenVPN wire packet, primarily used for the SSL/TLS handshake
               process.  The payload of CONTROL_V1 packets are expected to be
               processed by an SSL/TLS library.  Once the SSL/TLS handshake
-              have completed and the ephemeral session key have been
+              has completed and the ephemeral session key has been
               negotiated, encrypted tunnel data will use either DATA_V1 or
               DATA_V2 for the transport of those packets.
             </t>
@@ -1075,6 +1076,7 @@ available) to drop revoked keys.)</li>
               packet is sent back to confirm its arrival.  An ACK_V1
               message SHOULD NOT be sent upon receiving an ACK_V1 message.
             </t>
+            <t>See also <xref target="acks">Acknowledgments</xref>.</t>
           </section>
 
           <section title="[OPCODE ID 7] CONTROL_HARD_RESET_CLIENT_V2">
@@ -1085,7 +1087,8 @@ available) to drop revoked keys.)</li>
               The client starts with a fresh new session key.  This tells the server
               to initiate a new TLS handshake and establish a new session key for
               data channel going from client to server.
-
+            </t>
+            <t>
               Note that the payload of this packet MUST be ignored but might
               be used to implement early protocol negotiation in the future.
             </t>
@@ -1099,15 +1102,16 @@ available) to drop revoked keys.)</li>
             <t>
               In the P2P mode for TLS.  Similar to CONTROL_HARD_RESET_CLIENT_V2, but initiated from
               the server side.
-
+            </t>
+            <t>
               Note that the payload of this packet MUST be ignored but might
               be later used to implement early protocol negotiation in the future.
             </t>
           </section>
           <section title="[OPCODE ID 10] CONTROL_HARD_RESET_CLIENT_V3">
             <t>
-              Initial key packet from the client in the three way handshake from the client
-              when tls-crypt-v2 is in use. See the tls-crypt-v2 section for more details.
+              Initial key packet from the client in the three-way handshake from the client
+              when tls-crypt-v2 is in use. See <xref target="tlscryptv2">TLS crypt v2</xref> for more details.
             </t>
             <t>
               Note that the payload of this packet is interpreted by OpenVPN 2.x to be already
@@ -1116,20 +1120,20 @@ available) to drop revoked keys.)</li>
             <t>
               The tls-crypt packet id of this packet is used to indicate
               early protocol negotiation. Without early protocol negotiation the first four octets
-              are normally a uint32 starting at 0 in network byte order and increase linearly
+              are normally an uint32 in network byte order starting at 0 and increase linearly
               with later packets. When early protocol negotiation is supported the value is
-              instead 0x0f &lt;f&gt; 00 00. The most significant byte of 0x0f indicates that the
-              second highest byte contains flags of supported features. The third byte SHOULD be also
+              instead 0x0f 00 00 00. The most significant byte of 0x0f indicates that the
+              second highest byte contains flags of supported features (see below). The third byte SHOULD also be
               0x00. The fourth byte is expected to be used for retransmission and will linearly
               increase with retransmissions of the control packet. For packets other than the reset
               packet, the packet id is just a normal replay counter.
-
-              Currently only 0x01 for the second byte is defined which indicates that the client
-              supports sending CONTROL_WKC_V1 as part of the three-way handshake to support
-              a stateless handshake on the server side.
+            </t>
+            <t>
+              Currently no flags are defined for the second byte, yet. But indicating support for early protocol negotiation implies that the client
+              supports sending <xref target="CONTROL_WKC_V1">CONTROL_WKC_V1</xref> packets.
             </t>
           </section>
-          <section title="[OPCODE ID 11] CONTROL_WKC_V1">
+          <section anchor="CONTROL_WKC_V1" title="[OPCODE ID 11] CONTROL_WKC_V1">
             <t>
               Identical to the CONTROL_V1 message but with a wrapped
               client append to the message similar to the CONTROL_HARD_RESET_CLIENT_V3
@@ -1142,7 +1146,8 @@ available) to drop revoked keys.)</li>
             Data channel packet with 4-byte header.  This is
             similar to DATA_V1 with an additional field of 24 bits
             for Peer-ID.
-
+          </t>
+          <t>
             For details about this opcode see sections about <xref target="dataaead">AEAD</xref>
             and <xref target="datacbc">CBC/OFB/CTR</xref> packet format.
           </t>
@@ -1152,8 +1157,9 @@ available) to drop revoked keys.)</li>
             The DATA_V1 packet is identical to the DATA_V2 packet apart from
             op_code being 6 and the peer_id absent from the packet format
             (all followings fields are shifted by 3 bytes to the left).
-
-            The DATA_V1 packet are deprecated and should only used for
+          </t>
+          <t>
+            The DATA_V1 packet are <em>deprecated</em> and should only used for
             interoperability with old clients.
           </t>
         </section>
@@ -1175,13 +1181,13 @@ available) to drop revoked keys.)</li>
           the message packet id rolls over.
         </t>
       </section>
-      <section title="Acknowledgements">
+      <section anchor="acks" title="Acknowledgements">
         <t>
           OpenVPN has dedicated acknowledgment messages and also allows adding
           acknowledgments to other control messages. A P_ACK_V1 message usually
           carries up to 8 acknowledgments while other messages only carry 4
           acknowledgments. Unlike other protocols like TCP, OpenVPN does not
-          have cumulative  ACKs and each ACK only allows acknowledging a
+          have cumulative ACKs and each ACK only allows acknowledging a
           single packet.
         </t>
         <t>
@@ -1190,7 +1196,7 @@ available) to drop revoked keys.)</li>
           packets in messages (4 for non P_ACK_V1 and 8 for P_ACK_V1).
         </t>
         <t>
-          To ensure compatibility to with existing OpenVPN implementation the
+          To ensure compatibility to with the existing OpenVPN implementation the
           number of ACKs in a single packet (acked_pktid_list) should be limited
           to 8.
         </t>
@@ -1228,13 +1234,13 @@ struct key_exchange {
         </t>
 
         <t>
-          All the strings in this packets are expected to be valid UTF8 null-terminated string. If they are not
+          All the strings in this packets are expected to be valid UTF8 null-terminated strings. If they are not
           used (e.g. password and username), they are just a single zero byte.
         </t>
 
         <t>
-          The packets always starts with 4 bytes of zero, followed by one byte of 0x02. After that come
-          random data that used with legacy client to derive the <xref target="openvpnkey">data channel keys</xref>
+          The packets always starts with 4 bytes of zero, followed by one byte of 0x02. After that comes
+          random data that is used with legacy clients to derive the <xref target="openvpnkey">data channel keys</xref>
           using a TLS1.0/TLS1.1 style PRF function. These fields are not used in the modern protocol anymore
           since the data channel key derivation is using TLS export key feature but SHOULD be set to random
           values.
@@ -1254,18 +1260,18 @@ struct key_exchange {
       </section>
       <section anchor="peerinfo" title="Peerinfo">
         <t>
-          The peerinfo is a UTF8 encoded string that contains newline separated (\n) variables
+          The peerinfo is an UTF8 encoded string that contains newline separated (<tt>\n</tt>) variables
           in the form of VAR=VALUE. The following variables are specified:
           <ul>
-            <li> IV_PROTO: A bit field containing supported protocol extensions by the peer. </li>
-            <li> IV_CIPHERS: A list of : separated allowed data channel ciphers. </li>
+            <li> IV_PROTO: A positive decimal number which is being interpreted as a bit field containing supported protocol extensions by the peer. </li>
+            <li> IV_CIPHERS: A list of colon (<tt>:</tt>) separated allowed data channel ciphers. </li>
             <li> IV_HWADDR: A MAC address or UUID address that uniquely identifies the client </li>
             <li> IV_GUI_VER: name and version number of the UI of the OpenVPN client </li>
             <li> IV_VER: version of the OpenVPN library/program</li>
             <li> IV_PLAT: operating system the peer uses</li>
             <li> IV_NCP: if equal to 2 the client supports AES-128-GCM and AES-256-GCM, IV_NCP is
-            deprecated in favor of IV_CIPHERS </li>
-            <li> IV_SSO: supported out of band (auth pending) methods, the client supports</li>
+            <em>deprecated</em> in favor of IV_CIPHERS </li>
+            <li> IV_SSO: out of band (auth pending) methods the client supports</li>
             <li> variables starting with UV_. This are variables set by the user by a
             configuration file or similar means. These do not have any fixed meaning.</li>
           </ul>
@@ -1276,11 +1282,12 @@ struct key_exchange {
         <t>
           For IV_PROTO, the bits have the following meaning:
           <ul>
+            <li>bit 0: Reserved. SHOULD be 0.</li>
             <li>bit 1: The peer supports peer-id floating mechanism</li>
             <li>bit 2: The client expects a push-reply and the server may
             send this reply without waiting for a push-request first. </li>
             <li>bit 3: The client is capable of doing key derivation using
-            RFC5705 key material exporter. </li>
+            <xref target="RFC5705">RFC5705 key material exporter</xref>. </li>
             <li>bit 4: The client is capable of accepting additional arguments
             to the <xref target="authpending">AUTH_PENDING</xref> message.</li>
           </ul>
@@ -1292,7 +1299,7 @@ struct key_exchange {
   <section title="Data channel" anchor="datachannel">
     <section anchor="openvpnkey" title="OpenVPN Key">
       <t>
-        OpenVPN uses a 256 byte of key material for encryption/decryption of the data
+        OpenVPN uses 256 byte of key material for encryption/decryption of the data
         channel. The format of this key material is the following:
 
         <figure>
@@ -1305,16 +1312,18 @@ struct datakeys {
 }
           </sourcecode>
         </figure>
-
+      </t>
+      <t>
         All these keys provide more than enough material to provide encryption keys
-        are all encryption and authentication algorithms. E.g. when 128 bit are required
-        for a encryption cipher, only the first 16 bytes are used.
+        for all encryption and authentication algorithms. E.g. when 128 bit are required
+        for an encryption cipher, only the first 16 bytes are used.
 
         key_c2s and auth_c2s are used to encrypt/authenticate data from client to server
         and key_s2c and auth_s2c are used to encrypt/authenticate from server to client.
-
-        This key structure is normally generated by using RFC 5705 Key Material Exporter
-        from the Control Channel session with the label ``EXPORTER-OpenVPN-datakeys``
+      </t>
+      <t>
+        This key structure is normally generated by using <xref target="RFC5705">RFC 5705 key material exporter</xref>
+        from the Control Channel session with the label <tt>EXPORTER-OpenVPN-datakeys</tt>
         and using the 256 bytes length of the structure.
 
         Older clients use the mechanism described in the section OpenVPN data channel
@@ -1338,7 +1347,7 @@ struct datakeys {
           By sending IV_PROTO=2 to the server, it means
           the client will be able to use the DATA_V2 packet format.  When
           the server acknowledges that the client supports IV_PROTO=2/DATA_V2
-          it SHOULD assign a unique Peer-ID to the client.  The server is
+          it SHOULD assign an unique Peer-ID to the client.  The server is
           responsible of keeping track of which Peer-ID is related to which
           active session and MUST ensure no active clients share the same
           Peer-ID.
@@ -1371,11 +1380,11 @@ struct datakeys {
         <t>
           The server MUST ensure the packet integrity is intact, through
           checking HMAC or GCM authentication tags, replay protection, etc
-          of the DATA_V2 packet
+          of the DATA_V2 packet.
         </t>
         <t>
           In addition the server MUST ensure the float does not clobber
-          a pre-existing client, such as a the client floating to a source
+          a pre-existing client, such as a client floating to a source
           IP address used by a different client unless it can be verified
           that the pre-existing client is a previous instance of the
           floating client.
@@ -1392,11 +1401,14 @@ struct datakeys {
 	    <li>If a packet arrives out of order, it will only be accepted if it arrives no later than t seconds after any packet containing a higher sequence number.</li>
 	    <li> A packet will be rejected if it is a replay</li>
 	  </ol>
+        </t>
 
+        <t>
 	  This means that a client needs to keep track of the highest received
 	  sequence number and the n sequence ids lower than the highest received
 	  sequence number.
-
+        </t>
+        <t>
 	  Old OpenVPN peers before 2.4 will enforce a strict packet ordering
 	  when using TCP that does not allow reordering.
 	</t>
@@ -1436,7 +1448,7 @@ struct aead_packet {
         </t>
 
         <t>
-          For DATA_V2 packets the authenticated data *includes* opcode,
+          For DATA_V2 packets the authenticated data <em>includes</em> opcode,
           key_id and peer_id. For DATA_V1 packets the authenticated data starts
           on the first byte of packet_id, not including opcode and key_id.
         </t>
@@ -1452,7 +1464,7 @@ authenticated_data_v2 = opcode| key_id | peer_id | packet_id | payload
           The tag size is always 128 bit (16 bytes). (Same size as in TLS)
         </t>
       </section>
-      <section anchor="datacbc" title="CBC/OFB/CTR encrypted packet">          
+      <section anchor="datacbc" title="CBC/OFB/CTR encrypted packet">
         <t>
           <figure>
             <sourcecode>
@@ -1537,9 +1549,9 @@ struct data_packet_xfb {
         <t>
           Format:
           "AUTH_PENDING"
-          
+
           or
-          
+
           "AUTH_PENDING,flags"
         </t>
         <t>
@@ -1577,7 +1589,6 @@ struct data_packet_xfb {
 
           The optional message indicates a message that can relayed to the user.
         </t>
-        
       </section>
       <section title="AUTH_FAILED">
         <t>
@@ -1631,7 +1642,6 @@ struct data_packet_xfb {
           This message indicates a reply to prior challenge/response request. The response is specific to the
           challenge response and is encoded with base64.
         </t>
-        
       </section>
       <section title="INFO_PRE and INFO">
         <t>
@@ -1693,6 +1703,9 @@ struct data_packet_xfb {
 
      <!--?rfc include="http://xml.resource.org/public/rfc/bibxml/reference.RFC.5280.xml"?-->
      &RFC5280;
-   </references>
+
+     <!--?rfc include="http://xml.resource.org/public/rfc/bibxml/reference.RFC.5705.xml"?-->
+     &RFC5705;
+    </references>
   </back>
 </rfc>
