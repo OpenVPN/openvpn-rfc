@@ -1031,7 +1031,7 @@ available) to drop revoked keys.)</li>
               exceed the expected renegotiation cycle.
             </t>
             <t>
-              Either client or server CAN send a CONTROL_SOFT_RESET_V1
+              Either client or server MAY send a CONTROL_SOFT_RESET_V1
               packet to the remote side.  The remote side MUST respond
               with a CONTROL_SOFT_RESET_V1 message to acknowledge that
               a renegotiation of the session keys will start.  Then
@@ -1219,14 +1219,18 @@ available) to drop revoked keys.)</li>
           <figure>
             <sourcecode>
 struct key_exchange {
-    uint_32 null;
+    uint32 null;
     uint8 method = 2;
     uint8 key_random[48];
     uint8_t random1[32];
     uint8_t random2[32];
-    uint8_t* ooc_string;
+    uint16   occ_string_len;
+    uint8_t* occ_string;
+    uint16   username_len;
     uint8_t* username;
+    uint16   password_len;
     uint8_t* password;
+    uint16   peerinfo_len;
     uint8_t* peerinfo;
 }
             </sourcecode>
@@ -1234,8 +1238,9 @@ struct key_exchange {
         </t>
 
         <t>
-          All the strings in this packets are expected to be valid UTF8 null-terminated strings. If they are not
+          All the strings in these packets are expected to be valid UTF8 null-terminated strings. If they are not
           used (e.g. password and username), they are just a single zero byte.
+          The string length MUST include the trailing null byte.
         </t>
 
         <t>
