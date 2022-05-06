@@ -141,7 +141,7 @@
         <t>
           The wire packet identical for both UDP and TCP transport
           modes with one exception.  For UDP packets the size of a
-          payload  packet is derived from UDP packet length. Since
+          payload packet is derived from UDP packet length. Since
           TCP present a stream of bytes to the application, TCP
           payloads carry a 16 bits packet length indicator of the
           size of the payload. Splitting too large payload and
@@ -1284,12 +1284,14 @@ struct key_exchange {
           <ul>
             <li>bit 0: Reserved. SHOULD be 0.</li>
             <li>bit 1: The peer supports peer-id floating mechanism</li>
-            <li>bit 2: The client expects a push-reply and the server may
-            send this reply without waiting for a push-request first. </li>
+            <li>bit 2: The client expects a <xref target="pushreply">PUSH_REPLY</xref> and the server MAY
+            send this reply without waiting for a <xref target="pushrequest">PUSH_REQUEST</xref> first. </li>
             <li>bit 3: The client is capable of doing key derivation using
             <xref target="RFC5705">RFC5705 key material exporter</xref>. </li>
             <li>bit 4: The client is capable of accepting additional arguments
             to the <xref target="authpending">AUTH_PENDING</xref> message.</li>
+            <li>bit 5: The client supports doing feature negotiation in P2P mode.</li>
+            <li>bit 6: The client is capable of accepting <xref target="authfailed">AUTH_FAILED,TEMP</xref> messages.</li>
           </ul>
         </t>
       </section>
@@ -1502,15 +1504,15 @@ struct data_packet_xfb {
           encrypt-then-MAC approach.</t>
 
           <t>IV_LEN depends on the IV of used cipher. For AES in CBC, CFB and OFB this
-          is 128 bits, for Blowfish in CBC mode (DEPRECATED) 64 The. For generating
+          is 128 bits (IV_LEN=8), for Blowfish in CBC mode (DEPRECATED) 64 bits (IV_LEN=4). For generating
           the IV use best practices. OpenVPN generates the CBC IV as random bytes
           with an PRNG. For OFB and CFB the IV has the following format:</t>
 
-          <t>IV = 64 bit packet ID | IV_remainder</t>
+          <sourcecode>IV = 64 bit packet ID | IV_remainder</sourcecode>
 
           <t>The IV_remainder SHOULD be random bytes. OpenVPN 2.x uses all zeros instead.</t>
 
-          <t>bit packet ID in CBC mode is encrypted and before the payload. In contrast
+          <t>The packet ID in CBC mode is encrypted and included before the payload. In contrast
           to that, the packet ID in OFB and CFB mode are the first 64 bit of the IV.</t>
 
           <t>For unencrypted data packets the same format as CBC without IV is used.</t>
@@ -1525,118 +1527,131 @@ struct data_packet_xfb {
           current implementation does not allow a message to span more than one TLS record.
         </t>
       </section>
-      <section title="PUSH_REQUEST">
+      <section anchor="pushrequest" title="PUSH_REQUEST">
         <t>
-          Format: "PUSH_REQUEST"
+          Format: <sourcecode>PUSH_REQUEST</sourcecode>
         </t>
         <t>
           This message is sent from the client to the server and instructs the server that the
-          client is ready to receive a "PUSH_REPLY" message. The message is periodically repeated
-          until the PUSH_REPLY is received for compatibility with old OpenVPN servers and to act as
+          client is ready to receive a <tt>PUSH_REPLY</tt> message. The message is periodically repeated
+          until the <tt>PUSH_REPLY</tt> is received for compatibility with old OpenVPN servers and to act as
           a keepalive.
         </t>
       </section>
-      <section title="PUSH_REPLY">
+      <section anchor="pushreply" title="PUSH_REPLY">
         <t>
-          Format: "PUSH_REPLY [comma separated options]"
+          Format: <sourcecode>PUSH_REPLY [comma separated options]</sourcecode>
         </t>
         <t>
           This message is sent from the server to the client and has dynamic configuration for the client.
-          See the section "dynamic configuration option" for a detailed description of the options.
+          See the section "dynamic configuration option" for a detailed description of the options. [FIXME/flichtenheld: proper reference]
+        </t>
+        <t>If the client has set the IV_PROTO_REQUEST_PUSH bit in the IV_PROTO
+        <xref target="peerinfo">peerinfo</xref> client variable the server MAY send a <tt>PUSH_REPLY</tt>
+        without waiting for the <tt>PUSH_REQUEST</tt> from the client.
         </t>
       </section>
       <section anchor="authpending" title="AUTH_PENDING">
         <t>
           Format:
-          "AUTH_PENDING"
+          <sourcecode>AUTH_PENDING</sourcecode>
 
           or
 
-          "AUTH_PENDING,flags"
+          <sourcecode>AUTH_PENDING,flags</sourcecode>
         </t>
         <t>
           This message is sent from the server to the client to indicate that a multi factor authentication is in use
           and the authentication is not completed. The authentication can continue inband or out-of-band.
-          
-          flags is a comma separate key-value list. Currently timeout time is defined and defines the maximum time the server
-          expects the client to stay in the pending auth state. 
+        </t>
+        <t>
+          <tt>flags</tt> is a comma separate key-value list. Currently <tt>timeout time</tt> is defined and defines the maximum time the server
+          expects the client to stay in the pending auth state.
+        </t>
+        <t>
           The client indicates if the extended format with flags is supported by setting
           the IV_PROTO_AUTH_PENDING_KW bit in the IV_PROTO
-          client variable. All new clients MUST support the extended format.
+          <xref target="peerinfo">peerinfo</xref> client variable. All new clients MUST support the extended format.
         </t>
       </section>
       <section title="RESTART and HALT">
         <t>
           Format:
 
-          "RESTART[,message]"
-          "HALT[,message]"
+          <sourcecode>
+RESTART[,message]
+HALT[,message]
+          </sourcecode>
 
           and
 
-          "RESTART,[[flags]]message"
+          <sourcecode>RESTART,[[flags]]message</sourcecode>
         </t>
         <t>
           These message are sent from the server to the client and the client to
-          terminate a session. With HALT the client is expected to also not try to
-          try reconnect. With RESTART the client is expected to reconnect. flags is
+          terminate a session. With <tt>HALT</tt> the client is expected to also not try to
+          try reconnect. With <tt>RESTART</tt> the client is expected to reconnect. <tt>flags</tt> is
           a list of characters that must follow directly after the comma and is
-          enclosed in [ and ]. The client SHOULD purge username and password before
-          reconnecting if flags contains 'P' and reconnect to the next server unless
-          'N' is in flags in which case it should reconnect to the same server. E.g.
-          when the client receives a "RESTART[PN]" message it should reconnect to same
+          enclosed in <tt>[</tt> and <tt>]</tt>. The client SHOULD purge username and password before
+          reconnecting if flags contains <tt>P</tt> and reconnect to the next server unless
+          <tt>N</tt> is in flags in which case it should reconnect to the same server. E.g.
+          when the client receives a <tt>RESTART[PN]</tt> message it should reconnect to same
           server with the same username and password.
-
-          The optional message indicates a message that can relayed to the user.
+        </t>
+        <t>
+          The optional <tt>message</tt> indicates a message that can relayed to the user.
         </t>
       </section>
-      <section title="AUTH_FAILED">
+      <section anchor="authfailed" title="AUTH_FAILED">
         <t>
           Format:
 
-          AUTH_FAILED[,message]
+          <sourcecode>
+AUTH_FAILED[,message]
 
-          AUTH_FAILED,SESSION:message
+AUTH_FAILED,SESSION:message
 
-          AUTH_FAILED,TEMP[keywords]:message
-          AUTH_FAILED,TEMP:message
+AUTH_FAILED,TEMP[keywords]:message
+AUTH_FAILED,TEMP:message
+          </sourcecode>
         </t>
         <t>
           This message indicates to a client that an authentication attempt was unsuccessful.
-          This message is mostly send in response to a PULL_REQUEST or when a client attempts to
+          This message is mostly send in response to a <tt>PULL_REQUEST</tt> or when a client attempts to
           renegotiates a TLS session.
-
-          The optional message can be relayed to the user. If the message starts with SESSION, this
+        </t>
+        <t>
+          The optional message can be relayed to the user. If the message starts with <tt>SESSION</tt>, this
           indicates that current credentials are longer valid. This is mostly used to indicate that
           the temporary session credentials that were pushed with "auth-token" and "auth-token-user"
           should be purged and the client should reconnect in the same way as a new connection.
-
-          The AUTH_FAILED,TEMP message indicates that the authentication temporarily failed and should
+        </t>
+        <t>
+          The <tt>AUTH_FAILED,TEMP</tt> message indicates that the authentication temporarily failed and should
           the client continue to retry to connect. The server can optionally give a user readable message
-          and hint the client a behavior how to proceed. The keywords of AUTH_FAILED,TEMP are comma separated
+          and hint the client a behavior how to proceed. The keywords of <tt>AUTH_FAILED,TEMP</tt> are comma separated
           keys/values. Currently defined are:
 
           <ul>
-            <li> backoff s - instructs the client to wait at least s seconds before the next connection attempt. If
+            <li> <tt>backoff s</tt> - instructs the client to wait at least s seconds before the next connection attempt. If
             the client has already a higher delay before reconnecting, the delay should NOT be shortened. </li>
-            <li> advance addr - Instructs the client to reconnect to the (IP) address of the current server. </li>
-            <li> advance remote - Instructs the client to skip the remaining IP addresses of the current server and instead
+            <li> <tt>advance addr</tt> - Instructs the client to reconnect to the (IP) address of the current server. </li>
+            <li> <tt>advance remote</tt> - Instructs the client to skip the remaining IP addresses of the current server and instead
             connect to the next server specified in the configuration file </li>
-            <li> advance no - Instructs the client to retry connecting to the same server again. </li>
+            <li> <tt>advance no</tt> - Instructs the client to retry connecting to the same server again. </li>
           </ul>
-          For example a server that might send "AUTH_FAILED,TEMP[backoff 42,advance no]: No free IP addresses" to indicate
-          that the VPN connection can currently not succeed and instructs the client to retry in 42s again.
-
-          The client will announce the capability of understanding AUTH_FAILED,TEMP message by setting the
-          IV_PROTO_AUTH_FAILED_TEMP bit in IV_PROTO. A client that does not understand the AUTH_FAILED,TEMP message
+          For example a server that might send <tt>AUTH_FAILED,TEMP[backoff 42,advance no]: No free IP addresses</tt> to indicate
+          that the VPN connection can currently not succeed and instructs the client to retry in 42 seconds again.
+        </t>
+        <t>
+          The client will announce the capability of understanding <tt>AUTH_FAILED,TEMP</tt> message by setting the
+          IV_PROTO_AUTH_FAILED_TEMP bit in the IV_PROTO <xref target="peerinfo">peerinfo</xref> client variable. A client that does not understand the <tt>AUTH_FAILED,TEMP</tt> message
           will treat this recoverable error as a non-recoverable error.
         </t>
       </section>
       <section title="CR_RESPONSE">
         <t>
-          Format:
-
-          CR_RESPONSE,base64reply
+          Format: <sourcecode>CR_RESPONSE,base64reply</sourcecode>
         </t>
         <t>
           This message indicates a reply to prior challenge/response request. The response is specific to the
@@ -1647,13 +1662,15 @@ struct data_packet_xfb {
         <t>
           Format:
 
-          INFO_PRE,EXTRA
+          <sourcecode>
+INFO_PRE,EXTRA
 
-          INFO,EXTRA
+INFO,EXTRA
+          </sourcecode>
         </t>
         <t>
           This message is used to send pending auth parameters. See the section on pending auth for more details
-          on the format of the EXTRA parameter.
+          on the format of the <tt>EXTRA</tt> parameter. [FIXME/flichtenheld: proper reference]
         </t>
       </section>
     </section>
