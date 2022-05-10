@@ -862,7 +862,7 @@ available) to drop revoked keys.)</li>
             <c>replay_packet_id</c>
             <c>64</c>
             <c>X</c>
-            <c>Id used for replay protection</c>
+            <c>ID used for replay protection.</c>
 
             <c>acked_pktid_len</c>
             <c>8</c>
@@ -880,7 +880,7 @@ available) to drop revoked keys.)</li>
             <c>Session ID of the remote peer. Present if acked_pktid_len >= 1</c>
 
             <c>packet_id</c>
-            <c>64</c>
+            <c>32</c>
             <c>X</c>
             <c>ID of the control channel packet. ACK packets lack a packet_id</c>
 
@@ -927,7 +927,7 @@ available) to drop revoked keys.)</li>
           <section title="Field: HMAC">
             <t>
               Contains the HMAC signature for this packet if the HMAC
-              authentication have been enabled.  The length of this
+              authentication has been enabled.  The length of this
               field will vary according to the requirements of the
               hashing algorithm.
             </t>
@@ -978,8 +978,8 @@ available) to drop revoked keys.)</li>
 
           <section title="Field: packet_id">
             <t>
-              The ID of the control channel packet. The packet ID ids
-              are used to ensure a TCP like connection even if UDP is
+              The ID of the control channel packet. The packet IDs
+              are used to ensure a TCP-like connection even if UDP is
               used as protocol. The ID MUST start at 0 and MUST be
               sequential without gaps. Retransmission must have the same
               packet_id as the original message but can have a different

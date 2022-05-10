@@ -26,19 +26,19 @@ Control packet wire format
 
         for hmac key, use "tls-auth" opt value
 
-      [packet-id] - counter used for replay pretection, incremented with each packet transmission
+      [4 bytes packet-id] - counter used for replay pretection, incremented with each packet transmission
 
-      [packet-datetime] - datetime when session has been established
+      [4 bytes packet-datetime] - datetime when session has been established
 
     [1-byte ack array len] - length of acks array, zero if array is empty
 
     [[4 bytes acked packet-id]] - packet-ids which have been received, may be omitted
 
-    [8 bytes dest session-id] - may be omitted if ack array is empty
+    [8 bytes dest session-id] - must be omitted if ack array is empty
 
     [4 bytes message-packet-id] - counter used by reliability layer, incremented when packet is generated, not incremented on retransmit
 
-    [tls-encrypted payload] - presents only in P_CONTROL_V1
+    [tls-encrypted payload] - present only in P_CONTROL_V1
 
 
 Session establishment:
