@@ -117,26 +117,16 @@
 
     <section title="The OpenVPN Wire Protocol">
       <t>
-        Since OpenVPN can work both in a traditional server-client setup
-        as well as a peer-to-peer setup, this document tries to avoid the
-        concept of server and clients.  It will refer to these as
-        either the local or remote sites. In a peer-to-peer setup only
-        a single tunnel can be established, while in a server-client setup
-        several clients can connect to a single server at the same time.
+        OpenVPN can work both in a traditional client-server topology
+        and in a peer-to-peer topology.  In a peer-to-peer setup only
+        a single point-to-point tunnel can be established, while in a
+        client-server setup multiple clients can connect to a single
+        server in a star configuration.
       </t>
       <t>
-        If the terms server and client are used these are almost
-        always synonymous with the peer&apos;s role as either TLS
-        server or TLS client.
-      </t>
-      <t>
-	[<strong>Ed note, to be removed:</strong> there are 92 uses of
-	"server" and 165 uses of "client" in this document counting
-	the 6 uses of each in the two paragraphs above.  So saying
-	"this document tries to avoid the concept of server and
-	clients" doesn&apos;t match the reality.  The other uses seem
-	ok, so I would just reword the above, emphasizing the role
-	point in the peer-to-peer case.]
+        When the terms client and server are used in the context of a
+        peer-to-peer topology, this reflects the peer&apos;s role as
+        either TLS server or TLS client.
       </t>
 
       <section title="TCP and UDP transport modes">
