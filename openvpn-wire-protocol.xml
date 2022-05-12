@@ -117,50 +117,53 @@
 
     <section title="The OpenVPN Wire Protocol">
       <t>
-        Since OpenVPN can work both in a traditional server-client setup
-        as well as a peer-to-peer setup, this document tries to avoid the
-        concept of server and clients.  It will refer to these as
-        either the local or remote sites. In a peer-to-peer setup only
-        a single tunnel can be established, while in a server-client setup
-        several clients can connect to a single server at the same time.
-
-        If the terms server and client are used these are almost always
-        synonymous with the peer's role as either TLS server or TLS client.
+        OpenVPN can work both in a traditional client-server topology
+        and in a peer-to-peer topology.  In a peer-to-peer setup only
+        a single point-to-point tunnel can be established, while in a
+        client-server setup multiple clients can connect to a single
+        server in a star configuration.
+      </t>
+      <t>
+        When the terms client and server are used in the context of a
+        peer-to-peer topology, this reflects the peer&apos;s role as
+        either TLS server or TLS client.
       </t>
 
       <section title="TCP and UDP transport modes">
         <t>
           OpenVPN is capable of using both UDP and TCP for transporting
           SSL/TLS traffic.  The SSL/TLS protocol is strictly written for
-          TCP but OpenVPN makes that possible through encapsulating the
-          SSL/TLS packets and adding a reliability layer to avoid issues
-          when packets get resent.
+          TCP but OpenVPN makes UDP possible by encapsulating the
+          SSL/TLS concepts in the payload and adding a reliability
+          layer in the payload to avoid issues when packets get
+          resent.
         </t>
       </section>
-      <section title="Basic OpenVPN packet format">
-        <t>
-          The wire packet identical for both UDP and TCP transport
-          modes with one exception.  For UDP packets the size of a
-          payload packet is derived from UDP packet length. Since
-          TCP present a stream of bytes to the application, TCP
-          payloads carry a 16 bits packet length indicator of the
-          size of the payload. Splitting too large payload and
-          combining multiple payload into packets is done by the
-          TCP/IP stack of the operating system.
-        </t>
 
+      <section title="OpenVPN payload format">
         <t>
-          The basic OpenVPN packet format that is common to both
-          control and data channel is that the first byte (after the length in
-          TCP mode) in a packet consists of an opcode (highest 5 bits)
-          that determines the packet type and a key id (low 3 bit).
+          The wire payloads are identical for both UDP and TCP transport
+          modes with one exception:  For UDP packets the size of the
+          payload is derived from the UDP packet length. Since
+          TCP presents a stream of bytes to the application, TCP
+          payloads carry a 16 bit payload length.
+	  Splitting large payloads and
+          combining split payloads is done by the operating system&apos;s
+          TCP/IP stack.
         </t>
         <t>
-          The <xref target="datachannel">data channel section</xref>
-          and <xref target="controlchannel">control channel</xref>
+          After the length in TCP mode, the OpenVPN payload format is
+          common to both control and data channel. The first byte
+          consists of an opcode in the high order 5 bits and a key id
+          in the low 3 bits.  The op code dictates the payload type.
+        </t>
+        <t>
+          The <xref target="controlchannel">control channel</xref>
+          and <xref target="datachannel">data channel section</xref>
           sections describe the formats of the packets in details.
         </t>
       </section>
+
       <section title="Static-key mode and TLS operational modes">
         <section title="Static-key mode">
         <t>
@@ -276,7 +279,7 @@
         operational mode will encrypt the control packet channel payload
         with a static key.  The static keying material is the same which
         HMAC authentication uses, but the key-direction is fixed according
-        to the local process' role (server or client).
+        to the local process&apos; role (server or client).
       </t>
       <t>
         This feature is called tls-crypt, which uses a pre-shared static key (like
@@ -322,11 +325,11 @@ output   = Header || Tag || Ciph
         <t>
           This boils down to the following on-the-wire packet format:
           <figure>
-            <artwork>
+            <sourcecode>
 
 -opcode- || -session_id- || -packet_id- || auth_tag || * payload *
 
-            </artwork>
+            </sourcecode>
           </figure>
           Where
           <ul>
@@ -433,23 +436,23 @@ output   = Header || Tag || Ciph
 
         <section title="Rationale">
           <t>
-            ``--tls-auth`` and ``tls-crypt`` use a pre-shared group key,
+            <tt>--tls-auth</tt> and <tt>tls-crypt</tt> use a pre-shared group key,
             which is shared among all clients and servers in an OpenVPN
             deployment.  If any client or server is compromised, the
             attacker will have access to this shared key, and it
             will no longer provide any security.  To reduce the risk of
-            losing pre-shared keys, ``tls-crypt-v2`` adds the ability to
+            losing pre-shared keys, <tt>tls-crypt-v2</tt> adds the ability to
             supply each client with a unique tls-crypt key.  This allows
             large organizations and VPN providers to profit from the same
             DoS and TLS stack protection that small deployments can already
-            achieve using ``tls-auth`` or ``tls-crypt``.
+            achieve using <tt>tls-auth</tt> or <tt>tls-crypt</tt>.
           </t>
 
           <t>
-            Also, for ``tls-crypt``, even if all these peers succeed in
+            Also, for <tt>tls-crypt</tt>, even if all these peers succeed in
             keeping the key secret, the key lifetime is limited to roughly
             8000 years, divided by the number of clients (see the
-            ``--tls-crypt`` section of the man page).
+            <tt>--tls-crypt</tt> section of the man page).
             [FIXME/flichtenheld: either include or remove reference]
             Using client-specific
             keys, we lift this lifetime requirement to roughly 8000 years
@@ -459,7 +462,7 @@ output   = Header || Tag || Ciph
 
         <section title="Introduction">
           <t>
-            ``tls-crypt-v2`` uses an encrypted cookie mechanism to introduce
+            <tt>tls-crypt-v2</tt> uses an encrypted cookie mechanism to introduce
             client-specific tls-crypt keys without introducing a lot of server-side state.
             The client-specific key is encrypted using a server key.  The server key is the
             same for all servers in a group.  When a client connects, it first sends the
@@ -474,16 +477,16 @@ output   = Header || Tag || Ciph
             to abort the connection immediately after receiving the first packet, rather
             than performing an entire TLS handshake.  Aborting the connection this early
             greatly improves the DoS resilience and reduces attack surface against
-            malicious clients that have the ``tls-crypt`` or ``tls-auth`` key.  This is
+            malicious clients that have the <tt>tls-crypt</tt> or <tt>tls-auth</tt> key.  This is
             particularly relevant for large deployments (think lost key or disgruntled
             employee) and VPN providers (clients are not trusted).
           </t>
 
           <t>
-            To allow for a smooth transition, ``tls-crypt-v2`` is designed such that a
-            server can enable both ``tls-crypt-v2`` and either ``tls-crypt`` or
-            ``tls-auth``.  This is achieved by introducing a CONTROL_HARD_RESET_CLIENT_V3
-            opcode, that indicates that the client wants to use ``tls-crypt-v2`` for the
+            To allow for a smooth transition, <tt>tls-crypt-v2</tt> is designed such that a
+            server can enable both <tt>tls-crypt-v2</tt> and either <tt>tls-crypt</tt> or
+            <tt>tls-auth</tt>.  This is achieved by introducing a CONTROL_HARD_RESET_CLIENT_V3
+            opcode, that indicates that the client wants to use <tt>tls-crypt-v2</tt> for the
             current connection.
           </t>
         </section>
@@ -494,19 +497,19 @@ output   = Header || Tag || Ciph
 
             <ol>
               <li>
-                Generate a tls-crypt-v2 server key using OpenVPN's ``--genkey tls-crypt-v2-server``.
+                Generate a tls-crypt-v2 server key using OpenVPN&apos;s <tt>--genkey tls-crypt-v2-server</tt>.
                 This key contains 2 512-bit keys, of which we use:
 
                 <ul>
-                  <li> the first 256 bits of key 1 as AES-256-CTR encryption key ``Ke``</li>
-                  <li> the first 256 bits of key 2 as HMAC-SHA-256 authentication key ``Ka`` </li>
+                  <li> the first 256 bits of key 1 as AES-256-CTR encryption key <tt>Ke</tt></li>
+                  <li> the first 256 bits of key 2 as HMAC-SHA-256 authentication key <tt>Ka</tt> </li>
                 </ul>
-                This format is similar to the format for regular ``tls-crypt``/``tls-auth``
+                This format is similar to the format for regular <tt>tls-crypt</tt>/<tt>tls-auth</tt>
                 and data channel keys, which allows us to reuse code.
               </li>
               <li>
                 Add the tls-crypt-v2 server key to all server configs
-                (``tls-crypt-v2 /path/to/server.key``)
+                (<tt>tls-crypt-v2 /path/to/server.key</tt>)
               </li>
             </ol>
           </t>
@@ -515,7 +518,7 @@ output   = Header || Tag || Ciph
             When provisioning a client, create a client-specific tls-crypt key:
 
             <ol>
-              <li>. Generate 2048 bits client-specific key ``Kc`` using OpenVPN's ``--genkey tls-crypt-v2-client``</li>
+              <li> Generate 2048 bits client-specific key <tt>Kc</tt> using OpenVPN&apos;s <tt>--genkey tls-crypt-v2-client</tt></li>
 
               <li>
                 <t> Optionally generate metadata.
@@ -542,7 +545,7 @@ output   = Header || Tag || Ciph
               </t>
               </li>
 
-              <li> Create a wrapped client key ``WKc``, using the same nonce-misuse-resistant
+              <li> Create a wrapped client key <tt>WKc</tt>, using the same nonce-misuse-resistant
               SIV construction we use for tls-crypt:
 
               <figure>
@@ -557,12 +560,12 @@ WKc = T || AES-256-CTR(Ke, IV, Kc || metadata) || len
                 </sourcecode>
               </figure>
 
-              Note that the length of ``WKc`` can be computed before composing ``WKc``,
+              Note that the length of <tt>WKc</tt> can be computed before composing <tt>WKc</tt>,
               because the length of each component is known (and AES-256-CTR does not add
               any padding).
               </li>
 
-              <li> Create a tls-crypt-v2 client key: PEM-encode ``Kc || WKc`` and store in a
+              <li> Create a tls-crypt-v2 client key: PEM-encode <tt>Kc || WKc</tt> and store in a
               file, using the header <tt>-----BEGIN OpenVPN tls-crypt-v2 client key-----</tt>
               and the footer <tt>-----END OpenVPN tls-crypt-v2 client key-----</tt>.  (The PEM
               format is simple, and following PEM allows us to use the crypto library functions
@@ -570,7 +573,7 @@ WKc = T || AES-256-CTR(Ke, IV, Kc || metadata) || len
               </li>
 
               <li> Add the tls-crypt-v2 client key to the client config
-              (``tls-crypt-v2 /path/to/client-specific.key``)</li>
+              (<tt>tls-crypt-v2 /path/to/client-specific.key</tt>)</li>
             </ol>
           </t>
 
@@ -581,14 +584,14 @@ WKc = T || AES-256-CTR(Ke, IV, Kc || metadata) || len
 
               <li> The client reads the tls-crypt-v2 key from its config, and:
               <ol>
-                <li> loads ``Kc`` as its tls-crypt key, </li>
-                <li> stores ``WKc`` in memory for sending to the server. </li>
+                <li> loads <tt>Kc</tt> as its tls-crypt key, </li>
+                <li> stores <tt>WKc</tt> in memory for sending to the server. </li>
               </ol>
               </li>
 
               <li> To start the connection, the client creates a P_CONTROL_HARD_RESET_CLIENT_V3
-              message, wraps it with tls-crypt using ``Kc`` as the key, and appends
-              ``WKc``.  (``WKc`` must not be encrypted, to prevent a chicken-and-egg
+              message, wraps it with tls-crypt using <tt>Kc</tt> as the key, and appends
+              <tt>WKc</tt>.  (<tt>WKc</tt> must not be encrypted, to prevent a chicken-and-egg
               problem.)</li>
 
               <li> The server receives the P_CONTROL_HARD_RESET_CLIENT_V3 message, and
@@ -596,9 +599,9 @@ WKc = T || AES-256-CTR(Ke, IV, Kc || metadata) || len
               <ol>
                 <li> reads the WKc length field from the end of the message, and extracts WKc
                 from the message </li>
-                <li> unwraps ``WKc`` </li>
-                <li> uses unwrapped ``Kc`` to verify the remaining
-                P_CONTROL_HARD_RESET_CLIENT_V3 message's (encryption and) authentication. </li>
+                <li> unwraps <tt>WKc</tt> </li>
+                <li> uses unwrapped <tt>Kc</tt> to verify the remaining
+                P_CONTROL_HARD_RESET_CLIENT_V3 message&apos;s (encryption and) authentication. </li>
               </ol>
 
               The message is dropped and no error response is sent when any of these steps fails (DoS protection).
@@ -618,7 +621,7 @@ WKc = T || AES-256-CTR(Ke, IV, Kc || metadata) || len
               A server should not send back any error messages if metadata verification
               fails, to reduce attack surface and maximize DoS resilience.
               </li>
-              <li> Client and server use ``Kc`` for (un)wrapping any following control channel
+              <li> Client and server use <tt>Kc</tt> for (un)wrapping any following control channel
               messages.</li>
             </ol>
           </t>
@@ -674,8 +677,8 @@ WKc = T || AES-256-CTR(Ke, IV, Kc || metadata) || len
         <section title="Considerations">
           <t>
             To allow for a smooth transition, the server implementation allows
-            ``tls-crypt`` or ``tls-auth`` to be used simultaneously with ``tls-crypt-v2``.
-            This specification does not allow simultaneously using ``tls-crypt-v2`` and
+            <tt>tls-crypt</tt> or <tt>tls-auth</tt> to be used simultaneously with <tt>tls-crypt-v2</tt>.
+            This specification does not allow simultaneously using <tt>tls-crypt-v2</tt> and
             connections without any control channel wrapping, because that would break DoS
             resilience.
           </t>
@@ -685,7 +688,7 @@ WKc = T || AES-256-CTR(Ke, IV, Kc || metadata) || len
             indicate low-level protocol features.)
           </t>
           <t>
-            ``tls-crypt-v2`` uses fixed crypto algorithms, because:
+            <tt>tls-crypt-v2</tt> uses fixed crypto algorithms, because:
 
             <ul>
               <li>The crypto is used before we can do any negotiation, so the algorithms have
@@ -697,10 +700,10 @@ WKc = T || AES-256-CTR(Ke, IV, Kc || metadata) || len
             </ul>
           </t>
           <t>
-            Potential ``tls-crypt-v2`` risks:
+            Potential <tt>tls-crypt-v2</tt> risks:
             <ul>
-              <li>Slightly more work on first connection (``WKc`` unwrap + hard reset unwrap)
-              than with ``tls-crypt`` (hard reset unwrap) or ``tls-auth`` (hard reset auth).</li>
+              <li>Slightly more work on first connection (<tt>WKc</tt> unwrap + hard reset unwrap)
+              than with <tt>tls-crypt</tt> (hard reset unwrap) or <tt>tls-auth</tt> (hard reset auth).</li>
               <li>Flexible metadata allow mistakes
               (So we should make it easy to do it right.  Provide tooling to create client
               keys based on cert serial + CA fingerprint, provide script that uses CRL (if
@@ -943,7 +946,7 @@ available) to drop revoked keys.)</li>
             </t>
             <t>
               For CFB/OFB based ciphers, the long packet_id format MUST be
-              used, as the packet_id is part of the cipher's IV.
+              used, as the packet_id is part of the cipher&apos;s IV.
               [FIXME/syzzer: Elaborate more]
               [FIXME/schwabe: move to data channel]
             </t>
@@ -1341,7 +1344,7 @@ struct datakeys {
       <t>
         The purpose of this feature is to allow a client to float between various client
         IP addresses and UDP ports.  When a client floats it means that the established
-        encryption and session keys will be reused when the client's source IP
+        encryption and session keys will be reused when the client&apos;s source IP
         address or source port changes.  Reasons for such changes can be NAT
         firewalls interrupting longer lasting established connections, mobile
         devices moving from WLAN to a mobile data carrier (such as GPRS, 3G,
