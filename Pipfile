@@ -9,6 +9,3 @@ name = "pypi"
 xml2rfc = "*"
 id2xml = "*"
 bibtex2rfc = "*"
-
-[requires]
-python_version = "3.8"
