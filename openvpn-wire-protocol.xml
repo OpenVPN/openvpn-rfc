@@ -1277,6 +1277,8 @@ struct key_exchange {
             <li> IV_NCP: if equal to 2 the client supports AES-128-GCM and AES-256-GCM, IV_NCP is
             <em>deprecated</em> in favor of IV_CIPHERS </li>
             <li> IV_SSO: out of band (auth pending) methods the client supports</li>
+            <li> IV_MTU: The client is capable of dynamically set the MTU as part of imported options up to the size
+                specified by IV_MTU</li>
             <li> variables starting with UV_. This are variables set by the user by a
             configuration file or similar means. These do not have any fixed meaning.</li>
           </ul>
@@ -1297,6 +1299,9 @@ struct key_exchange {
             to the <xref target="authpending">AUTH_PENDING</xref> message.</li>
             <li>bit 5: The client supports doing feature negotiation in P2P mode.</li>
             <li>bit 6: The client is capable of accepting <xref target="authfailed">AUTH_FAILED,TEMP</xref> messages.</li>
+            <li>bit 7: The client is capable of parsing and receiving the <xref target="dnsproto">dns</xref> messages pushed option</li>
+            <li>bit 8: The client is capable of sending exit notification via control channel using <xref target="exitcc">EXIT</xref> message. The client is accpting the protocol-flags pushed option for the EKM capability</li>
+
           </ul>
         </t>
       </section>
@@ -1652,6 +1657,18 @@ AUTH_FAILED,TEMP:message
           The client will announce the capability of understanding <tt>AUTH_FAILED,TEMP</tt> message by setting the
           IV_PROTO_AUTH_FAILED_TEMP bit in the IV_PROTO <xref target="peerinfo">peerinfo</xref> client variable. A client that does not understand the <tt>AUTH_FAILED,TEMP</tt> message
           will treat this recoverable error as a non-recoverable error.
+        </t>
+      </section>
+      <section anchor="exitcc" title="EXIT">
+        <t>
+          Format:
+
+          <sourcecode>
+            EXIT
+          </sourcecode>
+        </t>
+        <t>
+          This message indicates that the peer has terminated and the connection can be torn down.
         </t>
       </section>
       <section title="CR_RESPONSE">
