@@ -11,6 +11,7 @@
 <!ENTITY RFC5246 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5246.xml">
 <!ENTITY RFC5280 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5280.xml">
 <!ENTITY RFC5705 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5705.xml">
+<!ENTITY RFC8452 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.8452.xml">
 ]>
 <!-- give errors regarding ID-nits and DTD validation -->
 <?rfc strict="yes" ?>
@@ -87,7 +88,7 @@
     <section title="WORK IN PROGRESS">
       <t>
         Please not that this document is work in progress and should not considered a
-        complete or correct documentation of the OpenVPN protocol yet. Please check
+        complete or correct documentation of the OpenVPN protocol yet.  Please check
         the current implementations.
       </t>
     </section>
@@ -120,7 +121,7 @@
         Since OpenVPN can work both in a traditional server-client setup
         as well as a peer-to-peer setup, this document tries to avoid the
         concept of server and clients.  It will refer to these as
-        either the local or remote sites. In a peer-to-peer setup only
+        either the local or remote sites.  In a peer-to-peer setup only
         a single tunnel can be established, while in a server-client setup
         several clients can connect to a single server at the same time.
 
@@ -135,30 +136,6 @@
           TCP but OpenVPN makes that possible through encapsulating the
           SSL/TLS packets and adding a reliability layer to avoid issues
           when packets get resent.
-        </t>
-      </section>
-      <section title="Basic OpenVPN packet format">
-        <t>
-          The wire packet identical for both UDP and TCP transport
-          modes with one exception.  For UDP packets the size of a
-          payload packet is derived from UDP packet length. Since
-          TCP present a stream of bytes to the application, TCP
-          payloads carry a 16 bits packet length indicator of the
-          size of the payload. Splitting too large payload and
-          combining multiple payload into packets is done by the
-          TCP/IP stack of the operating system.
-        </t>
-
-        <t>
-          The basic OpenVPN packet format that is common to both
-          control and data channel is that the first byte (after the length in
-          TCP mode) in a packet consists of an opcode (highest 5 bits)
-          that determines the packet type and a key id (low 3 bit).
-        </t>
-        <t>
-          The <xref target="datachannel">data channel section</xref>
-          and <xref target="controlchannel">control channel</xref>
-          sections describe the formats of the packets in details.
         </t>
       </section>
       <section title="Static-key mode and TLS operational modes">
@@ -226,61 +203,186 @@
         </t>
         </section>
       </section>
+    </section>
 
-      <section title="HMAC authentication of control channel packets">
+      <section title="OpenVPN wire packet format">
         <t>
-          <xref target="RFC2104">HMAC authentication</xref> enables an
-          additional authentication on the packet level.  HMAC
-          authentication is only possible with TLS mode and will only
-          impact the control channel.  The data channel is already
-          protected by HMAC authentication embedded in the SSL/TLS
-          payload.
+          OpenVPN uses a single UDP or TCP connection between two
+          peers. Over this connection all packets for the VPN
+          connection are multiplexed.  In UDP one packet is is the same
+          as one UDP payload. When TCP is used, each packet with started
+          by a 16 bit length indicator in network byte order, followed
+          by the packet.
+        </t>
+        <t>
+          Each packet starts with an opcode that determines the packet
+          type.  OpenVPN packets fall can be differentiated into two
+          types of packets: control channel packets and data channel
+          apckets. They share the same header but serve different
+          purposes.  The data channel packets transport the VPN
+          payload, typically IP packets.  The control channel packets
+          are used to setup and control the VPN connection.
+        </t>
+        <t>
+          The key_id specifies a key generation that allow to
+          multiplex different key generations. 
+        </t>
+        <t>
+          <figure>
+            <sourcecode>
+struct tcp_packet {
+   uint16 len;
+   int opcode:5;
+   int keyid:3;
+   uint8 data[];
+   }
+
+struct udp_packet {
+   int opcode:5;
+   int keyid:3;
+   uint8 data[];
+}
+            </sourcecode>
+          </figure>
+        </t>
+        <t>
+          The following sections will often only show the UDP format for brievity.  The
+          TCP format can be infered by prepending the 16 bit length field.
+        </t>
+        <t>
+          The <xref target="datachannel">data channel section</xref>
+          and <xref target="controlchannel">control channel</xref>
+          sections describe the formats of the packets in details.
+        </t>
+      </section>
+
+
+      <section title="General Control channel format">
+        <t>
+        There are three different variants of the control channel format.  The
+        format depends on the variant of control channel authentication and
+        encryption.
+        </t>
+
+        <section title="Unauthenticated control channel packets">
+          <t>
+          <figure>
+            <sourcecode>
+struct tlsauth_control {
+    int opcode:5;
+    int keyid:3;
+    uint64_t own_session_id;
+    uint8_t acked_pktid_len;
+    uint8_t[n*8] acked_pktid_list; [only if acked_id_len > 0]
+    uint64_t peer_session_id; [only if acked_id_len > 0]
+    uint32_t packet_id;
+    uint8_t control_channel_payload[];
+}
+            </sourcecode>
+          </figure>
+          The basic form of control channe ldoes not involve any additional authentication or
+          encryption of control channel packets.
+          </t>
+          <t>
+            The <tt>own_session_id</tt> is an opaque id that identifies the session id
+            from the perspective of the peer.  The peer MUST NOT make any assumption about the
+            format of this id.  It is RECOMMEND to use 64 bit of randomness.
+          </t>
+        </section>
+        <section title="HMAC authentication of control channel packets" anchor="tlsauth">
+        <t>
+          <figure>
+            <sourcecode>
+struct tlsauth_control {
+    int opcode:5;
+    int keyid:3;
+    uint64_t own session_id;
+    uint8[8-32] hmac;
+    uint64_t replay_packet_id;
+
+    uint8_t acked_pktid_len;
+    uint8_t[n*8] acked_pktid_list; [only if acked_id_len > 0]
+    uint64_t peer_session_id; [only if acked_id_len > 0]
+    uint32_t packet_id;
+
+    uint8_t payload[];
+}
+            </sourcecode>
+          </figure>
+        </t>
+        <t>
+          In this mode, which is also called tls-auth in existing implementations,
+          control channel packets are authenticated by the
+          use of an <xref target="RFC2104">HMAC</xref> signature using a pre-shared key.
         </t>
         <t>
           This authentication can strengthen the overall security on
           both client and server side as OpenVPN will validate the HMAC
-          signature before it is sent to the SSL/TLS layer for decryption.
-          This can protect server and client from SSL/TLS protocol
-          issues from all users not having access to a valid HMAC key.
+          signature before any other processing on the packet is done.
+          This can protect server and client from triggering problems in
+          other parts of implementation such as TLS protocol implementations.
         </t>
         <t>
-          The keys used for HMAC signatures are static and shared between
+          The keys used for the HMAC signatures are static and pre-shared between
           server and all clients.  The default hashing algorithm is HMAC-SHA1
           but any hashing algorithms supported by the SSL/TLS protocol can
-          be used as long as the clients and server use the same algorithm.
-          The choice of hashing algorithms defines the length of the HMAC
-          field in the control packet.  HMAC-SHA1 uses 20 bytes, HMAC-SHA512
-          uses 64 bytes.
+          be used as long as the clients and server are configured to use the
+          same algorithm.  The choice of hashing algorithms defines the length
+          of the HMAC field in the control packet.  HMAC-SHA1 uses 160 bits (20 bytes),
+          HMAC-SHA512 uses 512 bits (64 bytes).
+        </t>
+        <t>
+          The key used for the HMAC signatures has the same length as the
+          HAMC signature.  A different key is used for each direction
+          between two peers.  The keys can be identical but it is recomended
+          that they are different.
+
+          The appendix <xref target="ovpnkeyfile">OpenVPN static key format</xref>
+          will provide the file format that is used in existing implementations
+          to provide these keys.
         </t>
 
-        <section title="HMAC authentication subkeys">
-          <t>
-            HMAC packet authentication uses two independent
-            pre-shared static keys for the authentication.  One key
-            is used for signing packets and the other key is used
-            to verify signatures from the remote side.  The OpenVPN
-            terminology for this is key-direction.  The key-direction
-            defines which set of keys is used for signing and for
-            verification.  All clients MUST use the same
-            key-direction while the server MUST use the opposite
-            key-direction.
-          </t>
-        </section>
-      </section>
-    </section>
+        <t>
+          The HMAC is calculated over the foloowing pseudo packet, which moves the
+          replay_packet_id to the beginning and drops the hmac field. 
+        </t>
+        <figure>
+          <sourcecode>
+struct tlsauth_control {
+    uint64_t replay_packet_id;
+    int opcode:5;
+    int keyid:3;
+    uint64_t own session_id;
+    uint8_t acked_pktid_len;
+    uint8_t[n*8] acked_pktid_list; [only if acked_id_len > 0]
+    uint64_t peer_session_id; [only if acked_id_len > 0]
+    uint32_t packet_id;
+    uint8_t payload[];
+}
+          </sourcecode>
+        </figure>
+        <t>
+          When sending or resending a packet, an implementation must increase the replay_packet_id
+          counter, calculate the HMAC and send the packet with the HMAC.
+        </t>
+        <t>
+          On recieving, the receiver MUST check if the replay_packet_id is not an already received
+          replay_packet_id or is lower by 32 or more than the highest replay_packet_id in an
+          authenticated packet from a peer and otherwise discard it. The value 32 MAY be
+          configurable.  If the packet passes this test, the HMAC of the packet using the
+          outlined procedure MUST be calculated and verfied.  If the HMAC does not match,
+          the implementation MUST discard the packet.
+        </t>
 
-    <section title="Encrypting control channel packets">
+      </section>
+
+      <section title="Encrypting control channel packets (tls-crypt)" anchor="tlscrypt">
       <t>
-        With OpenVPN v2.4 and later, the client and server MAY use TLS
-        control channel encryption instead of HMAC authentication.  This
-        operational mode will encrypt the control packet channel payload
-        with a static key.  The static keying material is the same which
-        HMAC authentication uses, but the key-direction is fixed according
-        to the local process' role (server or client).
-      </t>
-      <t>
-        This feature is called tls-crypt, which uses a pre-shared static key (like
-        the tls-auth method) to encrypt control channel packets.
+        When using this format of control packets, OpenVPN peers will encrypt the control
+        packet channel payload using pre-shared static keys.  The encryption scheme uses
+        a pair of encryption key <tt>Ke</tt> (256 bite) and HMAC authentication key <tt>Ka</tt>
+        (256 bits) per direction, four private keys or 1024 bits in total. 
+        In existing impelmentation this feature is usually referred to as "tls-crypt".
       </t>
       <t>
         Encrypting control channel packets has three main advantages:
@@ -291,107 +393,122 @@
           <li> It is harder to identify OpenVPN traffic as such. </li>
           <li> It provides "poor-man's" post-quantum security, against
           attackers who will never know the pre-shared key
-          (i.e. no forward secrecy). </li>
+          (i.e. no forward secrecy provided by the pre-shared private key). </li>
         </ul>
       </t>
 
       <section title="Control channel packet encryption">
 
         <t>
-          The following encryption method is used, based on the SIV
-          construction
+          The encryption method is based on the SIV construction
           <xref target="rogaway2006provable" format="default" sectionFormat="of" derivedContent="rogaway2006provable"/>,
-          to achieve nonce misuse-resistant authenticated encryption:
-          <figure>
-            <sourcecode>
-msg      = control channel plaintext
-header   = opcode (1 byte) || session_id (8 bytes) || packet_id (8 bytes)
-Ka       = authentication key (256 bits)
-Ke       = encryption key (256 bits)
-(Ka and Ke are pre-shared keys, like with --tls-auth)
-
-auth_tag = HMAC-SHA256(Ka, header || msg)
-IV       = 128 most-significant bits of auth_tag
-ciph     = AES256-CTR(Ke, IV, msg)
-
-output   = Header || Tag || Ciph
-            </sourcecode>
-          </figure>
+          to achieve nonce misuse-resistant authenticated encryption. 
+          
+          Note that this is is using AES256-CTR and HMAC-SHA256 and is not the
+          <xref target="RFC8452">RFC8452 AES-GCM-SIV</xref>.
         </t>
-
         <t>
-          This boils down to the following on-the-wire packet format:
-          <figure>
-            <artwork>
-
--opcode- || -session_id- || -packet_id- || auth_tag || * payload *
-
-            </artwork>
-          </figure>
-          Where
-          <ul>
-            <li> <tt>-XXX-</tt> means authenticated, and </li>
-            <li> <tt>* XXX *</tt> means authenticated and encrypted. </li>
-          </ul>
-          Which is very similar to the current tls-auth packet format, and has
-          the same overhead as "--tls-auth" with "--auth SHA256".
+          TODO: Check if our scheme is one that is described in RFC 5297
         </t>
-
         <t>
           The use of a nonce misuse-resistant authenticated encryption scheme
-          allows us to worry less about the risks of nonce collisions.  This is
-          important, because in contrast with the data channel in TLS mode, we
-          will not be able to rotate tls-crypt keys often or fully guarantee nonce
+          allows minimising the risks of nonce collisions.  This is
+          important, because in contrast to other encryption as TLS, it is impractical
+           to rotate the pre-shared keys often or fully guarantee nonce
           uniqueness.  For non misuse-resistant modes such as GCM
           (<xref target="ferguson2005authentication" format="default" sectionFormat="of" derivedContent="ferguson2005authentication"/>,
           <xref target="joux2006authentication" format="default" sectionFormat="of" derivedContent="joux2006authentication"/>),
-          the data channel in TLS mode only has to ensure that the packet counter
-          never rolls over, while tls-crypt would have to provide nonce uniqueness
-          over all control channel packets sent by all clients, for the lifetime
-          of the tls-crypt key.
+          the TLS (or OpenVPN's own data channel) only has to ensure that the packet counter
+          never rolls over, while the encryption of control packages would have to
+          provide nonce uniqueness  over all control channel packets sent by all clients,
+          for the lifetime of the pre-shared key.
         </t>
 
         <t>
-          Unlike with tls-auth, no --key-direction has to be specified for
-          tls-crypt.  TLS servers always use key direction 1, and TLS clients
-          always use key direction 2, which means that client->server traffic and
-          server->client traffic always use different keys, without requiring
-          configuration.
+          This control channel packet format uses fixed encryption and authentication
+          algorithms. This encryption intention is to primarely provide  privacy as well
+          as DoS protection, these MUST not be made negotiable.
         </t>
 
         <t>
-          Using fixed, secure, encryption and authentication algorithms makes both
-          implementation and configuration easier.  If we ever want to, we can
-          extend this to support other crypto primitives.  Since tls-crypt should
-          provide privacy as well as DoS protection, these should not be made
-          negotiable.
+          The format of a tls-crypt control packet looks are the following:
+          <figure>
+            <artwork>
+struct tlsauth_control {
+  int opcode:5;
+  int keyid:3;
+  uint64_t own session_id;
+  uint32_t replay_packet_id;
+  uint8 auth_tag[32];
+  uint8[] enc_control_payload;
+  }
+            </artwork>
+          </figure>
         </t>
 
+        <t>
+          The encrypted payload enc_control_payload consits of encrypting
+          the following structure:
+
+          <figure>
+            <artwork>
+struct clear_control_payload {
+   uint8_t acked_pktid_len;
+   uint8_t[n*8] acked_pktid_list; [only if acked_id_len > 0]
+   uint64_t peer_session_id; [only if acked_id_len > 0]
+   uint32_t packet_id;
+   uint8_t control_channel_payload[];
+}
+            </artwork>
+          </figure>
+        </t>
+        <t>
+          The auth tag is generated by generating a HMAC-SHA256 with the pre-shared HMAC key over the
+          the cleartext of the tls_auth_control structure and the clear_control_payload struct,
+          omitting the auth_tagfand enc_control_payload fields:
+        </t>
+
+        <t>
+          <tt>auth_tag = HMAC-SHA256(Ka, opcode || keyid || own_session_id || replay_packet_id || clear_control_payload)</tt>
+        </t>
+        <t> Using the auth_tag, we create the IV from it.
+        </t>
+        <t>
+          <tt>IV = 128 most-significant bits of auth_tag</tt>
+        </t>
+        <t>
+          And finally the <tt>enc_control_payload</tt> is encrypted using AES-CTR with <tt>Ke</tt>
+          as key and the constructed IV:
+        </t>
+        <t>
+          <tt>enc_control_payload = AES256-CTR(Ke, IV, clear_control_payload)</tt>
+        </t>
       </section>
-      <section title="tls-crypt Security considerations">
+      <section title="Security considerations">
         <t>
-          tls-crypt is a best-effort mechanism that aims to provide as much
+          This encryption scheme is a best-effort mechanism aiming to provide as much
           privacy and security as possible, while staying as simple as possible.
           The following are some security considerations for this scheme.
         </t>
         <t>
-          The same tls-crypt key is potentially shared by a lot of peers, so it
+          The same set of pre-shared key is potentially shared by a lot of peers, so it
           is quite likely to get compromised.  Once an attacker acquires the
           tls-crypt key, this mechanism no longer provides any security against
           the attacker.
         </t>
 
         <t>
-          Since many peers potentially use the tls-crypt key for a long time, a
-          lot of data might be encrypted under the tls-crypt key.  This leads
+          Since many peers potentially use the same set of keys for a long time, a
+          lot of data might be encrypted under the encryption keys.  This leads
           to two potential problems:
           <ul>
             <li>
               <t>
                 The <tt>opcode || session id || packet id</tt> combination might collide.
                 This might happen in larger setups, because the session id contains
-                just 64 bits of random.  Using the uniqueness requirement from the
-                GCM spec <xref target="nistgcm" format="default" sectionFormat="of" derivedContent="nistgcm"/>
+                just 64 bits of randomess.  Using the uniqueness requirement from the
+                GCM spec <xref target="nistgcm" format="default" sectionFormat="of"
+                derivedContent="nistgcm"/>
                 (a collision probability of less than 2^(-32)),
                 uniqueness is achieved when using the tls-crypt key for at most
                 2^16 (65536) connections per process start.  (The packet id
@@ -403,7 +520,7 @@ output   = Header || Tag || Ciph
                 colliding packets contain the same plaintext.  Attackers will not
                 be able to learn anything else about the plaintext (unless the
                 attacker knows the plaintext of one of these packets, of course).
-                Since the impact is limited, we consider this an acceptable
+                Since the impact is limited, this is considered an acceptable
                 remaining risk.
               </t>
             </li>
@@ -414,15 +531,21 @@ output   = Header || Tag || Ciph
               ciphertexts.  This is a serious loss of confidentiality.  The IVs
               are 128-bit, so when HMAC-SHA256 is a secure PRF (an assumption
               that must also hold for TLS), and we use the same uniqueness
-              requirement from <xref target="nistgcm" format="default" sectionFormat="of" derivedContent="nistgcm"/>,
+              requirement from <xref target="nistgcm" format="default" 
+              sectionFormat="of" derivedContent="nistgcm"/>,
               this limits the total amount of control
               channel messages for all peers in the setup to 2^48.  Assuming a
               large setup of 2^16 (65536) clients, and a (conservative) number of
               2^16 control channel packets per connection on average, this means
-              that clients may set up 2^16 connections on average.  We think these
-              numbers are reasonable.
+              that clients may set up 2^16 connections on average.  
             </li>
           </ul>
+        </t>
+        <t>
+          Typical OpenVPN implementations will use the same key format as for the authentication
+          of control channel to distribute the pre-shared keys.  See Appendix
+          <xref target="ovpnkeyfile">OpenVPN static key format</xref>
+          for a description of the format.
         </t>
       </section>
       <section anchor="tlscryptv2" title="Client-specific tls-crypt keys (tls-crypt-v2)">
@@ -713,12 +836,7 @@ available) to drop revoked keys.)</li>
     </section>
 
 
-    <section title="Pushing configuration options and OCC">
-      <t>
-        TBD
-      </t>
-    </section>
-
+   </section>
     <section anchor="controlchannel" title="Control channel">
       <t>
         OpenVPN communicates over two channels which are multiplexed over the
@@ -734,7 +852,10 @@ available) to drop revoked keys.)</li>
           Each packet MUST contain an OPCODE.  This is located within the first
           byte in each UDP packet and the third byte in TCP packets.  The high 5
           bits contains the OPCODE and the lower 3 bits defines a key-id.  The
-          OPCODE defines the contents of the following payload.
+          OPCODE defines the contents of the following payload. The op codes
+          DATA_V1 and DATA_V2 are NOT control channel op coes and will NOT be discussed
+          in this chapter. They are included for completeness.
+          
         </t>
         <texttable>
           <ttcol>OPCODE</ttcol>
@@ -1696,6 +1817,15 @@ INFO,EXTRA
         </t>
       </section>
     </section>
+        <section title="Pushing configuration options and OCC">
+          <section anchor="dnsproto" title="dns">
+            <t>
+              The dns option is used to configure the DNS server the client should use.
+            </t>
+          </section>
+
+    </section>
+
     <section title="Cryptography">
       <section title="OpenVPN and the SSL/TLS protocol">
         <t>TBD</t>
@@ -1717,6 +1847,40 @@ INFO,EXTRA
 
       <section title="Challenge-Response authentication">
         <t>TBD</t>
+      </section>
+    </section>
+    <section title="Appendix">
+      <section anchor="ovpnkeyfile" title="OpenVPN Static key file format">
+      <t>
+        The <xref target="tlsauth">HMAC packet authentication</xref> and
+        <xref target="tlscrypt">Control packet encryption</xref> use pre-shared keys.
+        The pre-shared key format is based on the internal <xref target="openvpnkey">OpenVPN key</xref>
+        data structure.
+      </t>
+      <t>
+        The file contains header line "-----BEGIN OpenVPN Static key V1-----", followed by each
+        of the 256 bytes of the structure encodes as hexacdecimal ascii. After 16 bytes
+        (32 characters in the output), a new line is started. Finally, an footer line
+        "-----END OpenVPN Static key V1-----" ends the encoding of the block.
+      </t>
+
+      <figure>
+        <sourcecode>
+# 2048 bit encoded as a key
+-----BEGIN OpenVPN Static key V1-----
+112233445566778899a0b0ccd0efa1a2
+[ 14 lines skipped ]
+998877aaffe1838139aabbff88a2a3a6
+-----END OpenVPN Static key V1-----
+        </sourcecode>
+        Example of a static key file.
+      </figure>
+      <t>
+        Anything outside the header line and footer line MUST be ignored when parsing a static key
+        file. Implementations SHOULD be able to handle different number of bytes per line when
+        parsing the file.
+      </t>
+        
       </section>
     </section>
   </middle>
@@ -1745,6 +1909,9 @@ INFO,EXTRA
 
      <!--?rfc include="http://xml.resource.org/public/rfc/bibxml/reference.RFC.5705.xml"?-->
      &RFC5705;
+
+     <!--?rfc include="http://xml.resource.org/public/rfc/bibxml/reference.RFC.8452.xml"?-->
+     &RFC8452;
     </references>
   </back>
 </rfc>
