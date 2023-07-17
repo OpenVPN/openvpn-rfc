@@ -548,9 +548,10 @@ struct clear_control_payload {
           for a description of the format.
         </t>
       </section>
-      <section anchor="tlscryptv2" title="Client-specific tls-crypt keys (tls-crypt-v2)">
+      <section anchor="tlscryptv2" title="Client-specific encryption keys">
         <t>
-          This section describes configuring OpenVPN to use client-specific tls-crypt keys.
+          This section describes configuring OpenVPN to use client-specific tls-crypt keys. This feature is
+          referred to as tls-crypt-v2 in existing implementations.
         </t>
 
 
@@ -574,15 +575,14 @@ struct clear_control_payload {
             8000 years, divided by the number of clients (see the
             ``--tls-crypt`` section of the man page).
             [FIXME/flichtenheld: either include or remove reference]
-            Using client-specific
-            keys, we lift this lifetime requirement to roughly 8000 years
+            Using client-specific keys, we lift this lifetime requirement to roughly 8000 years
             for each client key (which "Should Be Enough For Everybody (tm)").
           </t>
         </section>
 
         <section title="Introduction">
           <t>
-            ``tls-crypt-v2`` uses an encrypted cookie mechanism to introduce
+            The per client encryption key schema uses an encrypted cookie mechanism to introduce
             client-specific tls-crypt keys without introducing a lot of server-side state.
             The client-specific key is encrypted using a server key.  The server key is the
             same for all servers in a group.  When a client connects, it first sends the
@@ -603,8 +603,8 @@ struct clear_control_payload {
           </t>
 
           <t>
-            To allow for a smooth transition, ``tls-crypt-v2`` is designed such that a
-            server can enable both ``tls-crypt-v2`` and either ``tls-crypt`` or
+            To allow for a smooth transition, this feature is designed such that a
+            server can enable both the per client encryption and either ``tls-crypt`` or
             ``tls-auth``.  This is achieved by introducing a CONTROL_HARD_RESET_CLIENT_V3
             opcode, that indicates that the client wants to use ``tls-crypt-v2`` for the
             current connection.
@@ -612,36 +612,39 @@ struct clear_control_payload {
         </section>
         <section title="Implementation">
           <t>
-            When setting up a tls-crypt-v2 group (similar to generating a tls-crypt or
-            tls-auth key previously):
-
+            This implementation here assumes that all server share the same pre-shared key. Since the
+            server implementation is transparent to the client, another schema can be potentially used.
+          </t>
+          <t>
             <ol>
               <li>
-                Generate a tls-crypt-v2 server key using OpenVPN's ``--genkey tls-crypt-v2-server``.
-                This key contains 2 512-bit keys, of which we use:
+                The server key cosists of 2 512-bit keys, of which we use:
 
                 <ul>
                   <li> the first 256 bits of key 1 as AES-256-CTR encryption key ``Ke``</li>
                   <li> the first 256 bits of key 2 as HMAC-SHA-256 authentication key ``Ka`` </li>
                 </ul>
-                This format is similar to the format for regular ``tls-crypt``/``tls-auth``
-                and data channel keys, which allows us to reuse code.
               </li>
               <li>
-                Add the tls-crypt-v2 server key to all server configs
-                (``tls-crypt-v2 /path/to/server.key``)
+                This server key is shared by all OpenVPN servers that clients should be considere as equivalent. For different
+                servers, different sets of keys SHOULD be supported.
               </li>
             </ol>
           </t>
 
           <t>
-            When provisioning a client, create a client-specific tls-crypt key:
-
+            The client key consists of two parts. The client-specific key ``Kc`` and a wrapped key ``WKc`` that is opaque to the
+            client.
+          </t>
+          <t>
+            The 2048 bits client-specific key ``Kc`` is identical to the key for the control channel encryption.
+          </t>
+          <t>
+            The wrapped key has the foloowing components:
             <ol>
-              <li>. Generate 2048 bits client-specific key ``Kc`` using OpenVPN's ``--genkey tls-crypt-v2-client``</li>
-
+              <li>The 2048 bits client-specific key ``Kc`` is identical to the key for the control channel encryption. </li>
               <li>
-                <t> Optionally generate metadata.
+                <t> Optional Metadata
 
                  The first byte of the metadata determines the type.  The initial
               implementation supports the following types:
@@ -660,7 +663,7 @@ struct clear_control_payload {
               </t>
 
               <t>
-                If no metadata is supplied during key generation, OpenVPN defaults to the
+                If no metadata is supplied during key generation, an implementation SHOULD default to the
                 TIMESTAMP metadata type.
               </t>
               </li>
