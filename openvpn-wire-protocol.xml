@@ -1402,7 +1402,9 @@ struct key_exchange {
             <em>deprecated</em> in favor of IV_CIPHERS </li>
             <li> IV_SSO: out of band (auth pending) methods the client supports</li>
             <li> IV_MTU: The client is capable of dynamically set the MTU as part of imported options up to the size
-                specified by IV_MTU</li>
+            specified by IV_MTU</li>
+            <li> IV_ACC: App control channel. This announces support for the OpenVPN implementation to transport a custom payloads
+            for use in a sideband channel for a custom communication between server and client. </li>
             <li> variables starting with UV_. This are variables set by the user by a
             configuration file or similar means. These do not have any fixed meaning.</li>
           </ul>
@@ -1427,6 +1429,43 @@ struct key_exchange {
             <li>bit 8: The client is capable of sending exit notification via control channel using <xref target="exitcc">EXIT</xref> message. The client is accpting the protocol-flags pushed option for the EKM capability</li>
 
           </ul>
+        </t>
+        <t>
+          If the IV_ACC variable is present, this indicates that the library implements the <xref target="ACC_MSG">ACC control message</xref>. The IV_ACC
+          variable indicates the capabilities of the client.  IV_ACC has the following format
+
+          <figure>
+            <sourcecode>
+              IV_ACC=&lt;maxlen>,&lt;protocol flags>,&lt;custom protocols>
+            </sourcecode>
+          </figure>
+        </t>
+        <t>
+           maxlen: the maximum length of message this implementation can receive in one message. This is encoded
+           message and depends on the general size of control frame the implementation can handle.
+        </t>
+        <t>
+          The protocol flags are a colon seperated list of flags. Currently defined are:
+          <ul>
+            <li> 6 - supports transfer of base64 encoded messages to transport binary messages </li>
+            <li> B - supports transfer of binary message without any encoding </li>
+            <li> A - supports transfer of text messages without control characters </li>
+          </ul>
+          
+        </t>
+        <t>
+          custom protocols is a colon separated list of custom app protocols that are supported. This list should be kept
+            short and the protocol names itself should be short as well as they will repeated with every message that is
+            sent for the protocol.
+        </t>
+        <t>
+          An example would of an IV_ACC message would be for a client that supports base64 and text messages and supports
+          the flower and fortune protocol would be
+          <figure>
+            <sourcecode>
+              IV_ACC=1400,6:B:m=1400,flower:fortune
+            </sourcecode>
+          </figure>
         </t>
       </section>
 
@@ -1819,14 +1858,32 @@ INFO,EXTRA
           on the format of the <tt>EXTRA</tt> parameter. [FIXME/flichtenheld: proper reference]
         </t>
       </section>
-    </section>
-        <section title="Pushing configuration options and OCC">
+      <section title="ACC" anchor="ACC_MSG">
+      <t>
+        Format: <sourcecode>ACC,&lt;proto>,&lt;len>,&lt;encoding>,&lt;payload></sourcecode>
+        This message is the same in both directions.
+      </t>
+      <t>
+        <ul>
+          <li> proto -- this repeats of the protocols that are listed in the IV_ACC message. </li>
+          <li> len -- length of the payload. If the payload is encoded (e.g. base64) this length represented
+          the length of encoding. </li>
+          <li> encoding -- This is one encoding letters and an optional 'F' to indicate that this is message
+          is fragmented with following messages until the first without an 'F' in the flags field is received. Then the
+          message fragment should be combined and delievered as one message. </li>
+          <li> payload -- the payload itself. According to the encoding, the message is just unecoded ('T' or 'B') or is encoded
+          with base64 </li>
+        </ul>
+      </t>
+      </section>
+      <section title="Pushing configuration options and OCC">
           <section anchor="dnsproto" title="dns">
             <t>
               The dns option is used to configure the DNS server the client should use.
             </t>
           </section>
-
+          
+      </section>
     </section>
 
     <section title="Cryptography">
