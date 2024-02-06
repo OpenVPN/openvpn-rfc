@@ -308,9 +308,10 @@ struct replay_packet_id_packet {
           more significant bytes. To turn this structure into a 64bit counter, the timestamp represent the upper 32 bit while the
           packet_id represents the lower 32 bits.
 
-          (timestamp << 32) | packet_id
+          (timestamp &lt;&lt; 32) | packet_id
 
           </t>
+        </section>
         <section title="HMAC authentication of control channel packets" anchor="tlsauth">
         <t>
           <figure>
@@ -2003,7 +2004,6 @@ INFO,EXTRA
         file. Implementations SHOULD be able to handle different number of bytes per line when
         parsing the file.
       </t>
-        
       </section>
     </section>
   </middle>
