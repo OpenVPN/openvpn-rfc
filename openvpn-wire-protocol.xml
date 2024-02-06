@@ -268,7 +268,7 @@ struct udp_packet {
           <t>
           <figure>
             <sourcecode>
-struct tlsauth_control {
+struct control_packet {
     int opcode:5;
     int keyid:3;
     uint64_t own_session_id;
@@ -289,6 +289,28 @@ struct tlsauth_control {
             format of this id.  It is RECOMMEND to use 64 bit of randomness.
           </t>
         </section>
+        <section title="OpenVPN mixed timestamp/packet counter format" anchor="longpkt">
+          <t>
+            The <tt>replay_packet_id</tt>  64 bit counter that is used by both tls-crypt and tls-auth has internally
+            the following format
+          <figure>
+            <sourcecode>
+struct replay_packet_id_packet {
+    uint32_t packet_id;
+    uint32_t timestamp;
+}
+            </sourcecode>
+          </figure>
+          This format is a legacy from old static key mode from OpenVPN to avoid IV reuse and provide a stable packet counter.
+          While OpenVPN largely abondoned this format and static key format, this packet counter format still survived in the
+          replay protection for tls-auth and tls-crypt protocol. Unfortunately, in this format the format the order of the fields
+          does not represent their significance and when interpreting this as a 64bit counter, the timestamp value represents the
+          more significant bytes. To turn this structure into a 64bit counter, the timestamp represent the upper 32 bit while the
+          packet_id represents the lower 32 bits.
+
+          (timestamp << 32) | packet_id
+
+          </t>
         <section title="HMAC authentication of control channel packets" anchor="tlsauth">
         <t>
           <figure>
@@ -434,11 +456,11 @@ struct tlsauth_control {
           The format of a tls-crypt control packet looks are the following:
           <figure>
             <artwork>
-struct tlsauth_control {
+struct tlscrypt_control {
   int opcode:5;
   int keyid:3;
   uint64_t own session_id;
-  uint32_t replay_packet_id;
+  uint64_t replay_packet_id;
   uint8 auth_tag[32];
   uint8[] enc_control_payload;
   }
@@ -1427,6 +1449,8 @@ struct key_exchange {
             <li>bit 6: The client is capable of accepting <xref target="authfailed">AUTH_FAILED,TEMP</xref> messages.</li>
             <li>bit 7: The client is capable of parsing and receiving the <xref target="dnsproto">dns</xref> messages pushed option</li>
             <li>bit 8: The client is capable of sending exit notification via control channel using <xref target="exitcc">EXIT</xref> message. The client is accpting the protocol-flags pushed option for the EKM capability</li>
+            <li>bit 9: The client is capable of dynamic tls-crypt</li>
+            <li>bit 10: The client is capaple of AEAD tag at the end of a data channel packet and capable of using 64bit packet counters for AEAD ciphers.</li>
 
           </ul>
         </t>
@@ -1589,24 +1613,47 @@ struct datakeys {
 	</t>
       </section>
     </section>
-      <section anchor="dataaead" title="AEAD encrypted data channel packet">
-        <t>
+    <section anchor="dataaead" title="AEAD encrypted data channel packet">
+
+      <t>
+        AEAD format with tag at the start:
+        
           <figure>
             <sourcecode>
 struct aead_packet {
     int opcode:5;
     int key_id:3;
     int peer_id:24;
-    uint32_t packet_id;
+    uint32_t/uint_64_t packet_id;
     uint8_t[16] authentication_tag;
     uint8_t* encrypted_payload;
 }
             </sourcecode>
           </figure>
         </t>
+
+        <t>
+          AEAD format with tag at the end:
+          
+          <figure>
+            <sourcecode>
+struct aead_packet {
+    int opcode:5;
+    int key_id:3;
+    int peer_id:24;
+    uint32_t/uint64_t packet_id;
+    uint8_t* encrypted_payload;
+    uint8_t[16] authentication_tag;    
+}
+            </sourcecode>
+          </figure>
+        </t>
+        
         <t>
           The packet_id together with the implicit IV forms the IV for
 	  decryption. The packet_id is also used for the replay protection.
+
+          When 64 bit packet ids are enabled, the size becomes 64 bit.
         </t>
 
         <t>
@@ -1620,6 +1667,8 @@ struct aead_packet {
           Chacha20-Poly1305 and AES-GCM the IV length is 96 bits, 32 bits are
           from packet_id and the remaining 64 bits (the implicit IV part) are
           taken from the data channel key.
+
+          With 64 bit packet id counters the implicit IV part becomes 32 bit.
         </t>
 
         <t>
@@ -1636,7 +1685,9 @@ authenticated_data_v2 = opcode| key_id | peer_id | packet_id | payload
         </t>
 
         <t>
-          The tag size is always 128 bit (16 bytes). (Same size as in TLS)
+          The tag size is always 128 bit (16 bytes). (Same size as in TLS). If the
+          protocol flag for AEAD tag at the end is in effect, the AEAD tag is at the end
+          of the packet rather than at the start.
         </t>
       </section>
       <section anchor="datacbc" title="CBC/OFB/CTR encrypted packet">
@@ -1860,7 +1911,7 @@ INFO,EXTRA
       </section>
       <section title="ACC" anchor="ACC_MSG">
       <t>
-        Format: <sourcecode>ACC,&lt;proto>,&lt;len>,&lt;encoding>,&lt;payload></sourcecode>
+        Format: <sourcecode>ACC,&lt;proto>,&lt;encoding>,&lt;len>,&lt;payload></sourcecode>
         This message is the same in both directions.
       </t>
       <t>
@@ -1879,10 +1930,22 @@ INFO,EXTRA
       <section title="Pushing configuration options and OCC">
           <section anchor="dnsproto" title="dns">
             <t>
-              The dns option is used to configure the DNS server the client should use.
+              The dns option is used to configure the DNS server the client should use. The option is follow by a space seperated list of feature
+              flags.
             </t>
           </section>
-          
+          <section title="protocol-flags">
+            <t> The <sourcecode>protocol-flags</sourcecode> directive tells a client what OpenVPN protocol features to use.
+            <ul>
+              <li> <sourcecode>cc-exit</sourcecode> explicit exit notifies should be sent via the control channel instead of using an OCC message. </li>
+              <li> <sourcecode>tls-ekm</sourcecode> The <xref target="openvpnkey">OpenVPN key</xref> for the
+              data channel enryption should be derived using TLS key material exporter </li>
+              <li> <sourcecode>dyn-tls-crypt</sourcecode> Renegotion control channel use dynamic TLS crypt </li>
+              <li> <sourcecode>aead-tag-end</sourcecode> The AEAD tag is at the end of the data channel packets </li>
+              <li> <sourcecode>pkt-id-64-bit</sourcecode> Use 64 bit packet counter for AEAD data channel ciphers </li>
+            </ul>
+            </t>
+          </section>
       </section>
     </section>
 
