@@ -1446,9 +1446,9 @@ struct key_exchange {
             <li>bit 4: The client is capable of accepting additional arguments
             to the <xref target="authpending">AUTH_PENDING</xref> message.</li>
             <li>bit 5: The client supports doing feature negotiation in P2P mode.</li>
-            <li>bit 6: The client is capable of accepting <xref target="authfailed">AUTH_FAILED,TEMP</xref> messages.</li>
-            <li>bit 7: The client is capable of parsing and receiving the <xref target="dnsproto">dns</xref> messages pushed option</li>
-            <li>bit 8: The client is capable of sending exit notification via control channel using <xref target="exitcc">EXIT</xref> message. The client is accpting the protocol-flags pushed option for the EKM capability</li>
+            <li>bit 6: The client is capable of parsing and receiving the <xref target="dnsproto">dns</xref> messages pushed option</li>
+            <li>bit 7: The client is capable of sending exit notification via control channel using <xref target="exitcc">EXIT</xref> message. The client is accpting the protocol-flags pushed option for the EKM capability</li>
+            <li>bit 8: The client is capable of accepting <xref target="authfailed">AUTH_FAILED,TEMP</xref> messages.</li>
             <li>bit 9: The client is capable of dynamic tls-crypt</li>
             <li>bit 10: The client is capaple of AEAD tag at the end of a data channel packet and capable of using 64bit packet counters for AEAD ciphers.</li>
 
