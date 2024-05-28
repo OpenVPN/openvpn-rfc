@@ -1360,6 +1360,12 @@ available) to drop revoked keys.)</li>
         two separate messages. To send a control message with a larger plaintext, a single TLS record
         must be split over multiple control messages.
         </t>
+        <t>
+          Control message should be also separated by a NUL byte. The current implementation might not
+          enforce this behaviour but future implementation that no longer rely on TLS framing might enforce
+          this behaviour. When sending an implementation MUST send each control message in its own TLS
+          record terminated by a NUL byte.
+        </t>
       </section>
       <section title="key exchange message">
         <t>
