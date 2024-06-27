@@ -6,7 +6,7 @@ get it included in the RFC collection.
 
 Work in progress
 ===============
-Please not that this document is work in progress and should not considered a complete or correct documentation
+Please note that this document is work in progress and should not considered a complete or correct documentation
 of the OpenVPN protocol yet. 
 
 Building
