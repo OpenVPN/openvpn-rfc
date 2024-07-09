@@ -1367,7 +1367,7 @@ available) to drop revoked keys.)</li>
           record terminated by a NUL byte.
         </t>
       </section>
-      <section title="key exchange message">
+      <section title="Key exchange message">
         <t>
           <figure>
             <sourcecode>
@@ -1413,6 +1413,11 @@ struct key_exchange {
           During the handshake, the client will have username and password if username and password authentication
           is used. <xref target="peerinfo">Peerinfo</xref> is also present. The server replies with a key_exchange
           packet on its own with occ_string, username, password and empty peerinfo.
+        </t>
+        <t>
+          The <tt>key_random</tt>, <tt>random1</tt>, and <tt>random2</tt> only used for older clients that do
+          not support key derivation via RFC 5705 keying material exporter support. This value should contain
+          random bytes.
         </t>
 
       </section>
@@ -1748,6 +1753,33 @@ struct data_packet_xfb {
 
           <t>For unencrypted data packets the same format as CBC without IV is used.</t>
         </t>
+      </section>
+      <section title="OpenVPN data channel PRF">
+        <t>
+        This is a deprecated way of deriving the data channel keys. It should be only implemented if
+        compatibility with older OpenVPN versions is required that do not support key derivation via
+        the RFC5705 key material exporter. It also requires the MD5 algorithm which often
+        modern crypto libraries do not readily support anymore.</t>
+
+        <t>This uses the <tt>key_random</tt>, <tt>random1</tt>, and <tt>random2</tt> from the key
+        exchange messages. These will be prefixed with client and server here to indicate from which
+        packet these field are coming. Also the session id of the control channel will be used here</t>
+
+        <t>
+        Here TLS_PRF(seed, secret) is the TLS PRF function according to RFC 2246 with
+        MD5 and SHA1 as used in TLS 1.0/1.1.
+
+        <figure>
+          <sourcecode>
+seed = "OpenVPN master secret" | client.random1 | server.random1
+secret = client.key_random
+master_secret - TLS_PRF(seed, secret)
+
+key_seed = "OpenVPN key expansion " | client.random2 | server.random2
+datakeys = TLS_PRF(key_seed, key_seed)
+          </sourcecode>
+        </figure>
+      </t>
       </section>
     </section>
     <section title="Control channel messages">
