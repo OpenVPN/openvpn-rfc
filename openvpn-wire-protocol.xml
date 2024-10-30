@@ -1817,30 +1817,44 @@ datakeys = TLS_PRF(key_seed, key_seed)
       </section>
       <section anchor="pushupdate" title="PUSH_UPDATE">
       <t>
-        Format: <sourcecode>PUSH_UPDATE [comma separated options]</sourcecode>
+        Format: <sourcecode>PUSH_UPDATE [comma-separated options]</sourcecode>
       </t>
       <t>
         This message includes dynamic configuration options that can be pushed from the server to the client without reconnecting.
-        These options augment existing options. Options with the same name are replaced. To remove an option, it should be prefixed
-        with <tt>-</tt>. For example, the following code replaces all routes (if there were any) with the provided one and removes the <tt>dns</tt> option:
+        These options augment existing ones. For example, the following command only adds a DNS server and updates the route metrics
+        of any existing route options:
         <sourcecode>
-          PUSH_UPDATE,route 10.10.10.0 255.255.255.0,-dns
+PUSH_UPDATE,dns server 0 10.10.10.1,route-metric 100
         </sourcecode>
+      </t>
+      <t>
+        Options with the same name, previously pushed with <tt>PUSH_REPLY</tt> or <tt>PUSH_UPDATE</tt>, are replaced.
+        For instance, the following command removes all existing routes and adds two new routes:
+        <sourcecode>
+PUSH_UPDATE,route 10.1.0.0 255.255.0.0,route 10.2.0.0 255.255.0.0
+        </sourcecode>
+      </t>
+      <t>
+        To remove an option, it should be prefixed with <tt>-</tt>. The following example removes all existing <tt>dns</tt> options:
+        <sourcecode>
+PUSH_UPDATE,-dns
+        </sourcecode>
+      </t>
+      <t>
         The client SHOULD support updating all pushed options; otherwise, it SHOULD reconnect. This also applies to removal.
-        <t>
         Options prefixed with <tt>?</tt> are considered optional. The client MAY support them. If the client cannot support some optional options,
         they can be ignored, and the client does not have to reconnect. This also applies to removal. Example syntax:
         <sourcecode>
-          PUSH_UPDATE,-?block-ipv6
+PUSH_UPDATE,-?block-ipv6
         </sourcecode>
-        Here client should remove <tt>block-ipv6</tt> option. However, if client does not support updating it, it does not need to reconnect.
-        </t>
+        Here, the client should remove the <tt>block-ipv6</tt> option. However, if the client does not support updating it, it does not need to reconnect.
+        Note that the only valid syntax for removing options without reconnecting on failure is <tt>-?option-name</tt>.
       </t>
       <t>
         This message is only sent if the client has set the IV_PROTO_PUSH_UPDATE bit in the IV_PROTO
         <xref target="peerinfo">peerinfo</xref> client variable.
       </t>
-    </section>
+      </section>
       <section anchor="authpending" title="AUTH_PENDING">
         <t>
           Format:
