@@ -366,7 +366,7 @@ struct tlsauth_control {
         </t>
 
         <t>
-          The HMAC is calculated over the foloowing pseudo packet, which moves the
+          The HMAC is calculated over the following pseudo packet, which moves the
           replay_packet_id to the beginning and drops the hmac field. 
         </t>
         <figure>
@@ -663,7 +663,7 @@ struct clear_control_payload {
             The 2048 bits client-specific key ``Kc`` is identical to the key for the control channel encryption.
           </t>
           <t>
-            The wrapped key has the foloowing components:
+            The standard format used by OpenVPN for the  wrapped key has the foloowing components:
             <ol>
               <li>The 2048 bits client-specific key ``Kc`` is identical to the key for the control channel encryption. </li>
               <li>
@@ -720,8 +720,37 @@ WKc = T || AES-256-CTR(Ke, IV, Kc || metadata) || len
 
               <li> Add the tls-crypt-v2 client key to the client config
               (``tls-crypt-v2 /path/to/client-specific.key``)</li>
+              
+
             </ol>
           </t>
+            
+          <t> Note, since the Wkc format is opaque to the client, a server can decide to use
+          a different format. For example when using a large infrastructure, e.g. a Cloud service,
+          it is desirable to allow using multiple different server keys to be able to replace a
+          compromised key or to be able to do key rotation. </t>
+          
+          <t> In this scenario a cleartext key id should be added to allow the server to select
+          the key that should be used to decrypt the wrapped key.</t>
+          
+          <t> As example how to implement this wrapping, assume the server keys are using a 32 bit
+          index. The server key (Ke, Ka) with the index i is named Kai and Kei.
+          <figure>
+            <sourcecode>
+K_id = key id of server key Kai, Kei  (32 bit, network order)
+
+len = len(WKc) (16 bit, network byte order)
+
+T = HMAC-SHA256(Kai, len || K_id || Kc || metadata)
+
+IV = 128 most significant bits of T
+
+WKc = T || AES-256-CTR(Ke, IV, Kc || metadata) || K_id || len
+                </sourcecode>
+              </figure>
+          </t>
+
+
 
           <t>
             When setting up the OpenVPN connection:
