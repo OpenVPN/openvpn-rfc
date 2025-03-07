@@ -1535,7 +1535,36 @@ struct key_exchange {
           </figure>
         </t>
       </section>
+      <section title="Negotiation">
+        <t>
+          Negotiation is the process in which two peers agree on the optional features and other negotiable paramters. Some
+          asepects of the protocol cannot be negotiated like tls-crypt or tls-auth as these need to be identical to establish a
+          connection.
+        </t>
+        <t>
+          There are two styles of negotiation in the OpenVPN protocol. Which one is used depends wether PUSH_REQUEST, PUSH_REPLY
+          is used or not.
+        </t>
+        <t>
+          When PUSH_REQUEST is in effect, the server determines the used options and informs the client via
+          PUSH_REPLY and the protocol-flags command about the features to use.
+        </t>
+        <t>
+          In direct peer to peer connection the negotiation is done by each peer determining the common features and ciphers in a
+          determinisic and way. The algorithm is the following:
 
+          <ul>
+            <li>Check if bit 5 of the IV_PROTO is set. If not assume that the peer will not do negotiation and assume no feature being present.
+            The other side might be (mis)configured to do PUSH_REQUEST/PUSH_REPLY instead, especially if the other side announces bit 2 of IV_PROTO</li>
+            <li> Enable all features of IV_PROTO that are common in the sent IV_PROTO and received IV_PROTO. This includes (but is not limited to)
+            TLS EKM, using peer-id/DATA_V2, <xref target="exitcc">EXIT</xref> message, epoch data format and dynamic tls-crypt </li>
+            <li>If the previous steps determined that both peers support TLS EKM and DATA_V2, calculate the peer-id using TLS-EKM using
+            the label <tt>EXPORTER-OpenVPN-p2p-peerid</tt> and a length of 3. Use the resulting three bytes in network byte order as
+            the peer-id. Otherwise use  0x76706e as peer-id. (ASCII "vpn") </li>
+          </ul>
+        </t>
+        
+      </section>
     </section>
 
   <section title="Data channel" anchor="datachannel">
