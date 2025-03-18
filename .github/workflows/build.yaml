@@ -5,29 +5,55 @@ on: [push, pull_request]
 jobs:
   build:
     name: "build"
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
-    - name: Install dependencies
-      run: sudo apt update && sudo apt install -y make python3-lxml python3-pycountry python3-html5lib sgml-base python3-pip  python3-google-i18n-address python3-jinja2 python3-markupsafe python3-pyflakes python3-requests
-    - name: Install xml2rfc
-      run: sudo pip3 install xml2rfc
     - name: Checkout RFC
       uses: actions/checkout@v4
-      with:
-        path: rfc
+    - name: Install dependencies
+      run: sudo apt update && sudo apt install -y make python3-pip libxml2-dev libxslt1-dev libyaml-dev
+    - name: Install pipenv
+      run: pip3 install pipenv
+    - name: Create pipenv
+      run: pipenv install -d
     - name: build html
-      working-directory: rfc
-      run: make openvpn-wire-protocol.html
+      run: pipenv run make openvpn-wire-protocol.html
     - name: build txt
-      working-directory: rfc
-      run: make openvpn-wire-protocol.txt
+      run: pipenv run make openvpn-wire-protocol.txt
     - name: Archive html artifact
       uses: actions/upload-artifact@v4
       with:
         name: openvpn-wire-protocol.html
-        path: rfc/openvpn-wire-protocol.html
+        path: openvpn-wire-protocol.html
     - name: Archive txt artifact
       uses: actions/upload-artifact@v4
       with:
         name: openvpn-wire-protocol.txt
-        path: rfc/openvpn-wire-protocol.txt
+        path: openvpn-wire-protocol.txt
+    - name: Prepare Pages
+      id: build
+      if: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/master' }}
+      run: |
+        mkdir pages
+        cp openvpn-wire-protocol.* pages/
+        touch pages/.nojekyll
+    - name: Upload static files as artifact
+      id: deployment
+      if: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/master' }}
+      uses: actions/upload-pages-artifact@v3.0.1
+      with:
+        path: pages/
+
+  deploy:
+    needs: build
+    permissions:
+      pages: write      # to deploy to Pages
+      id-token: write   # to verify the deployment originates from an appropriate source
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-24.04
+    if: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/master' }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4.0.5
