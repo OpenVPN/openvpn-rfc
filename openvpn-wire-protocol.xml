@@ -235,7 +235,7 @@ struct tcp_packet {
    int opcode:5;
    int keyid:3;
    uint8 data[];
-   }
+}
 
 struct udp_packet {
    int opcode:5;
@@ -247,7 +247,7 @@ struct udp_packet {
         </t>
         <t>
           The following sections will often only show the UDP format for brievity.  The
-          TCP format can be infered by prepending the 16 bit length field.
+          TCP format can be inferred by prepending the 16 bit length field.
         </t>
         <t>
           The <xref target="datachannel">data channel section</xref>
@@ -273,20 +273,20 @@ struct control_packet {
     int keyid:3;
     uint64_t own_session_id;
     uint8_t acked_pktid_len;
-    uint8_t[n*8] acked_pktid_list; [only if acked_id_len > 0]
-    uint64_t peer_session_id; [only if acked_id_len > 0]
+    uint8_t[n*8] acked_pktid_list; [only if acked_pktid_len > 0]
+    uint64_t peer_session_id; [only if acked_pktid_len > 0]
     uint32_t packet_id;
     uint8_t control_channel_payload[];
 }
             </sourcecode>
           </figure>
-          The basic form of control channe ldoes not involve any additional authentication or
+          The basic form of control channel does not involve any additional authentication or
           encryption of control channel packets.
           </t>
           <t>
             The <tt>own_session_id</tt> is an opaque id that identifies the session id
             from the perspective of the peer.  The peer MUST NOT make any assumption about the
-            format of this id.  It is RECOMMEND to use 64 bit of randomness.
+            format of this id.  It is RECOMMENDED to use 64 bit of randomness.
           </t>
         </section>
         <section title="OpenVPN mixed timestamp/packet counter format" anchor="longpkt">
@@ -319,13 +319,13 @@ struct replay_packet_id_packet {
 struct tlsauth_control {
     int opcode:5;
     int keyid:3;
-    uint64_t own session_id;
-    uint8[8-32] hmac;
+    uint64_t own_session_id;
+    uint8[16-64] hmac;
     uint64_t replay_packet_id;
 
     uint8_t acked_pktid_len;
-    uint8_t[n*8] acked_pktid_list; [only if acked_id_len > 0]
-    uint64_t peer_session_id; [only if acked_id_len > 0]
+    uint8_t[n*8] acked_pktid_list; [only if acked_pktid_len > 0]
+    uint64_t peer_session_id; [only if acked_pktid_len > 0]
     uint32_t packet_id;
 
     uint8_t payload[];
@@ -356,7 +356,7 @@ struct tlsauth_control {
         </t>
         <t>
           The key used for the HMAC signatures has the same length as the
-          HAMC signature.  A different key is used for each direction
+          HMAC signature.  A different key is used for each direction
           between two peers.  The keys can be identical but it is recomended
           that they are different.
 
@@ -375,10 +375,10 @@ struct tlsauth_control {
     uint64_t replay_packet_id;
     int opcode:5;
     int keyid:3;
-    uint64_t own session_id;
+    uint64_t own_session_id;
     uint8_t acked_pktid_len;
-    uint8_t[n*8] acked_pktid_list; [only if acked_id_len > 0]
-    uint64_t peer_session_id; [only if acked_id_len > 0]
+    uint8_t[n*8] acked_pktid_list; [only if acked_pktid_len > 0]
+    uint64_t peer_session_id; [only if acked_pktid_len > 0]
     uint32_t packet_id;
     uint8_t payload[];
 }
@@ -403,7 +403,7 @@ struct tlsauth_control {
       <t>
         When using this format of control packets, OpenVPN peers will encrypt the control
         packet channel payload using pre-shared static keys.  The encryption scheme uses
-        a pair of encryption key <tt>Ke</tt> (256 bite) and HMAC authentication key <tt>Ka</tt>
+        a pair of encryption keys <tt>Ke</tt> (256 bits) and HMAC authentication key <tt>Ka</tt>
         (256 bits) per direction, four private keys or 1024 bits in total. 
         In existing impelmentation this feature is usually referred to as "tls-crypt".
       </t>
@@ -460,7 +460,7 @@ struct tlsauth_control {
 struct tlscrypt_control {
   int opcode:5;
   int keyid:3;
-  uint64_t own session_id;
+  uint64_t own_session_id;
   uint64_t replay_packet_id;
   uint8 auth_tag[32];
   uint8[] enc_control_payload;
@@ -477,8 +477,8 @@ struct tlscrypt_control {
             <artwork>
 struct clear_control_payload {
    uint8_t acked_pktid_len;
-   uint8_t[n*8] acked_pktid_list; [only if acked_id_len > 0]
-   uint64_t peer_session_id; [only if acked_id_len > 0]
+   uint8_t[n*8] acked_pktid_list; [only if acked_pktid_len > 0]
+   uint64_t peer_session_id; [only if acked_pktid_len > 0]
    uint32_t packet_id;
    uint8_t control_channel_payload[];
 }
@@ -859,7 +859,7 @@ WKc = T || AES-256-CTR(Ke, IV, Kc || metadata) || K_id || len
           </t>
           <t>
             WKc includes a length field, so we leave the option for future extension of the
-            P_CONTROL_HEAD_RESET_CLIENT_V3 message open.  (E.g. add payload to the reset to
+            P_CONTROL_HARD_RESET_CLIENT_V3 message open.  (E.g. add payload to the reset to
             indicate low-level protocol features.)
           </t>
           <t>
@@ -907,8 +907,8 @@ available) to drop revoked keys.)</li>
           Each packet MUST contain an OPCODE.  This is located within the first
           byte in each UDP packet and the third byte in TCP packets.  The high 5
           bits contains the OPCODE and the lower 3 bits defines a key-id.  The
-          OPCODE defines the contents of the following payload. The op codes
-          DATA_V1 and DATA_V2 are NOT control channel op coes and will NOT be discussed
+          OPCODE defines the contents of the following payload. The opcodes
+          DATA_V1 and DATA_V2 are NOT control channel opcodes and will NOT be discussed
           in this chapter. They are included for completeness.
           
         </t>
@@ -935,7 +935,7 @@ available) to drop revoked keys.)</li>
           <c>Control</c>
           <c>CONTROL_SOFT_RESET_V1</c>
           <c>-</c>
-          <c>Obsolete</c>
+          <c>Current</c>
 
           <c>4</c>
           <c>Control</c>
@@ -1025,7 +1025,7 @@ available) to drop revoked keys.)</li>
             <c>X</c>
             <c></c>
 
-            <c>own session_id</c>
+            <c>own_session_id</c>
             <c>64</c>
             <c>X</c>
             <c></c>
@@ -1050,7 +1050,7 @@ available) to drop revoked keys.)</li>
             <c>X</c>
             <c>List length defined by acked_pktid_len.</c>
 
-            <c>peer session id</c>
+            <c>peer_session_id</c>
             <c>64</c>
             <c>X</c>
             <c>Session ID of the remote peer. Present if acked_pktid_len >= 1</c>
@@ -1351,7 +1351,7 @@ available) to drop revoked keys.)</li>
       <section title="Message Packet IDs">
         <t>
           Control channel packets have a message id that orders them and identifies them for ack messages.
-          The message ids are independent for both direction and MUST start at 0. If the message id reaches
+          The message ids are independent for both directions and MUST start at 0. If the message id reaches
           MAX_UINT32, the implementation MAY implement a rollover to 0 again. However, since such a
           huge number of control message is unrealistic, an implementation MAY refuse new packets if
           the message packet id rolls over.
@@ -1390,7 +1390,7 @@ available) to drop revoked keys.)</li>
         must be split over multiple control messages.
         </t>
         <t>
-          Control message should be also separated by a NUL byte. The current implementation might not
+          Control messages should be also separated by a NUL byte. The current implementation might not
           enforce this behaviour but future implementation that no longer rely on TLS framing might enforce
           this behaviour. When sending an implementation MUST send each control message in its own TLS
           record terminated by a NUL byte.
@@ -1444,8 +1444,8 @@ struct key_exchange {
           packet on its own with occ_string, username, password and empty peerinfo.
         </t>
         <t>
-          The <tt>key_random</tt>, <tt>random1</tt>, and <tt>random2</tt> only used for older clients that do
-          not support key derivation via RFC 5705 keying material exporter support. This value should contain
+          The <tt>key_random</tt>, <tt>random1</tt>, and <tt>random2</tt> are only used for older clients that do
+          not support key derivation via <xref target="RFC5705">RFC 5705 keying material exporter</xref> support. These values should contain
           random bytes.
         </t>
 
@@ -1542,7 +1542,7 @@ struct key_exchange {
           connection.
         </t>
         <t>
-          There are two styles of negotiation in the OpenVPN protocol. Which one is used depends wether PUSH_REQUEST, PUSH_REPLY
+          There are two styles of negotiation in the OpenVPN protocol. Which one is used depends on whether PUSH_REQUEST, PUSH_REPLY
           is used or not.
         </t>
         <t>
