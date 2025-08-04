@@ -477,7 +477,7 @@ struct tlscrypt_control {
             <artwork>
 struct clear_control_payload {
    uint8_t acked_pktid_len;
-   uint8_t[n*8] acked_pktid_list; [only if acked_pktid_len > 0]
+   uint8_t[n*4] acked_pktid_list; [only if acked_pktid_len > 0]
    uint64_t peer_session_id; [only if acked_pktid_len > 0]
    uint32_t packet_id;
    uint8_t control_channel_payload[];
