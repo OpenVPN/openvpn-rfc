@@ -1955,15 +1955,15 @@ struct aead_packet {
         </t>
 
         <t>
-          For DATA_V2 packets the authenticated data <em>includes</em> opcode,
-          key_id and peer_id. For DATA_V1 packets the authenticated data starts
+          For DATA_V2 packets the associated data <em>includes</em> opcode,
+          key_id and peer_id. For DATA_V1 packets the associated data starts
           on the first byte of packet_id, not including opcode and key_id.
         </t>
 
         <t>
           <sourcecode>
-authenticated_data_v1 = packet_id | payload
-authenticated_data_v2 = opcode| key_id | peer_id | packet_id | payload
+associated_data_v1 = packet_id
+associated_data_v2 = opcode| key_id | peer_id | packet_id
           </sourcecode>
         </t>
 
@@ -2034,12 +2034,12 @@ struct packet_id {
         </t>
         <t>
           This data format is only defined for DATA_V2 packets and therefore
-          the authenticated data <em>includes</em> opcode, key_id and peer_id. 
+          the associated data <em>includes</em> opcode, key_id and peer_id.
         </t>
 
         <t>
           <sourcecode>
-authenticated_data = opcode| key_id | peer_id | packet_id | payload
+associated_data = opcode| key_id | peer_id | packet_id
           </sourcecode>
         </t>
         
