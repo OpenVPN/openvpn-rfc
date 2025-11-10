@@ -844,6 +844,9 @@ WKc = T || AES-256-CTR(Ke, IV, Kc || metadata) || K_id || len
               When directly sending the TLS Client Hello message in the P_CONTROL_WKC_V1
               message, the client must ensure that the resulting P_CONTROL_WKC_V1 message
               with the appended WKc does not extend the control message length.
+
+              The client should also never send an P_CONTROL_WKC_V1 if not requested by
+              the server.
               </li>
             </ol>
           </t>
@@ -1468,6 +1471,7 @@ struct key_exchange {
             specified by IV_MTU</li>
             <li> IV_ACC: App control channel. This announces support for the OpenVPN implementation to transport a custom payloads
             for use in a sideband channel for a custom communication between server and client. </li>
+            <li> ID: preferred peer-id in data-channel packets. Value is in hexadecimal without a leading 0x</li>
             <li> variables starting with UV_. This are variables set by the user by a
             configuration file or similar means. These do not have any fixed meaning.</li>
           </ul>
@@ -1535,14 +1539,31 @@ struct key_exchange {
           </figure>
         </t>
       </section>
-      <section title="Negotiation">
+      <section title="Negotiation of peer-id">
         <t>
           Negotiation is the process in which two peers agree on the optional features and other negotiable paramters. Some
           asepects of the protocol cannot be negotiated like tls-crypt or tls-auth as these need to be identical to establish a
           connection.
         </t>
         <t>
-          There are two styles of negotiation in the OpenVPN protocol. Which one is used depends on whether PUSH_REQUEST, PUSH_REPLY
+          Peers SHOULD their preferred peer-id for receiving data pckets as <tt>ID=peer_id</tt> in their peer-info message.
+          The peer-id is transmitted as hexidecimal number without a 0x prefix. E.g <tt>ID=7f1</tt> would indicate that the
+          peer prefers received packets to be have the peer-id 2033.
+        </t>
+        <t>
+          Using the peer-id from peer-info is enabled if a peer announces the it via <tt>ID=peer id</tt>
+          in the peer info and also receives a <tt>ID=peer id</tt> from the other peer. This will then
+          lead to "assymmetric" peer-id in data packets as sent and received packet from a peer will have
+          different peer-id.
+        </t>
+        <t>
+          This form of peer-id negotiation is the preffered one and has the higest priority for determining peer-ids.
+          If this suceeds, a server MUST not send peer-id as part of the PUSH_REPLY message.
+        </t>
+      </section>
+      <section title="Negotiation of peer-id">
+        <t>
+          There are two styles of negotiation in the OpenVPN protocol. Which one is used depends on whether PUSH_REQUEST, PUSH_REPLY          
           is used or not.
         </t>
         <t>
@@ -1558,12 +1579,12 @@ struct key_exchange {
             The other side might be (mis)configured to do PUSH_REQUEST/PUSH_REPLY instead, especially if the other side announces bit 2 of IV_PROTO</li>
             <li> Enable all features of IV_PROTO that are common in the sent IV_PROTO and received IV_PROTO. This includes (but is not limited to)
             TLS EKM, using peer-id/DATA_V2, <xref target="exitcc">EXIT</xref> message, epoch data format and dynamic tls-crypt </li>
-            <li>If the previous steps determined that both peers support TLS EKM and DATA_V2, calculate the peer-id using TLS-EKM using
+            <li>If the previous steps determined that both peers support TLS EKM and DATA_V2 and peer-id has not been already
+            been negotiated with the <tt>ID</tt> field from peer-info, calculate the peer-id using TLS-EKM using
             the label <tt>EXPORTER-OpenVPN-p2p-peerid</tt> and a length of 3. Use the resulting three bytes in network byte order as
             the peer-id. Otherwise use  0x76706e as peer-id. (ASCII "vpn") </li>
           </ul>
         </t>
-        
       </section>
     </section>
 
