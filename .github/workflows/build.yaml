@@ -22,12 +22,12 @@ jobs:
     - name: Archive html artifact
       uses: actions/upload-artifact@v7
       with:
-        name: openvpn-wire-protocol.html
+        archive: false
         path: openvpn-wire-protocol.html
     - name: Archive txt artifact
       uses: actions/upload-artifact@v7
       with:
-        name: openvpn-wire-protocol.txt
+        archive: false
         path: openvpn-wire-protocol.txt
     - name: Prepare Pages
       id: build
