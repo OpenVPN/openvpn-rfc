@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
     - name: Checkout RFC
-      uses: actions/checkout@v6
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
     - name: Install dependencies
       run: sudo apt update && sudo apt install -y make python3-pip libxml2-dev libxslt1-dev libyaml-dev
     - name: Install pipenv
@@ -20,12 +20,12 @@ jobs:
     - name: build txt
       run: pipenv run make openvpn-wire-protocol.txt
     - name: Archive html artifact
-      uses: actions/upload-artifact@v7
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
       with:
         archive: false
         path: openvpn-wire-protocol.html
     - name: Archive txt artifact
-      uses: actions/upload-artifact@v7
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
       with:
         archive: false
         path: openvpn-wire-protocol.txt
@@ -39,7 +39,7 @@ jobs:
     - name: Upload static files as artifact
       id: deployment
       if: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/master' }}
-      uses: actions/upload-pages-artifact@v4.0.0
+      uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4.0.0
       with:
         path: pages/
 
@@ -56,4 +56,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v5.0.0
+        uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5.0.0
