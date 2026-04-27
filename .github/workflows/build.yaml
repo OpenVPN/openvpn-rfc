@@ -35,7 +35,6 @@ jobs:
       run: |
         mkdir pages
         cp openvpn-wire-protocol.* pages/
-        touch pages/.nojekyll
     - name: Upload static files as artifact
       id: deployment
       if: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/master' }}
