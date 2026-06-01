@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
+<!DOCTYPE rfc [
 <!-- One method to get references from the online citation libraries.
     There has to be one entity for each item to be referenced.
     An alternate method (rfc include) is described in the references. -->
@@ -31,7 +31,7 @@
 <?rfc subcompact="no" ?>
 <!-- end of list of popular I-D processing instructions -->
 
-<rfc category="info" docName="draft-openvpntech-openvpn-wire-protocol-01" ipr="trust200902">
+<rfc category="info" docName="draft-openvpntech-openvpn-wire-protocol-01" ipr="trust200902" submissionType="independent">
  <!-- category values: std, bcp, info, exp, and historic
     ipr values: trust200902, noModificationTrust200902, noDerivativesTrust200902,
        or pre5378Trust200902
@@ -1651,12 +1651,12 @@ struct datakeys {
       blocks s and the number of packets q satisfies the following equation:
 
       <artwork>
-        q + s &le; p^(1/2) * 2^(129/2) - 1
+        q + s ≤ p^(1/2) * 2^(129/2) - 1
       </artwork>
       Using our confidentially margin of 2^-57, this gives us:
 
       <artwork>
-        q + s &le; 2^36
+        q + s ≤ 2^36
       </artwork>
 
       When an implementation tracks the number of blocks of encrypted clear text and number of cipher invocation data (which is
@@ -1682,21 +1682,21 @@ struct datakeys {
 
       Using the limits in the documents and p=2^-57 and L=2**10.
 
-      <artwork>q &le; (p^(1/2) * 2^(129/2) - 1) / (L + 1)></artwork>
+      <artwork>q ≤ (p^(1/2) * 2^(129/2) - 1) / (L + 1)></artwork>
 
       gives us basically the same limit that TLS imposes:
-      <artwork> q &le; 2^(24.9999) </artwork>
+      <artwork> q ≤ 2^(24.9999) </artwork>
 
 
       When using L = 2^7 (packet/buffer size of 1500 rounded up to the nearest power of 2 an)
       we get:
 
-      <artwork> q &le; 2^(26.999) </artwork>
+      <artwork> q ≤ 2^(26.999) </artwork>
       
     </t>
     <t>
       For the integrity limit
-        <artwork>v &le; min(2^64, (p * 2^127) / (L + 1))</artwork>
+        <artwork>v ≤ min(2^64, (p * 2^127) / (L + 1))</artwork>
 
 
         with p=2^-57, and setting v=3^36, we can have L to be up to 2^34
