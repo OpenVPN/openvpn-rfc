@@ -1698,8 +1698,7 @@ struct datakeys {
       For the integrity limit
         <artwork>v ≤ min(2^64, (p * 2^127) / (L + 1))</artwork>
 
-
-        with p=2^-57, and setting v=3^36, we can have L to be up to 2^34
+        with p=2^-57, and setting v=2^36, we can have L to be up to 2^34
         (256 GB). So for packet sizes used in the OpenVPN protocol
       we ignore this formula as we are always within the safe limits.
     </t>
