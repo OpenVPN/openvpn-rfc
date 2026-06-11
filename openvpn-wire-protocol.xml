@@ -980,13 +980,32 @@ available) to drop revoked keys.)</li>
           <c>Control</c>
           <c>CONTROL_HARD_RESET_CLIENT_V3</c>
           <c>X</c>
-
           <c>Current</c>
+          
           <c>11</c>
           <c>Control</c>
           <c>CONTROL_WKC_V1</c>
           <c>X</c>
           <c>Current</c>
+
+          <c>12</c>
+          <c>Control</c>
+          <c>CONTROL_OOB_V1</c>
+          <c>X</c>
+          <c>Current</c>
+
+          <c>13</c>
+          <c>Control</c>
+          <c>CONTROL_OOB_WKC_V1</c>
+          <c>X</c>
+          <c>Current</c>
+
+          <c>14</c>
+          <c>Control</c>
+          <c>CONTROL_DATA_V1</c>
+          <c>X</c>
+          <c>Current</c>
+          
         </texttable>
       </section>
 
@@ -1319,6 +1338,55 @@ available) to drop revoked keys.)</li>
               message. See <xref target="tlscryptv2">TLS crypt v2</xref> for details.
             </t>
           </section>
+          <section anchor="CONTROL_OOB_V1" title="[OPCODE ID 12] CONTROL_OOB_V1">
+            <t>
+              The CONTROL_OOB_V1 message carries messages that do not belong to an established control.
+              Instead this message carries a message like a server ping. Since these message are out-of-band
+              they are inherently considered unreliable. There is no protocol level provision to retry
+              messages.
+            </t>
+            <t>
+              These share the same control channel protection and wrapping as regular control channel message.
+              When tls-crypt is not used, the messages are unencrypted and without tls-auth even unauthenticated.
+              That means that when designing messages, this should be kept in mind.
+            </t>
+          </section>
+          
+          <section anchor="CONTROL_OOB_WKC_V1" title="[OPCODE ID 13] CONTROL_OOB_WKC_V1">
+            <t>
+              Identical to the CONTROL_OOB_V1 message but with a wrapped client key appended to the message
+              similar to the CONTROL_HARD_RESET_CLIENT_V3/CONTROL_WKC_V1   message.
+
+              Since the messages do not belong to an already established session, the client
+              needs to append the WKc to allow the server to process the message if tls-crypt-v2 is used.
+              See <xref target="tlscryptv2">TLS crypt v2</xref> for details.
+            </t>
+          </section>
+
+          <section anchor="CONTROL_DATA_V1" title="[OPCODE ID 14] CONTROL_DATA_V1">
+            <t>
+              The CONTROL_DATA_V1 uses an identical framing, replay protection and packet format
+              to the DATA_V2 message. Its purpose is to send unreliable data to a peer without the
+              need to use the data channel. This can be used for things like MTU discovery or other
+              unreliable messages that need to be exchanged between the control plane instances.
+            </t>
+            <t>
+              These packets will use the same cipher as negotiated for the data channel. In contrast to
+              the data channel that support multiple different data for different generations of
+              OpenVPN peers, this message only supports <xref target="data_epoch">epoch
+              data channel format</xref>.
+
+              If the peer does not support TLS EKM and data epoch, the feature of CONTROL_DATA_V1
+              is not available. If the negotiated data channel cipher is not an AEAD cipher, the
+              feature is not available either. 
+            </t>
+            <t>
+              Earlier OpenVPN version had a similar protocol called OCC (option consistency check)
+              that relied on a special prefix for data message to implement MTU discovery. With
+              the strict separation of control channel and data channel (e.g. via DCO), this
+              approach is no longer a viable option.
+            </t>
+          </section>
 
           <section title="[OPCODE ID 9] DATA_V2">
           <t>
@@ -1499,6 +1567,7 @@ struct key_exchange {
             has a 48 bit packet counters together with a 16 bit key-id that form a 64-bit packet id.</li>
             <li>bit 11: The client is capable of parsing and receiving the <xref target="dnsproto">dns</xref> messages pushed option.</li>
             <li>bit 12: The client is capable of receiving <xref target="pushupdate">PUSH_UPDATE</xref> message.</li>
+            <li>bit 13: The client is capable of receiving and replying to the ECHO_REQ CONTROL_DATA_V1 message</li>
           </ul>
         </t>
         <t>
@@ -1541,7 +1610,7 @@ struct key_exchange {
       </section>
       <section title="Negotiation of peer-id">
         <t>
-          Negotiation is the process in which two peers agree on the optional features and other negotiable paramters. Some
+          Negotiation is the process in which two peers agree on the optional features and other negotiable parameters. Some
           asepects of the protocol cannot be negotiated like tls-crypt or tls-auth as these need to be identical to establish a
           connection.
         </t>
@@ -1848,6 +1917,28 @@ struct {
           previous epoch keys if they don't want to make this trade-off.
         </t>
       </section>
+    </section>      
+    <section title="CONTROL DATA key generation and usage">
+      <t>
+        The encryption and replay protection of the CONTROL_DATA_V1 packets is
+        identical to the DATA_V2 packets using epoch data keys. However, the amount
+        of data packets on this channel is expected to be quite low, so the key rotation
+        is not necessary. Instead of providing a window of epoch keys that can
+        decrypt the messages, only epoch key 1 will be used.
+      </t>
+      <t>
+        Since we want distinct keys from the data channel to avoid key reuse, the
+        control data keys will be generated using:
+        
+        <artwork> K_i = OVPN-Expand-Label(E_i, "control_data_key", "", key_size) </artwork>
+        <artwork> implicit_iv = OVPN-Expand-Label(E_i, "control_data_iv", "", implicit_iv_len) </artwork>
+
+      </t>
+      <t>
+        While this key generation allows generation for other epochs than epoch 1, an
+        implementation is only required to generate and accept packets encrypted with
+        epoch 1.
+      </t>
     </section>
     <section title="Peer-ID">
       <t>
@@ -2375,6 +2466,354 @@ INFO,EXTRA
             </ul>
             </t>
           </section>
+      </section>
+    </section>
+    <section title="Out of band and control data messages">
+      <t>
+        This section details the format of the payload used by the CONTROL_DATA_V1, CONTROL_OOB_V1 and CONTROL_OOB_WKC_V1.
+        Anything that uses OOB messages might be unencrypted and unauthenticated. Unless specified otherwise, all integers
+        are using network byte order (big endian).
+      </t>
+      <t>
+        Note that even though OOB and CONTROL_DATA are distinct we define the op codes to be from the same numerical space to avoid
+        confusion. We also start the type at 0x100 to avoid confusion with the op codes of the OpenVPN packet opcodes and start TLV
+        types at 0x200.
+      </t>
+      <section title="packet format">
+        <t>
+          The embedding follows the same format as normal P_CONTROL_V1 packets but without the fields required for reliability layer. I.e. a normal
+          packet without tls-auth or tls-crypt will still have the Session ID but not have the message packet id or acked message ids:
+        <artwork>          
+struct oob_control_v1_no_auth {
+    uint opcode:5;          
+    uint key_id:3;
+    uint64 own_session_id;
+    uint8 oob_payload[];
+}
+        </artwork>
+        </t>
+        <t>
+          And for tls-auth and tls-crypt this includes the required replay packet id and other attributes that these wrapping schemes require. Example for tls-auth:
+          <artwork>
+struct oob_control_v1_tls_auth {
+    int opcode:5;
+    int keyid:3;
+    uint64_t own_session_id;
+    uint8[16-64] hmac;
+    uint64_t replay_packet_id;
+    uint8_t oob_payload[];
+}            
+          </artwork>
+          Example for tls-crypt:
+          <artwork>
+struct oob_control_tlscrypt {
+    int opcode:5;
+    int keyid:3;
+    uint64_t own_session_id;
+    uint64_t replay_packet_id;
+    uint8 auth_tag[32];
+    uint8[] enc_oob_payload;
+}
+          </artwork>
+          The CONTROL_OOB_WKC_V1 variant will have the wrapped client key after the enc_oob_payload. The enc_oob_payload is the same as
+          the oob_payload in the previous two example, just with the required tls-crypt based encryption. 
+        </t>
+        <t>
+          The own_session_id is same ID that the client would use to establish a connection with this server but is not required to
+          use the same. Since neither tls-auth nor tls-crypt-the replay_packet_id are strictly tied to a connection but rather use
+          a global state the client should use the same rules. This includes avoiding to reuse replay_packet_id ids and
+          have ids going backwards.
+        </t>
+      </section>
+      <section title="payload structure">
+        <t>
+          The packet structure is quite simple. The structure starts with a type and then has a number of TLV entries:
+
+        <artwork>
+struct {
+     uint16 type;
+     tlv_entry entries[];
+} 
+        </artwork>
+        </t>
+        <t>
+          The individual TLV entries have the following structure
+        <artwork>
+struct tlv_entry {
+    int optional:1;
+    int type:15;
+    uint16 length;
+    uint8 data[];
+}
+        </artwork>
+
+        The boolean bit optional, which can also been seen as the highest bit of the type field, indicates if a client can ignore an unknown TLV entry.
+
+         If this bit is set to 1 an implementation that does not understand a specific TLV entry type SHOULD
+         ignore this TLV entry and treat the message as if this TLV was not present.
+         
+        </t>
+        <t>
+          The length field does not include the header of the TLV and defines the length of the data of the TLV. For example, a TLV
+          with a length field of 7 will be 11 bytes long (4 byte header + 7 byte data).
+        </t>
+      </section>
+      <section title="Messages">
+        <texttable>
+          <ttcol>Type</ttcol>
+          <ttcol>Name</ttcol>
+          <ttcol>OOB</ttcol>
+          <ttcol>CONTROL</ttcol>
+
+          <c>0x100</c>
+          <c>SERVER_PROBE</c>
+          <c>x</c>
+          <c></c>
+
+          <c>0x101</c>
+          <c>PROBE_REPLY</c>
+          <c>x</c>
+          <c></c>
+
+
+          <c>0x102</c>
+          <c>ECHO_REQ</c>
+          <c></c>
+          <c>x</c>
+
+          <c>0x103</c>
+          <c>ECHO_REPLY</c>
+          <c></c>
+          <c>x</c>
+
+          <c>0x104</c>
+          <c>ACC</c>
+          <c/>
+          <c>x</c>
+          
+        </texttable>
+      </section>
+      <section title="TLV entries">
+        <t>
+          This details the currently defined TLV entries.
+        </t>
+        <t>
+          Overview of all defined TLV entries.
+        </t>
+        <texttable>
+          <ttcol>Type</ttcol>
+          <ttcol>Name</ttcol>          
+          <ttcol>OOB</ttcol>
+          <ttcol>CONTROL</ttcol>
+
+          <c>0x200</c>
+          <c>probe parameter</c>
+          <c>x</c>
+          <c></c>
+
+          <c>0x201</c>
+          <c>probe reply</c>
+          <c>x</c>
+          <c></c>
+
+          <c>0x202</c>
+          <c>echo request parameter</c>
+          <c></c>
+          <c>x</c>
+
+          <c>0x203</c>
+          <c>echo reply</c>
+          <c/>
+          <c>x</c>
+
+
+          <c>0x204</c>
+          <c>ACC message</c>
+          <c/>
+          <c>x</c>
+          
+        </texttable>
+
+        <section title="probe parameter">
+          <t>
+            The probe parameter TLV contains a simple timestamp to indicate the current time of the client and indicates client capabilities. 
+          <artwork>
+struct probe_parameter {            
+    int optional:1 = 0;
+    int type:15 = 0x200;
+    uint16 length = 12;
+    uint64 timestamp;
+    uint32 flags;
+}
+</artwork>
+          </t>
+          <t>
+            The timestamp value should be set to the current time as UNIX timestamp as returned by
+            functions like the <tt>gettimeofday</tt> function.
+          </t>
+          <t>
+            Any OOB SERVER_PROBE MUST include this TLV. The timestamp allows a server to silently
+            drop any request that is not in an acceptable window of time to reduce the attack
+            surface for replay attacks.
+          </t>
+          <t>
+            The flags field indicates client capabilities that need to be known early in the handshake. Must be 0.
+          </t>
+          <t>
+            This TLV is considered to be extendable in the future. A server encountering a longer length than they
+            expect, should ignore the excess bytes. The minimum length of this struct is 12 bytes. Smaller sizes are
+            considered invalid.
+          </t>
+        </section>
+      <section title="probe reply">
+          <t>
+            The probe reply TLV is intended to be present in a PROBE_REPLY from a server. It gives the client
+            feedback about the viability of the server beyond the round-trip of the probe request and its reply.
+
+          <artwork>
+struct probe_reply {            
+    int optional:1 = 0;
+    int type:15 = 0x201;
+    uint16 length = 18;    
+    uint64 peer_session_id;
+    uint16 priority;
+    uint16 weight;
+    uint16 connect_lifetime;
+    uint32 flags;
+}
+          </artwork>
+          </t>
+          <t>
+            The priority and weight attributes are designed to have the same semantics as the DNS SRV entries.
+            Select the server with the lowest numerical priority and if multiple server have the same priority,
+            select the server according to their weight value.
+          </t>
+          <t>
+            The connect_lifetime value indicates how long (in seconds) the server considers the ping
+            request/response to be valid as part of a three-way handshake instead of
+            CONTROL_HARD_RESET_CLIENT_V3/CONTROL_HARD_RESET_CLIENT_V2 and CONTROL_HARD_RESET_SERVER_V2. If set to 0
+            or more than connect_lifetime seconds have passed the client must initiate a regular three-way handshake.
+            If the client can send from the same source IP and port and use the same client and server session ID, the
+            client MAY skip the handshake and start with third packet of the three-way handshake instead.
+          </t>
+          <t>
+            This is useful for server that either save the client requests for a small amount of time to allow
+            quicker connects after a client finds the best server or for server that use an HMAC based mechanism
+            similar to SYN cookies for the initial three-way handshake like the OpenVPN 2.x implementation.
+          </t>
+          <t>
+            This TLV is considered to be extendable in the future. A client encountering a longer length than they
+            expect, should ignore the excess bytes. The minimum size of this struct is 18 bytes. Smaller sizes are
+            considered invalid.
+          </t>
+          <t>
+            The peer_session_id field repeats the session id of the request. While without tls-auth or tls-crypt,
+            the response can be easily forged, the authentication of tls-auth and tls-crypt and randomness of the
+            client session id prevents replays of the response.
+          </t>
+          <t>
+            The flags field indicates the capabilities or behaviour that the server wants the client to use.
+            <ul>
+              <li> bit 0: Use CONTROL_WKC_V1 when completing the three way handshake. </li>
+            </ul>
+          </t>
+      </section>
+      <section title="Echo request">
+
+          <t>
+            The echo request TLV contains a payload to create a certain sized packet and also allows
+            to control the size of the reply.
+          <artwork>
+struct echo_request {            
+    int optional:1 = 0;
+    int type:15 = 0x202;
+    uint16 length;
+    uint16 sequence_number;
+    uint16 total_reply_len;
+    uint8 payload[];
+}
+          </artwork>
+          </t>
+          <t>
+            The field total_reply_len is the total length the payload of reply should have. This includes the header
+            of the message and all other TLV. This can be used to trigger a response of a certain size to see if certain
+            sized packets are able to traverse the network in the opposite direction. If the field total_reply_len is zero
+            the reply should just copy the payload of the request to the reply.
+          </t>
+          <t>
+            The sequence number will be echoed back in the echo reply
+          </t>
+      </section>
+      <section title="Echo reply">
+
+          <t>
+            The echo reply TLV contains the response to an echo request.
+          <artwork>
+struct echo_reply {            
+    int optional:1 = 0;
+    int type:15 = 0x203;
+    uint16 length;
+    uint16 sequence_number;
+    uint8 payload[];
+}
+          </artwork>
+          The payload should be filled with either random data or with the payload of the echo_request to ensure that
+          the reply has the total_reply_len of the echo_request. Any other TLVs present in the reply should be accounted
+          for and the length adjusted accordingly.
+          </t>
+          <t>
+          The sequence_number field MUST match the sequence number of the request.
+          </t>
+      </section>
+
+          <section title="ACC message">
+            <t>
+              <artwork>
+struct acc_message {            
+    int optional:1 = 0;
+    int type:15 = 0x204;
+    uint16 length;
+    uint8 proto_len;
+    uint8 proto[];
+    uint8 payload[];
+}
+              </artwork>
+              The acc message struct has the same function as the regular <xref target="ACC_MSG">ACC control message</xref>.
+              But there is no splitting of the message and also no reliability. The first proto_len bytes of the payload of
+              the struct are considered to be the proto name and the remainder the payload. The payload is considered to be not
+              encoded.
+          </t>
+            
+          </section>
+        </section>
+      <section title="SERVER_PROBE and PROBE_REPLY">
+        <t>
+          The primary idea is to ping all available remotes to get a quick response to
+          select the best server. For this the client will send a SERVER_PROBE message with the probe_parameter
+          TLV to the server.  The server can then reply with a PROBE_REPLY with the probe_reply TLV.
+        </t>
+        <t>
+          These messages can also replace the typical three handshake messages. In that case the client and server
+          need to continue to session as if the CONTROL_HARD_RESET_CLIENT_V3/CONTROL_HARD_RESET_CLIENT_V2 and
+          CONTROL_HARD_RESET_SERVER_V2 had been exchanged. Especially they need to assume that the message-id
+          0 of the peer has been received and acknowledged.          
+      </t>
+      </section>
+      <section title="ECHO_REQ and ECHO_REPLY">
+        <t>
+          The messages that are with the CONTROL_DATA packet allow to send/receive packets of controlled
+          size to diagnose  problems with certain sized packets on the connection. They can also be used
+          to have a simple check if the  peer is still alive.
+        </t>
+        <t>
+          However, since the data layer might be in a different process, these packets might not count
+          towards the normal keepalive.
+        </t>
+      </section>
+      <section title="ACC">
+        <t>
+          The ACC message carries a single ACC message TLV and semantics are explained in the TLV description.
+        </t>
       </section>
     </section>
 
