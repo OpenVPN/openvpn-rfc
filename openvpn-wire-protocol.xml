@@ -1357,8 +1357,9 @@ available) to drop revoked keys.)</li>
 
       </section>
 
-        <section title="PUSH messages">
-        </section>
+      <section title="PUSH messages">
+        
+      </section>
 
         <section title="Peer-Info">
         </section>
@@ -1573,7 +1574,7 @@ struct key_exchange {
           If this suceeds, a server MUST not send peer-id as part of the PUSH_REPLY message.
         </t>
       </section>
-      <section title="Negotiation of peer-id">
+      <section title="Negotiation of protocol options">
         <t>
           There are two styles of negotiation in the OpenVPN protocol. Which one is used depends on whether PUSH_REQUEST, PUSH_REPLY          
           is used or not.
@@ -2423,7 +2424,8 @@ INFO,EXTRA
         </ul>
       </t>
       </section>
-      <section title="Pushing configuration options and OCC">
+    </section>
+      <section title="Pushed configuration options">
           <section anchor="dnsproto" title="dns">
             <t>
               The dns option is used to configure the DNS server the client should use. The option is follow by a space seperated list of feature
@@ -2441,8 +2443,45 @@ INFO,EXTRA
             </ul>
             </t>
           </section>
+          <section title="custom-control">
+            <t>
+              This option is pushed by the server to inform the client that app custom control
+              protocols are available and what parameters should be used.
+            </t>
+            <t>
+              All these paramters should be considered to be binding for both directions.
+              E.g. encoding specifies both the encoding the client might use for sending messages
+              as well as the encodings that the client might receive messages in. And a maximum
+              message length restricts both the size of received as well as of sent message.
+              The server is   responsible to calculate the common demominator from its cpabilities
+              and the client-announced capabilites signalled by IV_ACC and inform the client with
+              this message.
+            </t>
+            <t>
+              Format:
+              <sourcecode>custom-control &lt;message length> &lt;encodings> &lt;protocols> </sourcecode>
+            </t>
+            <t>
+              The message length specifies the maximum length of the on the wire including the message of
+              an ACC message.
+            </t>
+            <t>
+              The <tt>encodings</tt> is a list seperated by <tt>:</tt> of the allowed encodings.
+            </t>
+            <t>
+              The <tt>protocols</tt> is a list seperated by <tt>:</tt> with the allowed protocols.
+
+            </t>
+            <t>
+              As an example, the message
+              <sourcecode>custom-control 1234 6:4 magic:flower:power</sourcecode>
+              instructs the client that the power, flower, and magic custom protocols are
+              supported and base64 and ascii encodings are supported. The maximum message
+              length supported is 1234 bytes.
+            </t>
+          </section>
       </section>
-    </section>
+
 
     <section title="Cryptography">
       <section title="OpenVPN and the SSL/TLS protocol">
