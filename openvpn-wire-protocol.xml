@@ -2334,6 +2334,8 @@ AUTH_FAILED,SESSION:message
 
 AUTH_FAILED,TEMP[keywords]:message
 AUTH_FAILED,TEMP:message
+
+AUTH_FAILED,ACC[keywords]:message
           </sourcecode>
         </t>
         <t>
@@ -2363,6 +2365,31 @@ AUTH_FAILED,TEMP:message
           </ul>
           For example a server that might send <tt>AUTH_FAILED,TEMP[backoff 42,advance no]: No free IP addresses</tt> to indicate
           that the VPN connection can currently not succeed and instructs the client to retry in 42 seconds again.
+        </t>
+        <t>
+          The <tt>AUTH_FAILED,ACC</tt> message indicates that the authentication failed because of missing app custom control
+          announcement (via <tt>IV_ACC</tt>). If the client supports the requested ACC protocol the client can take the necessary
+          actions to enable that protocol and then reconnect. This might include notifying/asking the user to enable that protocol.
+          This is for example necessary when the protocol allows the server to excercise more control over the client like a device
+          posture
+        </t>
+          <t>
+          The keywords of <tt>AUTH_FAILED,ACC</tt> are comma separated
+          keys/values. Currently defined are:
+
+          <ul>
+            <li> <tt>protocol list</tt> - The names of the missing procotocols. The protocols are seperated by spaces. </li>
+            <li> <tt>user base64username</tt> - A base64 encoded username to use like <tt>auth-token-user</tt>.</li>
+            <li> <tt>pass base64password</tt> - A base64 encoded password to use like a <tt>auth-token</tt>.</li>
+          </ul>
+          The optional username and password are to avoid having to do the authentication again, e.g. when there is external web authentication or multi factor
+          involved and instead have a username and password that the server can use to tie a returning client to an already established server state.
+          </t>
+          <t>
+          For example a server that might send <tt>AUTH_FAILED,ACC[protocol flower power]: This server requires the flower and power app custom protocol to enable. Upgrade your client to Flower power version 42 and try again.</tt> to indicate
+          that the VPN connection can currently not succeed and instructs to enable the flower and power protocol. A client that
+          does not understand this special AUTH_FAILED message or does not support the protocols that the server request, should show
+          the message to the user.
         </t>
         <t>
           The client will announce the capability of understanding <tt>AUTH_FAILED,TEMP</tt> message by setting the
