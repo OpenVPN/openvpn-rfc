@@ -1874,14 +1874,27 @@ struct {
           enough that a long packet loss that causes all packets to be dropped (e.g. a topology change) does not
           cause legitimate packets to be dropped.  
         </t>
+        <!-- (100*1000*1000*1000/8/128) = 98 million packets per second, log2((100*1000*1000*1000/8/128)*9) = 29.7 -->
         <t>
-          For example, if we consider an  implementation that allows to encrypt at data rate of 100 GBit/s and
-          to be able to deal with 60s of lost data, we have to calculate how many epochs the peer can use and
-          exhaust in this time. Assuming a small packet size of 128 byte, this gives us about 78 million packets
-          per second or about 2^26.2 packets per second. For the full minute we get 2^32.1 packets. Assuming
-          the limit of 2^28.3 packets per epoch for AES-GCM, we need 14 epoch keys to safely encrypt this
-          amount of data.  A reasonable amount of future epoch data channel keys in this scenario could be
-          considered 16 or 32 keys.
+          To give an example how often epoch keys need to be rotated, consider an
+          implementation that allows to encrypt at data rate of 100 GBit/s and should
+          also be able to deal with 60s of lost data.
+          Assuming we are using small packets, sized 128 byte, this gives us about 98 million packets
+          per second. Each packet uses 9 AES invocation, so this gives us about 2^29.7 AES
+          invocation per second. For a full minute this totals to 2^35.6 AES invocation.
+          This is slightly less than the 2^36 allowed cipher invocations per epoch key.
+          This means that in this scenario the epoch keys are roated roughly every minute.
+        </t>
+        <t>
+          In this scenario two future epoch keys can be considered to be a senisble choice. 
+          With two future epoch keys, one currently active key and one previous key, the implementation
+          has needs to manage 4 keys. To have a bit more marging, implementations should support four
+          future keys unless memory or other considerations are more important.
+        </t>
+        <t>
+          An earlier version of this document had a calucation that resulted from an earlier draft and
+          suggested 16 future epoch keys as standad. Therefore the earlier OpenVPN implemmenations
+          supported 16 future epoch keys by default.
         </t>
         <t>
           When receiving an authenticated packet with a higher epoch than the currently used one, the
