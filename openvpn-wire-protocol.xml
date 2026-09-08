@@ -2875,7 +2875,7 @@ struct probe_reply {
           </t>
           <t>
             This TLV is considered to be extendable in the future. A client encountering a longer length than they
-            expect, should ignore the excess bytes. The minimum size of this struct is 18 bytes. Smaller sizes are
+            expect, should ignore the excess bytes. The minimum size of this struct is 20 bytes. Smaller sizes are
             considered invalid.
           </t>
           <t>
