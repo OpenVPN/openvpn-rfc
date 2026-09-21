@@ -2770,9 +2770,10 @@ struct tlv_entry {
 struct probe_parameter {            
     int optional:1 = 0;
     int type:15 = 0x200;
-    uint16 length = 12;
+    uint16 length = 16;
     uint64 timestamp;
     uint32 flags;
+    uint32 probe_id;
 }
 </artwork>
           </t>
@@ -2801,8 +2802,14 @@ struct probe_parameter {
             The flags field indicates client capabilities that need to be known early in the handshake. Must be 0.
           </t>
           <t>
+            The probe_id identifies one transmission of the probe. A client picks a new value for
+            every transmission, including a resend of an unanswered probe, so that a reply can be
+            matched to the packet it answers. Any value works as long as it is not reused within one
+            probing run; a random value is recommended.
+          </t>
+          <t>
             This TLV is considered to be extendable in the future. A server encountering a longer length than they
-            expect, should ignore the excess bytes. The minimum length of this struct is 12 bytes. Smaller sizes are
+            expect, should ignore the excess bytes. The minimum length of this struct is 16 bytes. Smaller sizes are
             considered invalid.
           </t>
         </section>
@@ -2815,13 +2822,14 @@ struct probe_parameter {
 struct probe_reply {            
     int optional:1 = 0;
     int type:15 = 0x201;
-    uint16 length = 20;
+    uint16 length = 24;
     uint64 peer_session_id;
     uint16 priority;
     uint16 weight;
     uint16 max_latency_diff;
     uint16 connect_lifetime;
     uint32 flags;
+    uint32 probe_id;
 }
           </artwork>
           </t>
@@ -2874,8 +2882,14 @@ struct probe_reply {
             similar to SYN cookies for the initial three-way handshake like the OpenVPN 2.x implementation.
           </t>
           <t>
+            The probe_id is copied from the probe_parameter of the request. The client matches the reply
+            to the transmission that carried this probe_id and measures the round-trip time from that
+            transmission. A reply whose probe_id matches no transmission of the current probing run MUST
+            be ignored; this also discards replayed replies from an earlier run.
+          </t>
+          <t>
             This TLV is considered to be extendable in the future. A client encountering a longer length than they
-            expect, should ignore the excess bytes. The minimum size of this struct is 20 bytes. Smaller sizes are
+            expect, should ignore the excess bytes. The minimum size of this struct is 24 bytes. Smaller sizes are
             considered invalid.
           </t>
           <t>
