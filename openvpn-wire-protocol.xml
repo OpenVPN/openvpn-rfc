@@ -2837,7 +2837,7 @@ struct probe_reply {
             The priority and weight attributes are designed to have the same semantics as the DNS SRV entries.
             Select the server with the lowest numerical priority and if multiple server have the same priority,
             select the server according to their weight value. Since we want to include the RTT in the decision
-            the max_latency_diff allows to control when a server is considered to be a candidate.
+            the max_latency_diff of the fastest server controls which other servers are considered candidates.
           </t>
           <t>
             Each client implementation is free to implement their own algorithm to sort the server using round-trip
@@ -2850,8 +2850,9 @@ struct probe_reply {
           <t>
             Within each priority group (server that announce the same priority)
             determine the lowest RTT of all remotes in this priority.
-            The group of candidates remotes then includes all remotes have a RTT that is no more
-            their max_latency_diff (in ms) larger than the lowest RTT.
+            The group of candidate remotes then includes all remotes whose RTT is no more than the
+            max_latency_diff (in ms) of the fastest remote larger than the lowest RTT. The max_latency_diff
+            values of the other remotes are ignored.
           </t>
           <t>
             This group of candidate remotes is then sorted randomly taking the weight into account. A simple algorithm for this
