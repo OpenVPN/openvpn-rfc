@@ -2829,7 +2829,7 @@ struct probe_reply {
             The priority and weight attributes are designed to have the same semantics as the DNS SRV entries.
             Select the server with the lowest numerical priority and if multiple server have the same priority,
             select the server according to their weight value. Since we want to include the RTT in the decision
-            the max_latency_diff allows to control when a server is considered to be a candidate.
+            the max_latency_diff of the fastest server controls which other servers are considered candidates.
           </t>
           <t>
             Each client implementation is free to implement their own algorithm to sort the server using round-trip
@@ -2841,19 +2841,25 @@ struct probe_reply {
           </t>
           <t>
             Within each priority group (server that announce the same priority)
-            determine the lowest RTT of all remotes in this priority.
-            The group of candidates remotes then includes all remotes have a RTT that is no more
-            their max_latency_diff (in ms) larger than the lowest RTT.
+            determine the remote with the lowest RTT. The candidate group then includes every remote
+            whose RTT exceeds that lowest RTT by no more than the max_latency_diff (in ms) announced by
+            the fastest remote; that is, a remote is a candidate if its RTT minus the lowest RTT is less
+            than or equal to the max_latency_diff of the fastest remote. The max_latency_diff values of
+            the other remotes are ignored. If several remotes tie for the lowest RTT and announce
+            different max_latency_diff values, the smallest of those values applies, so that the
+            candidate group does not depend on the order in which the remotes were configured or
+            resolved.
           </t>
           <t>
             This group of candidate remotes is then sorted randomly taking the weight into account. A simple algorithm for this
             is to give each remote a random value between 0 and weight and then sort them descending by that value
           </t>
           <t>
-            A reasonable number should be picked for <tt>max_latency</tt>. For the selection algorithm this is the maximum
-            difference in latency that allows servers that are considered to be equivalent to the
-            the server with the lowest latency. Setting this number to 0 will pick only the server with
-            lowest latency. A good default to announce is something between 10-20 ms. This will make a client consider
+            A reasonable number should be picked for <tt>max_latency_diff</tt>. For the selection algorithm this is the
+            maximum difference in latency that allows servers to be considered equivalent to the
+            server with the lowest latency. Setting this number to 0 will pick only the remotes
+            tied for the lowest latency, with weight deciding between them. A good default to announce
+            is something between 10-20 ms. This will make a client consider
             all servers from the same region to be equal when picking a server to use.
           </t>
           <t>
