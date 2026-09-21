@@ -2648,14 +2648,32 @@ struct oob_control_tlscrypt {
       </section>
       <section title="payload structure">
         <t>
-          The packet structure is quite simple. The structure starts with a type and then has a number of TLV entries:
+          The structure starts with a type, a message id and response id and then has a number of TLV entries:
 
         <artwork>
 struct {
      uint16 type;
+     uint32_t message_id;
+     uint32_t response_id;
      tlv_entry entries[];
 } 
         </artwork>
+        </t>
+        <t>
+          The <tt>message_id</tt> field should be either a sequential number or a (pseudo)random id. The id is used to
+          identify a message if another message references it in response. 
+        </t>
+        <t>
+          The <tt>response_id</tt> MUST be 0 if the message is not in response to another message. If the message responds to another
+          message, the <tt>response_id</tt> field should carry the value of the message it responds to.
+        </t>
+        <t>
+          Note that 0 is reserved in response_id and is therefore not a valid value for <tt>message_id</tt> as well.
+        </t>
+        <t>
+          For these out of band messages  a strict uniqueness of <tt>the message_id</tt> cannot be
+          guaranteed. Still the client should make a reasonable effort to keep these ids unique, especially try to avoid
+          using the same <tt>message_id</tt> and <tt>own_session_id</tt> combination.
         </t>
         <t>
           The individual TLV entries have the following structure
@@ -2719,7 +2737,6 @@ struct tlv_entry {
           <c>ACC</c>
           <c/>
           <c>x</c>
-          
         </texttable>
       </section>
       <section title="TLV entries">
@@ -2755,12 +2772,10 @@ struct tlv_entry {
           <c/>
           <c>x</c>
 
-
           <c>0x204</c>
           <c>ACC message</c>
           <c/>
           <c>x</c>
-          
         </texttable>
 
         <section title="probe parameter">
@@ -2906,7 +2921,6 @@ struct echo_request {
     int optional:1 = 0;
     int type:15 = 0x202;
     uint16 length;
-    uint16 sequence_number;
     uint16 total_reply_len;
     uint8 payload[];
 }
@@ -2914,14 +2928,18 @@ struct echo_request {
           </t>
           <t>
             The field total_reply_len is the total length the payload of reply should have. This includes the header
-            of the message and all other TLV. This can be used to trigger a response of a certain size to see if certain
-            sized packets are able to traverse the network in the opposite direction. If the field <tt>total_reply_len</tt> is zero
-            the reply should just copy the payload of the request to the reply. For <tt>total_reply_len</tt> values that are
-            unachievable (1-5) since the header of echo_reply is already eight bytes long the peer should just reply with
-            the minimal achievable amount instead (i.e. no extra payload).
+            of the message (10 bytes) and all other TLV. This can be used to trigger a response of a certain size to see if certain
+            sized packets are able to traverse the network in the opposite direction.
           </t>
           <t>
-            The sequence number will be echoed back in the echo reply
+            If the field <tt>total_reply_len</tt> is zero
+            the reply should just copy the payload of the request to the reply. For <tt>total_reply_len</tt> values that are
+            unachievable (1-13) since the TLV header of echo_reply is already four bytes and the message header is 10 bytes
+            long the peer should just reply with the minimal achievable amount instead (i.e. no extra payload).
+          </t>
+          <t>
+            Note that the outer header (called oob_control_v1_tls_auth, oob_control_tlscrypt, or
+            obb_control_v1_no_auth earlier in this document) is not included in the total_reply_len calculation.
           </t>
       </section>
       <section title="Echo reply">
@@ -2933,7 +2951,6 @@ struct echo_reply {
     int optional:1 = 0;
     int type:15 = 0x203;
     uint16 length;
-    uint16 sequence_number;
     uint8 payload[];
 }
           </artwork>
@@ -2942,7 +2959,8 @@ struct echo_reply {
           for and the length adjusted accordingly.
           </t>
           <t>
-          The sequence_number field MUST match the sequence number of the request.
+            Note that the <tt>response_id</tt> of the message containing this TLV will allow to tie it to the echo
+            request that triggered this message.
           </t>
       </section>
 
@@ -2976,7 +2994,11 @@ struct acc_message {
           These messages can also be used instead for the three-way handshake if the server supports/announces
           a postive <tt>connect_lifetime</tt>. See the section describing the <xref target="probe_reply">probe
           reply</xref> for more information.
-      </t>
+        </t>
+        <t>
+          Since PROBE_REPLY is a direct answer to a SERVER_PROBE request, the <tt>response_id</tt> field of the
+          PROBE_REPLY MUST be the message_id of the SERVER_PROBE it was triggered by.
+        </t>
       </section>
       <section title="ECHO_REQ and ECHO_REPLY">
         <t>
@@ -2987,6 +3009,10 @@ struct acc_message {
         <t>
           However, since the data layer might be in a different process, these packets might not count
           towards the normal keepalive.
+        </t>
+        <t>
+          The <tt>ECHO_REPLY</tt> MUST set the <tt>response_id</tt> to the <tt>message_id</tt> of the
+          <tt>ECHO_REQ</tt> message
         </t>
       </section>
       <section title="ACC">
