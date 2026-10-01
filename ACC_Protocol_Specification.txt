@@ -1,0 +1,515 @@
+
+INTRODUCTION
+================================================================================
+
+This document covers the AppCustomControl (ACC) messages that are exchanged
+over the OpenVPN control channel. ACC makes use of the control channel since
+it is an already established and secure way to exchange these messages.
+OpenVPN itself treats the messages as opaque and need not change when
+the ACC protocol changes.
+
+Two protocols are described:
+  DPC (Device Posture Communication)  A JSON request/response/status protocol
+                                      for reporting device posture (OS, disk
+                                      encryption, antivirus, certificate).
+  CCK (Certificate Check)             An exchange of raw TLS handshake packets
+                                      used to verify a client certificate.
+
+PURPOSE
+--------------------------------------------------------------------------------
+This document specifies the JSON messages the client sends and receives, their
+fields, the request/response/status flow, and the platform-specific rules the
+client follows when collecting device data.
+
+The primary use case is Device Posture: the client receives a request for facts
+about the device it is running on (OS version, disk encryption, antivirus,
+certificate presence) and answers with the collected data.
+
+The messages discussed here are not normative in the sense that nothing else
+can be sent over the control channel. They are documented as examples and
+for interested parties who want to stay compatible with the exchanges that
+commercial software by OpenVPN Inc. uses. Anyone is free to make their own
+use of the opaque OpenVPN control channel messages.
+
+TERMINOLOGY AND KEY CONCEPTS
+--------------------------------------------------------------------------------
+Each DPC message is a JSON object. Every such entity carries three REQUIRED
+fields:
+
+  ver             Protocol structure version. Always set to "1.0" for now.
+  correlation_id  UUID of the initial request that started this exchange.
+  timestamp       Time the entity was created.
+
+There are three DPC entities:
+
+  dpc_request     Received by the client from the OpenVPN server; asks for posture
+                  data.
+  dpc_response    Sent by the client to the OpenVPN server in answer to a
+                  dpc_request.
+  dpc_status      Received by the client from the OpenVPN server; reports the
+                  posture verdict and gives user-facing text.
+
+CCK does not define JSON entities of its own; it carries a single message type:
+
+  tls packets     Raw TLS handshake messages exchanged in both directions
+                  between the client and the OpenVPN server during a certificate
+                  check. Unlike the DPC entities above, it is binary rather than
+                  JSON and does not carry the ver / correlation_id / timestamp
+                  fields.
+
+Requirement keywords (MUST, SHOULD, MAY, REQUIRED, OPTIONAL) are used in their
+usual RFC 2119 sense.
+
+
+MESSAGES
+================================================================================
+
+dpc_request  (Device Posture Request)
+--------------------------------------------------------------------------------
+A request the client receives from the OpenVPN server, asking for device
+posture information. Each present subsection selects a check. All fields
+except the three required top-level fields are optional.
+
+Definition (superset across platforms):
+  {
+    "ver": "1.0",
+    "correlation_id": "string",
+    "timestamp": uint64,
+    "user_id": "string",
+    "client_info": boolean,
+    "disk_encryption": {
+      "full": boolean,
+      "volume": "string"
+    },
+    "antivirus": {
+      "process_contains": [ "string" ],
+      "process_max": uint32
+    },
+    "certificate": {
+      "issuers": [ "string" ]
+    }
+  }
+
+Field descriptions:
+  ver              REQUIRED  "1.0".
+  correlation_id   REQUIRED  UUID v4 assigned in the dpc_request (see the correlation_id conventions).
+  timestamp        REQUIRED  See the timestamp conventions.
+  user_id          OPTIONAL  String uniquely identifying the local user the
+                             request is handled for (e.g. a Windows SID
+                             "S-1-5-21-...-1001"). Present on all OSes except Android and iOS.
+  client_info      OPTIONAL  Boolean. true => the client should return OS info.
+  disk_encryption  OPTIONAL  Disk encryption check.
+                     full    Whether the whole disk should be checked.
+                             Default true on macOS.
+                     volume  The specific volume/drive to check when full=false.
+                             REQUIRED on Windows when full=false; pattern is a
+                             1-2 character drive letter, e.g. "C". (Windows enforces
+                             this as a schema dependency.)
+  antivirus        OPTIONAL  Antivirus process check. When present as an empty
+                             object {} the client returns all detected antivirus processes.
+                     process_contains  Array of process-name substrings to match.
+                     process_max       Max number of processes to return
+                                       (uint32; client schema range 1..50).
+                             NOTE: process_contains/process_max apply on macOS; on Windows
+                             the request carries an empty object (return all).
+  certificate      OPTIONAL  CertCheck request.
+                     issuers  Array of issuer identifiers used to locate the
+                              certificate on the device, e.g. "CN=client.example.com".
+                   Certificate verification itself completes over CCK (see Certificate check).
+
+Example 1 (all checks in one request):
+  {
+    "ver": "1.0",
+    "correlation_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "timestamp": 1718791669501,
+    "client_info": true,
+    "disk_encryption": { "full": true },
+    "antivirus": { "process_contains": ["eset"], "process_max": 5 },
+    "certificate": { "issuers": ["CN=acme.example.com"] }
+  }
+
+Example 2 (antivirus empty object => return all; two issuers):
+  {
+    "ver": "1.0",
+    "correlation_id": "4c4a26d3-ed7a-455c-8c8b-fb5e356482cc",
+    "timestamp": 1726591110781,
+    "disk_encryption": { "full": false, "volume": "C" },
+    "antivirus": {},
+    "certificate": {
+      "issuers": [
+        "C=US,ST=State,L=City,O=Organization,OU=OrgUnit,CN=RootCA1",
+        "C=US,ST=State,L=City,O=Organization,OU=OrgUnit,CN=RootCA2"
+      ]
+    }
+  }
+
+
+dpc_response  (Device Posture Response)
+--------------------------------------------------------------------------------
+Sent by the client to the OpenVPN server to answer a dpc_request. It contains
+one subsection per requested check (except certificate), plus an errors array
+for checks that could not be fulfilled.
+
+Definition:
+  {
+    "ver": "1.0",
+    "correlation_id": "string",
+    "timestamp": uint64,
+    "client_info": {
+      "os": {
+        "type": "string",
+        "version": "string",
+        "extra": {
+          "name": "string",
+          "arch": "string",
+          "core_ver": "string",
+          "extra_ver": "string",
+          "rsr_ver": "string"
+        }
+      }
+    },
+    "disk_encryption": { "status": boolean },
+    "antivirus": {
+      "processes": [
+        { "path": "string", "status": "ON" | "string", "name": "string" }
+      ]
+    },
+    "certificate": { "status": boolean },
+    "errors": [
+      { "code": "string", "message": "string" }
+    ]
+  }
+
+Field descriptions:
+  ver              REQUIRED  "1.0".
+  correlation_id   REQUIRED  MUST match the correlation_id of the originating
+                             dpc_request (see the correlation_id conventions).
+  timestamp        REQUIRED  See the timestamp conventions.
+  client_info      OPTIONAL  OS details (see OS information for how each field is filled).
+                     os.type      OS family, e.g. "Linux", "Windows", "macOS".
+                     os.version   OS version string.
+                     os.extra     name, arch, core_ver, extra_ver, (rsr_ver).
+  disk_encryption  OPTIONAL
+                     status  Boolean: is disk encryption enabled.
+  antivirus        OPTIONAL
+                     processes  Array of matched processes, each with path,
+                                status ("ON" when active) and name.
+  certificate      OPTIONAL
+                     status  Boolean: certificate found and valid.
+                   (Present only if the flow surfaces a boolean result; the
+                   primary certificate result is delivered over CCK.)
+  errors           OPTIONAL  Array of {code, message}. If the client cannot fulfil
+                   a requested check it SHOULD add an error entry rather than
+                   silently omit the subsection. An empty array [] means all
+                   requested checks completed without error. The errors array is
+                   independent of individual results: a response MAY carry both
+                   successful results and errors for other checks.
+                   Example codes: "DISK_ENC_QUERY_FAILED", "CERT_NOT_FOUND",
+                   "AV_ENUM_FAILED".
+
+Example 1 (full Linux response, all checks OK):
+  {
+    "ver": "1.0",
+    "correlation_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "timestamp": 1718791669501,
+    "client_info": {
+      "os": {
+        "type": "Linux",
+        "version": "24.04",
+        "extra": {
+          "name": "ubuntu",
+          "arch": "x86_64",
+          "core_ver": "6.6.16-linuxkit",
+          "extra_ver": "24.04 LTS (Noble Numbat)"
+        }
+      }
+    },
+    "disk_encryption": { "status": true },
+    "antivirus": {
+      "processes": [
+        { "path": "/usr/bin/clamav", "status": "ON", "name": "ClamAV" }
+      ]
+    },
+    "certificate": { "status": true },
+    "errors": []
+  }
+
+Example 2 (client_info only, Windows):
+  {
+    "client_info": {
+      "os": { "type": "Windows", "version": "10.0.19045", "extra": { "arch": "x64" } }
+    },
+    "correlation_id": "49d5f709-8218-4759-9d38-13140b5e6289",
+    "errors": [],
+    "timestamp": 1726591111892,
+    "ver": "1.0"
+  }
+
+Example 3 (partial success with errors -- disk OK, AV and cert failed):
+  {
+    "ver": "1.0",
+    "correlation_id": "7b2e4f91-3a8c-4d6e-b5f1-9c8d7e6a5b4c",
+    "timestamp": 1726591214500,
+    "disk_encryption": { "status": true },
+    "antivirus": { "processes": [] },
+    "errors": [
+      { "code": "AV_ENUM_FAILED",
+        "message": "Antivirus process enumeration timed out after 5000ms" },
+      { "code": "CERT_NOT_FOUND",
+        "message": "No certificate matching issuer CN=acme.example.com was found in the system store" }
+    ]
+  }
+
+
+dpc_status  (Device Posture Status)
+--------------------------------------------------------------------------------
+Received by the client from the OpenVPN server; reports the outcome of posture
+evaluation, with user-facing text to display.  It is optional in a normal
+successful flow.
+
+Definition:
+  {
+    "ver": "1.0",
+    "correlation_id": "string",
+    "timestamp": uint64,
+    "status": "OK" | "Failed",
+    "reason": "string"
+  }
+
+Field descriptions:
+  ver              REQUIRED  "1.0".
+  correlation_id   REQUIRED  MUST match the originating dpc_request (see the correlation_id conventions).
+  timestamp        REQUIRED  See the timestamp conventions.
+  status           REQUIRED  "OK" if the posture check passed, "Failed" if not.
+  reason           OPTIONAL  Human-readable explanation, suitable for display.
+
+Example:
+  {
+    "ver": "1.0",
+    "correlation_id": "49d5f709-8218-4759-9d38-13140b5e6289",
+    "timestamp": 1726591111721,
+    "status": "Failed",
+    "reason": "Connectivity is blocked because Full Disk encryption is disabled. Enable it for access renewal."
+  }
+
+
+Certificate check (CCK)
+--------------------------------------------------------------------------------
+Verify a client certificate. Verification is performed by exchanging raw
+TLS handshake packets between the client and the OpenVPN server over the
+control channel, rather than inside a JSON message.
+
+A certificate check is requested through the `certificate` subsection of a
+dpc_request (its `issuers`). The client locates a matching certificate on the
+device and the TLS handshake that follows verifies it. Because verification
+happens in the TLS exchange, dpc_response carries no certificate result for it
+beyond an optional boolean `status`.
+
+The tls packets are binary and carry none of the DPC JSON fields
+(ver / correlation_id / timestamp).
+
+
+FIELD CONVENTIONS
+================================================================================
+
+ver
+--------------------------------------------------------------------------------
+Protocol structure version. Set to "1.0" in every DPC entity. Denotes the field
+set and format.
+
+correlation_id
+--------------------------------------------------------------------------------
+* Format: UUID v4 string, e.g. "3fa85f64-5717-4562-b3fc-2c963f66afa6".
+* Assigned in the dpc_request that opens an exchange.
+* The correlation_id in every dpc_response AND dpc_status carries the value
+  from the originating dpc_request, so responses and status updates can be
+  matched to the request.
+
+timestamp
+--------------------------------------------------------------------------------
+uint64 -- milliseconds since Unix epoch (UTC). Example: 1726591110211
+NOTE: in early protocol specs, this was defined as a human readable string. No
+need to support this format anymore.
+
+errors
+--------------------------------------------------------------------------------
+The errors array in dpc_response carries structured error information when the
+client cannot fulfill one or more requested checks.
+
+  Field    Type    Description
+  -------  ------  --------------------------------------------------------------
+  code     string  Machine-readable identifier, e.g. "DISK_ENC_QUERY_FAILED".
+  message  string  Human-readable description.
+
+* Prefer an error entry over silently omitting a subsection.
+* Empty array [] => all requested checks completed without error.
+* The array is independent of individual results; both may appear together.
+
+
+IMPLEMENTATION GUIDELINES
+================================================================================
+
+OS INFORMATION
+--------------------------------------------------------------------------------
+General shape of client_info.os:
+
+  {
+    "type": "macOS"|"Linux"|"Windows"|"iOS"|"Android"|"BSD"|"string",
+    "version": "X.Y.Z"|"X.Y"|"X",
+    "extra": {
+      "name":      OPTIONAL string (exact OS name, e.g. "Microsoft Windows 10"
+                   or "ubuntu"),
+      "arch":      string (architecture identifier, see Architecture identifier normalization),
+      "core_ver":  OPTIONAL string (e.g. "6.6.16-linuxkit" or "22.6.0"),
+      "extra_ver": OPTIONAL string (e.g. "24.04 LTS (Noble Numbat)"),
+      "rsr_ver":   OPTIONAL string (macOS/iOS only; SupplementalBuildVersion)
+    }
+  }
+
+extra.arch is reported on every platform. The remaining extra.* fields are
+OPTIONAL and may be skipped where a platform has no source for them (see the
+per-platform notes below).
+
+Per-platform data sources:
+
+  Windows
+    type       Hardcoded "Windows".
+    version    systeminfo field (2), substring before the first space.
+    extra.name systeminfo field (1).
+    extra.arch systeminfo field (3), substring before the first dash.
+    extra.core_ver  WindowsVersion (field 5) of Get-ComputerInfo, if available.
+    extra.extra_ver WindowsBuildLabEx (field 4) of Get-ComputerInfo, if avail.
+    Example:
+      { "type":"Windows", "version":"10.0.14393",
+        "extra": { "name":"Microsoft Windows 10 Enterprise 2016 LTSB Standard Evaluation",
+                   "arch":"x64", "core_ver":"1607",
+                   "extra_ver":"14393.0.amd64fre.rs1_release.160715-1616" } }
+
+  macOS
+    type       Hardcoded "macOS".
+    version    sw_vers.
+    extra.arch uname -m. Expected x86_64 (Intel) or arm64 (Apple Silicon).
+    extra.core_ver  Darwin version from uname -r.
+    extra.extra_ver sw_vers BuildVersion.
+    extra.rsr_ver   sw_vers SupplementalBuildVersion, if available.
+    Example:
+      { "type":"macOS", "version":"13.5.1",
+        "extra": { "arch":"x86_64", "core_ver":"22.6.0",
+                   "extra_ver":"22G90", "rsr_ver":"22G771000a" } }
+
+  iOS
+    type       Hardcoded "iOS".
+    version    iOS version string.
+    extra.arch Device architecture. Expected "arm64".
+    extra.rsr_ver  SupplementalBuildVersion if available; skipped otherwise.
+    Example:
+      { "type":"iOS", "version":"16.7.5",
+        "extra": { "arch":"arm64", "rsr_ver":"(a)" } }
+
+  Android
+    type       Hardcoded "Android".
+    version    Version from AOSP.
+    extra.name Codename from AOSP.
+    extra.arch Build.SUPPORTED_ABIS[0]. Expected arm64-v8a, armeabi-v7a,
+               x86_64, x86.
+    extra.core_ver  API level / NDK release from AOSP.
+    extra.extra_ver Build tag from AOSP.
+    Example:
+      { "type":"Android", "version":"4.4.4",
+        "extra": { "name":"KitKat", "arch":"armeabi-v7a", "core_ver":"19",
+                   "extra_ver":"android-4.4.4_r2" } }
+
+  Linux
+    type       uname -s.
+    version    /etc/os-release VERSION_ID, fallback uname -r.
+    extra.name /etc/os-release ID, fallback uname -s.
+    extra.arch uname -m.
+    extra.core_ver  uname -r.
+    extra.extra_ver /etc/os-release VERSION, fallback uname -v.
+    Example:
+      { "type":"Linux", "version":"24.04",
+        "extra": { "name":"ubuntu", "arch":"x86_64",
+                   "core_ver":"6.6.16-linuxkit",
+                   "extra_ver":"24.04 LTS (Noble Numbat)" } }
+
+  BSD
+    Same source rules as Linux.
+    Example:
+      { "type":"BSD", "version":"13.1",
+        "extra": { "name":"freebsd", "arch":"amd64",
+                   "core_ver":"13.1-RELEASE-p2", "extra_ver":"13.1-RELEASE-p2" } }
+
+ARCHITECTURE IDENTIFIER NORMALIZATION
+--------------------------------------------------------------------------------
+The arch field reports the CPU architecture as returned by the OS. Different
+platforms name the same physical architecture differently. Emit the value native
+to the platform (the "Typical Source" column). Do not normalize across platforms.
+
+  Identifier    Architecture           Typical source
+  ------------  ---------------------  ---------------------------------------
+  x86_64        64-bit x86 (AMD/Intel) Linux/macOS/BSD  uname -m
+  x64           64-bit x86 (AMD/Intel) Windows  systeminfo
+  amd64         64-bit x86 (AMD/Intel) Legacy synonym; some BSDs, Go runtime
+  x86           32-bit x86             Windows 32-bit, legacy Linux
+  arm64         64-bit ARM             macOS (Apple Silicon) uname -m ; iOS
+  aarch64       64-bit ARM             Linux uname -m on ARM64 hardware
+  arm64-v8a     64-bit ARM             Android Build.SUPPORTED_ABIS
+  armeabi-v7a   32-bit ARM             Android Build.SUPPORTED_ABIS
+  arm           32-bit ARM             Generic ARM identifier
+
+  Note: x86_64, x64, amd64 are the same 64-bit x86 architecture.
+        arm64 and aarch64 are the same 64-bit ARM architecture.
+
+ANTIVIRUS PROCESSES
+--------------------------------------------------------------------------------
+The client matches known antivirus products and reports each match with a name,
+a path, and status "ON" when active.
+
+Windows (expected name / status ON):
+  Microsoft Defender  path windowsdefender://            status ON
+  Norton              name Norton                        status ON
+  Bitdefender         name Bitdefender                   status ON
+  McAfee              name McAfee                        status ON
+  Avast               name Avast                         status ON
+  ESET                name ESET                          status ON
+  AVG                 name AVG Antivirus                 status ON
+  Avira               name Avira                         status ON
+  Malwarebytes        name Malwarebytes                  status ON
+  SentinelOne         name Sentinel Agent                status ON
+
+macOS (match by process-contains substrings and/or the listed paths; status ON):
+  ESET          contains: eset, ESET
+    /Library/SystemExtensions/[A-Z0-9-]*/com.eset.endpoint.systemextension/Contents/MacOS/com.eset.endpoint
+    /Library/SystemExtensions/[A-Z0-9-]*/com.eset.network.systemextension/Contents/MacOS/com.eset.network
+    /Applications/ESET Cyber Security.app
+    /Applications/ESET Endpoint Security.app
+  Bitdefender   contains: bitdefender, Bitdefender
+    /Applications/Bitdefender/AntivirusforMac.app/Contents/MacOS/AntivirusforMac
+    /Library/Bitdefender/AVP/product/bin/EndpointSecurityforMac.app/Contents/MacOS/EndpointSecurityforMac
+    /Library/SystemExtensions/[A-Z0-9-]*/com.bitdefender.agentui.sp.systemextension/Contents/MacOS/com.bitdefender.agentui.sp
+  McAfee        contains: mcafee, McAfee
+    /Library/Application Support/McAfee/MSS/Applications/SafeConnect.app/Contents/MacOS/SafeConnect
+    /Applications/McAfeeSystemExtensions.app/Contents/MacOS/McAfeeSystemExtensions
+    /Applications/McAfee LiveSafe - Internet Security.app/Contents/MacOS/McAfee LiveSafe
+    /usr/local/McAfee/
+  Avast         contains: com.avast
+    /Applications/Avast.app/Contents/Backend/services/com.avast
+    /Library/SystemExtensions/[A-Z0-9-]*/com.avast.Antivirus.SystemExtension.systemextension/Contents/MacOS/com.avast.Antivirus.SystemExtension
+    /Library/Application Support/AvastHUB/com.avast.hub.app/Contents/MacOS/com.avast.hub
+  AVG           contains: com.avg
+    /Applications/AVGAntivirus.app/Contents/Backend/services/com.avg
+    /Applications/AVGAntivirus.app/Contents/Backend/utils/com.avg.Antivirus.EndpointSecurity.app/Contents/MacOS/com.avg.Antivirus.EndpointSecurity
+    /Library/SystemExtensions/[A-Z0-9-]*/com.avg.Antivirus.SystemExtension.systemextension/Contents/MacOS/com.avg.Antivirus.SystemExtension
+    /Library/Application Support/AVGHUB/com.avg.hub.app
+  Avira         contains: avira
+    /Library/SystemExtensions/[A-Z0-9-]*/com.avira.scanservice.systemextension/Contents/MacOS/com.avira.scanservice
+  Malwarebytes  contains: Malwarebytes, malwarebytes
+    /Applications/Malwarebytes.app/Contents/MacOS/Malwarebytes
+    /Library/Application Support/Malwarebytes/MBAM/Engine.bundle/Contents/PlugIns
+  Norton        contains: com.norton
+    /Applications/Norton.app/Contents
+    /Library/SystemExtensions/[A-Z0-9-]*/com.norton.mes.networkextension.systemextension/Contents/MacOS/com.norton.mes.networkextension
+  SentinelOne   contains: Sentinel
+    /Library/Sentinel/sentinelagent.bundle/Contents/MacOS/SentinelAgent.app/Contents/MacOS/SentinelAgent
+
+
